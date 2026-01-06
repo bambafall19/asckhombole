@@ -94,13 +94,13 @@ export default function AdminPage() {
         <Card>
           <CardHeader>
             <CardTitle>Panneau d'Administration</CardTitle>
-            <FormDescription>
-              Ajouter un nouvel article d'actualité.
-            </FormDescription>
           </CardHeader>
           <CardContent>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+                <p className="text-sm text-muted-foreground">
+                  Ajouter un nouvel article d'actualité.
+                </p>
                 <FormField
                   control={form.control}
                   name="title"

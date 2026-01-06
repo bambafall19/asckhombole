@@ -662,7 +662,7 @@ function MatchesList() {
                                       <AlertDialogTrigger asChild><Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive" /></Button></AlertDialogTrigger>
                                       <AlertDialogContent>
                                         <AlertDialogHeader>
-                                          <AlertDialogTitle>Êtes-vous absolument sûr ?</AlertDialogTitle>
+                                          <AlertDialogTitle>Êtes-vous absolutely sûr ?</AlertDialogTitle>
                                           <AlertDialogDescription>Cette action est irréversible. Le match sera supprimé.</AlertDialogDescription>
                                         </AlertDialogHeader>
                                         <AlertDialogFooter>
@@ -1017,7 +1017,7 @@ export default function AdminPage() {
       </div>
 
       <Tabs defaultValue="actus" className="w-full">
-        <TabsList className="overflow-x-auto w-full justify-start md:justify-center">
+        <TabsList className="overflow-x-auto w-full justify-start md:justify-center bg-background">
           <TabsTrigger value="actus">Actualités</TabsTrigger>
           <TabsTrigger value="equipe">Équipe</TabsTrigger>
           <TabsTrigger value="matchs">Matchs</TabsTrigger>

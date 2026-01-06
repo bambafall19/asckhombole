@@ -936,6 +936,50 @@ function PartnersList() {
     )
 }
 
+function SectionManager({
+  listComponent,
+  addComponent,
+  listTitle,
+  addTitle,
+  listIcon: ListIcon,
+  addIcon: AddIcon,
+  addDescription,
+  defaultTab = 'list'
+}: {
+  listComponent: React.ReactNode,
+  addComponent: React.ReactNode,
+  listTitle: string,
+  addTitle: string,
+  listIcon: React.ElementType,
+  addIcon: React.ElementType,
+  addDescription: string,
+  defaultTab?: string,
+}) {
+  return (
+    <Tabs defaultValue={defaultTab}>
+      <TabsList>
+        <TabsTrigger value="list"><ListIcon className="w-4 h-4 mr-2" />{listTitle}</TabsTrigger>
+        <TabsTrigger value="add"><AddIcon className="w-4 h-4 mr-2" />{addTitle}</TabsTrigger>
+      </TabsList>
+      <TabsContent value="list" className="pt-6">
+        {listComponent}
+      </TabsContent>
+      <TabsContent value="add" className="pt-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>{addTitle}</CardTitle>
+            <CardDescription>{addDescription}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {addComponent}
+          </CardContent>
+        </Card>
+      </TabsContent>
+    </Tabs>
+  );
+}
+
+
 export default function AdminPage() {
   const auth = useAuth();
   const { user, loading } = useUser();
@@ -987,118 +1031,63 @@ export default function AdminPage() {
         </TabsList>
 
         <TabsContent value="actus">
-            <Tabs defaultValue="list">
-                <TabsList>
-                    <TabsTrigger value="list"><List className="w-4 h-4 mr-2" />Voir les articles</TabsTrigger>
-                    <TabsTrigger value="add"><PlusCircle className="w-4 h-4 mr-2" />Ajouter un article</TabsTrigger>
-                </TabsList>
-                <TabsContent value="list" className="pt-6">
-                    <ArticlesList />
-                </TabsContent>
-                <TabsContent value="add" className="pt-6">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Ajouter un nouvel article</CardTitle>
-                            <CardDescription>Remplissez le formulaire ci-dessous pour publier une nouvelle actualité.</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <AddArticleForm />
-                        </CardContent>
-                    </Card>
-                </TabsContent>
-            </Tabs>
+            <SectionManager 
+                listComponent={<ArticlesList />}
+                addComponent={<AddArticleForm />}
+                listTitle="Voir les articles"
+                addTitle="Ajouter un article"
+                listIcon={List}
+                addIcon={PlusCircle}
+                addDescription="Remplissez le formulaire ci-dessous pour publier une nouvelle actualité."
+            />
         </TabsContent>
         
         <TabsContent value="equipe">
-            <Tabs defaultValue="list">
-                <TabsList>
-                    <TabsTrigger value="list"><List className="w-4 h-4 mr-2" />Voir l'effectif</TabsTrigger>
-                    <TabsTrigger value="add"><PlusCircle className="w-4 h-4 mr-2" />Ajouter un joueur</TabsTrigger>
-                </TabsList>
-                <TabsContent value="list" className="pt-6">
-                    <PlayersList />
-                </TabsContent>
-                <TabsContent value="add" className="pt-6">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Ajouter un nouveau joueur</CardTitle>
-                            <CardDescription>Remplissez le formulaire pour ajouter un joueur à l'effectif.</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <AddPlayerForm />
-                        </CardContent>
-                    </Card>
-                </TabsContent>
-            </Tabs>
+            <SectionManager 
+                listComponent={<PlayersList />}
+                addComponent={<AddPlayerForm />}
+                listTitle="Voir l'effectif"
+                addTitle="Ajouter un joueur"
+                listIcon={Users}
+                addIcon={PlusCircle}
+                addDescription="Remplissez le formulaire pour ajouter un joueur à l'effectif."
+            />
         </TabsContent>
 
         <TabsContent value="matchs">
-            <Tabs defaultValue="list">
-                <TabsList>
-                    <TabsTrigger value="list"><List className="w-4 h-4 mr-2" />Voir les matchs</TabsTrigger>
-                    <TabsTrigger value="add"><PlusCircle className="w-4 h-4 mr-2" />Ajouter un match</TabsTrigger>
-                </TabsList>
-                <TabsContent value="list" className="pt-6">
-                    <MatchesList />
-                </TabsContent>
-                <TabsContent value="add" className="pt-6">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Ajouter un nouveau match</CardTitle>
-                            <CardDescription>Remplissez le formulaire pour programmer une nouvelle rencontre.</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <AddMatchForm />
-                        </CardContent>
-                    </Card>
-                </TabsContent>
-            </Tabs>
+             <SectionManager 
+                listComponent={<MatchesList />}
+                addComponent={<AddMatchForm />}
+                listTitle="Voir les matchs"
+                addTitle="Ajouter un match"
+                listIcon={Trophy}
+                addIcon={PlusCircle}
+                addDescription="Remplissez le formulaire pour programmer une nouvelle rencontre."
+            />
         </TabsContent>
 
         <TabsContent value="galerie">
-            <Tabs defaultValue="list">
-                <TabsList>
-                    <TabsTrigger value="list"><List className="w-4 h-4 mr-2" />Voir les photos</TabsTrigger>
-                    <TabsTrigger value="add"><PlusCircle className="w-4 h-4 mr-2" />Ajouter une photo</TabsTrigger>
-                </TabsList>
-                <TabsContent value="list" className="pt-6">
-                    <PhotosList />
-                </TabsContent>
-                <TabsContent value="add" className="pt-6">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Ajouter une nouvelle photo</CardTitle>
-                            <CardDescription>Remplissez le formulaire pour ajouter une photo à la galerie.</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <AddPhotoForm />
-                        </CardContent>
-                    </Card>
-                </TabsContent>
-            </Tabs>
+             <SectionManager 
+                listComponent={<PhotosList />}
+                addComponent={<AddPhotoForm />}
+                listTitle="Voir les photos"
+                addTitle="Ajouter une photo"
+                listIcon={ImageIcon}
+                addIcon={PlusCircle}
+                addDescription="Remplissez le formulaire pour ajouter une photo à la galerie."
+            />
         </TabsContent>
 
         <TabsContent value="partenaires">
-             <Tabs defaultValue="list">
-                <TabsList>
-                    <TabsTrigger value="list"><List className="w-4 h-4 mr-2" />Voir les partenaires</TabsTrigger>
-                    <TabsTrigger value="add"><PlusCircle className="w-4 h-4 mr-2" />Ajouter un partenaire</TabsTrigger>
-                </TabsList>
-                <TabsContent value="list" className="pt-6">
-                    <PartnersList />
-                </TabsContent>
-                <TabsContent value="add" className="pt-6">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Ajouter un nouveau partenaire</CardTitle>
-                            <CardDescription>Remplissez le formulaire pour ajouter un sponsor ou partenaire.</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <AddPartnerForm />
-                        </CardContent>
-                    </Card>
-                </TabsContent>
-            </Tabs>
+              <SectionManager 
+                listComponent={<PartnersList />}
+                addComponent={<AddPartnerForm />}
+                listTitle="Voir les partenaires"
+                addTitle="Ajouter un partenaire"
+                listIcon={Handshake}
+                addIcon={PlusCircle}
+                addDescription="Remplissez le formulaire pour ajouter un sponsor ou partenaire."
+            />
         </TabsContent>
 
         <TabsContent value="boutique">Bientôt disponible.</TabsContent>

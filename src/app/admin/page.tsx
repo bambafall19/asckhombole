@@ -107,8 +107,27 @@ function AddArticleForm({ article, onFinish }: { article?: Article, onFinish?: (
       imageUrl: article.imageUrl,
       imageHint: article.imageHint || '',
     } : {
-      title: '',
-      content: '',
+      title: 'ASC Khombole en lice pour le Championnat Régional de Thiès',
+      content: `## ASC Khombole en lice pour le Championnat Régional de Thiès
+
+La saison 2025/2026 marque un nouveau défi pour l’ASC Khombole, engagée dans le Championnat Régional de Thiès, au sein de la Poule D. Cette poule regroupe des équipes compétitives, prêtes à en décrasser pour décrocher la montée et marquer l’histoire du football régional.
+
+### Composition de la Poule D
+- Académie Tim
+- ASC Khombole
+- Kael de Ngaparou
+- Ndersakh de Guereo
+- Ocean
+- Taiba FC
+
+Chaque équipe part avec 0 point, et la bataille s’annonce intense dès les premières journées. L’ASC Khombole, forte de son histoire et de ses ambitions, vise à dominer cette poule et se rapprocher de l’élite.
+
+## Objectif : La montée
+
+Après des saisons de travail et de reconstruction, l’ASC Khombole affiche une ambition claire : retrouver les sommets et offrir à la commune une place de choix dans le football sénégalais. Avec un effectif jeune et motivé, un staff expérimenté et le soutien indéfectible des supporters, le club veut faire de cette saison un tournant historique.
+
+> "Cette saison est celle de la détermination. Nous voulons montrer que Khombole a sa place parmi les meilleurs. Ensemble, avec nos supporters et partenaires, nous allons écrire une nouvelle page de notre histoire."
+> Adama DIOP DIA – Président ASC Khombole`,
       category: 'Club',
       imageUrl: `https://picsum.photos/seed/${Math.random()}/800/450`,
       imageHint: 'soccer match',

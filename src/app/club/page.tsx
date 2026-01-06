@@ -36,7 +36,7 @@ export default function ClubPage() {
         </div>
 
         <div className="space-y-12 max-w-4xl mx-auto">
-          <Card className="overflow-hidden">
+          <Card className="overflow-hidden group transition-shadow hover:shadow-lg">
             <div className="grid md:grid-cols-2">
               <div className="p-6 flex flex-col justify-center">
                 <CardHeader className="p-0 mb-4">
@@ -46,7 +46,7 @@ export default function ClubPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="p-0">
-                  <p className="text-muted-foreground whitespace-pre-wrap">
+                  <p className="text-muted-foreground whitespace-pre-wrap text-justify">
                     {clubInfo?.history || "L'histoire du club n'a pas encore été renseignée."}
                   </p>
                 </CardContent>
@@ -57,7 +57,7 @@ export default function ClubPage() {
                         src={clubInfo.historyImageUrl}
                         alt="Histoire du club"
                         fill
-                        className="object-cover"
+                        className="object-cover group-hover:scale-105 transition-transform duration-300"
                         data-ai-hint={clubInfo.historyImageHint || 'club history'}
                     />
                 </div>
@@ -65,7 +65,7 @@ export default function ClubPage() {
             </div>
           </Card>
 
-          <Card className="overflow-hidden">
+          <Card className="overflow-hidden group transition-shadow hover:shadow-lg">
              <div className="grid md:grid-cols-2">
               {clubInfo?.presidentWordImageUrl && (
                     <div className="relative aspect-video md:aspect-auto order-last md:order-first">
@@ -73,7 +73,7 @@ export default function ClubPage() {
                             src={clubInfo.presidentWordImageUrl}
                             alt="Mot du président"
                             fill
-                            className="object-cover"
+                            className="object-cover group-hover:scale-105 transition-transform duration-300"
                             data-ai-hint={clubInfo.presidentWordImageHint || 'club president'}
                         />
                     </div>
@@ -86,7 +86,7 @@ export default function ClubPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="p-0">
-                  <p className="text-muted-foreground whitespace-pre-wrap">
+                  <p className="text-muted-foreground whitespace-pre-wrap text-justify">
                     {clubInfo?.presidentWord || "Le mot du président n'a pas encore été renseigné."}
                   </p>
                 </CardContent>
@@ -94,7 +94,7 @@ export default function ClubPage() {
             </div>
           </Card>
 
-          <Card>
+          <Card className="transition-shadow hover:shadow-lg">
             <CardHeader>
               <CardTitle className="flex items-center gap-3">
                 <Target className="w-8 h-8 text-accent" />
@@ -102,7 +102,7 @@ export default function ClubPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-muted-foreground whitespace-pre-wrap">
+              <p className="text-muted-foreground whitespace-pre-wrap text-justify">
                 {clubInfo?.presidentWishes || "La vision et les vœux n'ont pas encore été renseignés."}
               </p>
             </CardContent>

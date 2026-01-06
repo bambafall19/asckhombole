@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Menu, X, User, Search, Tv, Store, Newspaper, Shield, Trophy, Image as ImageIcon, Users, Handshake, Mail, Home, LogOut, LogIn } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Logo } from "@/components/logo";
@@ -78,7 +78,7 @@ export function Header() {
     );
 
     if (disabled) {
-        return <span className={linkClasses}>{label}</span>
+        return <span className={linkClasses}>{label.toUpperCase()}</span>
     }
 
     return (
@@ -87,7 +87,7 @@ export function Header() {
         className={linkClasses}
         onClick={() => setIsMobileMenuOpen(false)}
       >
-        {label}
+        {label.toUpperCase()}
       </Link>
     );
   };
@@ -104,7 +104,7 @@ export function Header() {
         return (
             <div className={linkClasses}>
                 <Icon className="w-5 h-5 mr-3" />
-                <span className="text-base font-medium">{label}</span>
+                <span className="text-base font-medium">{label.toUpperCase()}</span>
             </div>
         )
     }
@@ -116,7 +116,7 @@ export function Header() {
           onClick={() => setIsMobileMenuOpen(false)}
         >
           <Icon className="w-5 h-5 mr-3" />
-          <span className="text-base font-medium">{label}</span>
+          <span className="text-base font-medium">{label.toUpperCase()}</span>
         </Link>
     );
   };
@@ -197,8 +197,9 @@ export function Header() {
             </Button>
           </SheetTrigger>
           <SheetContent side="right" className="w-full sm:w-[320px] bg-card p-0">
-            <div className="flex flex-col h-full">
-                <div className="flex items-center justify-between p-4 border-b">
+            <SheetHeader className="p-4 border-b">
+                <SheetTitle className="sr-only">Menu Principal</SheetTitle>
+                <div className="flex items-center justify-between">
                     <Link href="/" onClick={() => setIsMobileMenuOpen(false)}>
                         <Logo logoUrl={clubInfo?.logoUrl} />
                     </Link>
@@ -206,6 +207,8 @@ export function Header() {
                         <X className="h-6 w-6" />
                     </Button>
                 </div>
+            </SheetHeader>
+            <div className="flex flex-col h-[calc(100%-4.5rem)]">
                 <nav className="flex-grow p-4 space-y-2 overflow-y-auto">
                     <MobileNavLink href="/" label="ACCUEIL" Icon={Home} />
                     {navLinks.map((link) => (

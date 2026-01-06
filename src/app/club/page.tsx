@@ -38,15 +38,15 @@ export default function ClubPage() {
         <div className="space-y-12 max-w-4xl mx-auto">
           <Card className="overflow-hidden group transition-shadow hover:shadow-lg">
             <div className="grid md:grid-cols-2">
-               {clubInfo?.historyImageUrl && (
+              {clubInfo?.historyImageUrl && (
                 <div className="relative aspect-video md:aspect-auto">
-                    <Image 
-                        src={clubInfo.historyImageUrl}
-                        alt="Histoire du club"
-                        fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-300"
-                        data-ai-hint={clubInfo.historyImageHint || 'club history'}
-                    />
+                  <Image
+                    src={clubInfo.historyImageUrl}
+                    alt="Histoire du club"
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-300"
+                    data-ai-hint={clubInfo.historyImageHint || 'club history'}
+                  />
                 </div>
               )}
               <div className="p-6 flex flex-col justify-center">
@@ -66,8 +66,8 @@ export default function ClubPage() {
           </Card>
 
           <Card className="overflow-hidden group transition-shadow hover:shadow-lg">
-             <div className="grid md:grid-cols-2">
-              <div className="p-6 flex flex-col justify-center">
+            <div className="grid md:grid-cols-2">
+              <div className="p-6 flex flex-col justify-center md:order-last">
                 <CardHeader className="p-0 mb-4">
                   <CardTitle className="flex items-center gap-3">
                     <User className="w-8 h-8 text-accent" />
@@ -80,17 +80,17 @@ export default function ClubPage() {
                   </p>
                 </CardContent>
               </div>
-               {clubInfo?.presidentWordImageUrl && (
-                    <div className="relative aspect-video md:aspect-auto">
-                        <Image 
-                            src={clubInfo.presidentWordImageUrl}
-                            alt="Mot du président"
-                            fill
-                            className="object-cover group-hover:scale-105 transition-transform duration-300"
-                            data-ai-hint={clubInfo.presidentWordImageHint || 'club president'}
-                        />
-                    </div>
-                )}
+              {clubInfo?.presidentWordImageUrl && (
+                <div className="relative aspect-video md:aspect-auto">
+                  <Image
+                    src={clubInfo.presidentWordImageUrl}
+                    alt="Mot du président"
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-300"
+                    data-ai-hint={clubInfo.presidentWordImageHint || 'club president'}
+                  />
+                </div>
+              )}
             </div>
           </Card>
 

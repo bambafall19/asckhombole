@@ -55,7 +55,7 @@ export function Footer() {
 
         <div className="mt-12 pt-8 border-t flex flex-col sm:flex-row justify-between items-center gap-4">
           <p className="text-sm text-muted-foreground text-center sm:text-left">
-            &copy; {new Date().getFullYear()} ASC Khombole. Tous droits réservés.
+            &copy; {new Date().getFullYear()} ASC Khombole. Tous droits réservés. <Link href="/admin" className="hover:text-primary">Admin</Link>
           </p>
           <div className="flex space-x-2">
               <SocialIcon href="#"><FacebookIcon className="h-5 w-5" /></SocialIcon>

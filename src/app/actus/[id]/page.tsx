@@ -43,9 +43,7 @@ const renderContent = (content: string) => {
 };
 
 
-export default function ArticlePage({ params }: { params: { id: string }}) {
-  const id = params.id;
-  
+export default function ArticlePage({ params: { id } }: { params: { id: string } }) {
   const firestore = getFirestore();
 
   const articleRef = useMemo(() => {

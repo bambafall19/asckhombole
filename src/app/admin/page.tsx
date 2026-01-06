@@ -28,7 +28,7 @@ import {
 } from 'firebase/firestore';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useState, useEffect, useMemo } from 'react';
-import { LoaderCircle, LogOut, PlusCircle, Trash2, Pencil, List, Users, Trophy } from 'lucide-react';
+import { LoaderCircle, LogOut, PlusCircle, Trash2, Pencil, List, Users, Trophy, Image as ImageIcon } from 'lucide-react';
 import { useUser } from '@/firebase/auth/use-user';
 import { useRouter } from 'next/navigation';
 import { signOut } from 'firebase/auth';
@@ -42,7 +42,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { Article, Player, Match } from '@/lib/types';
+import { Article, Player, Match, Photo } from '@/lib/types';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import {
@@ -585,7 +585,6 @@ function AddMatchForm() {
   )
 }
 
-
 function MatchesList() {
     const firestore = useFirestoreHook();
     const { toast } = useToast();
@@ -657,7 +656,149 @@ function MatchesList() {
     )
 }
 
+const photoFormSchema = z.object({
+  title: z.string().min(3, { message: 'Le titre doit contenir au moins 3 caractères.' }),
+  imageUrl: z.string().url({ message: "Veuillez entrer une URL d'image valide." }),
+  imageHint: z.string().optional(),
+});
 
+function AddPhotoForm() {
+  const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const firestore = useFirestoreHook();
+
+  const form = useForm<z.infer<typeof photoFormSchema>>({
+    resolver: zodResolver(photoFormSchema),
+    defaultValues: {
+      title: '',
+      imageUrl: `https://picsum.photos/seed/${Math.random()}/600/400`,
+      imageHint: 'soccer game',
+    },
+  });
+
+  async function onSubmit(values: z.infer<typeof photoFormSchema>) {
+    if (!firestore) return;
+    setIsSubmitting(true);
+    try {
+      await addDoc(collection(firestore, 'photos'), {
+        ...values,
+        createdAt: serverTimestamp(),
+      });
+      toast({ title: 'Photo ajoutée !', description: 'La nouvelle photo a été ajoutée à la galerie.' });
+      form.reset({
+        ...form.getValues(),
+        title: '',
+        imageUrl: `https://picsum.photos/seed/${Math.random()}/600/400`,
+      });
+    } catch (error) {
+      console.error("Erreur lors de l'ajout de la photo: ", error);
+      toast({ variant: 'destructive', title: 'Erreur', description: "Impossible d'enregistrer la photo." });
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        <FormField control={form.control} name="title" render={({ field }) => (
+          <FormItem><FormLabel>Titre / Description</FormLabel><FormControl><Input placeholder="Célébration après le but" {...field} /></FormControl><FormMessage /></FormItem>
+        )} />
+        <FormField control={form.control} name="imageUrl" render={({ field }) => (
+          <FormItem>
+            <FormLabel>URL de la photo</FormLabel>
+            <FormControl><Input placeholder="https://exemple.com/photo.jpg" {...field} /></FormControl>
+            <FormDescription>Lien vers l'image à ajouter.</FormDescription>
+            <FormMessage />
+          </FormItem>
+        )} />
+        <FormField control={form.control} name="imageHint" render={({ field }) => (
+          <FormItem>
+            <FormLabel>Indice pour l'image (Optionnel)</FormLabel>
+            <FormControl><Input placeholder="soccer celebration" {...field} /></FormControl>
+            <FormDescription>Un ou deux mots en anglais pour l'IA.</FormDescription>
+            <FormMessage />
+          </FormItem>
+        )} />
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
+          {isSubmitting ? 'Ajout...' : 'Ajouter la photo'}
+        </Button>
+      </form>
+    </Form>
+  )
+}
+
+function PhotosList() {
+    const firestore = useFirestoreHook();
+    const { toast } = useToast();
+    const photosQuery = useMemo(() => {
+        if (!firestore) return null;
+        return query(collection(firestore, 'photos'), orderBy('createdAt', 'desc'));
+    }, [firestore]);
+
+    const { data: photos, loading } = useCollection<Photo>(photosQuery);
+
+    const handleDelete = async (photoId: string) => {
+        if (!firestore) return;
+        try {
+            await deleteDoc(doc(firestore, 'photos', photoId));
+            toast({ title: 'Photo supprimée', description: 'La photo a été retirée de la galerie.' });
+        } catch (error) {
+            toast({ variant: 'destructive', title: 'Erreur', description: 'Impossible de supprimer la photo.' });
+        }
+    };
+
+    return (
+         <Card>
+            <CardHeader><CardTitle>Photos de la galerie</CardTitle><CardDescription>Gérez les photos de votre galerie.</CardDescription></CardHeader>
+            <CardContent>
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Aperçu</TableHead>
+                            <TableHead>Titre</TableHead>
+                            <TableHead className="hidden md:table-cell">Date d'ajout</TableHead>
+                            <TableHead className="text-right">Actions</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {loading && (
+                            <TableRow><TableCell colSpan={4} className="text-center"><LoaderCircle className="mx-auto h-8 w-8 animate-spin text-primary" /></TableCell></TableRow>
+                        )}
+                        {!loading && photos?.map((photo) => (
+                            <TableRow key={photo.id}>
+                                <TableCell>
+                                    <img src={photo.imageUrl} alt={photo.title} className="h-10 w-16 object-cover rounded-md" />
+                                </TableCell>
+                                <TableCell className="font-medium">{photo.title}</TableCell>
+                                <TableCell className="hidden md:table-cell">
+                                    {photo.createdAt ? format(photo.createdAt.toDate(), 'PPP', { locale: fr }) : ''}
+                                </TableCell>
+                                <TableCell className="text-right">
+                                    <Button variant="ghost" size="icon" disabled><Pencil className="h-4 w-4" /></Button>
+                                    <AlertDialog>
+                                      <AlertDialogTrigger asChild><Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive" /></Button></AlertDialogTrigger>
+                                      <AlertDialogContent>
+                                        <AlertDialogHeader>
+                                          <AlertDialogTitle>Êtes-vous absolument sûr ?</AlertDialogTitle>
+                                          <AlertDialogDescription>Cette action est irréversible. La photo sera supprimée.</AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                          <AlertDialogCancel>Annuler</AlertDialogCancel>
+                                          <AlertDialogAction onClick={() => handleDelete(photo.id)} className="bg-destructive hover:bg-destructive/90">Supprimer</AlertDialogAction>
+                                        </AlertDialogFooter>
+                                      </AlertDialogContent>
+                                    </AlertDialog>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </CardContent>
+        </Card>
+    )
+}
 
 export default function AdminPage() {
   const auth = useAuth();
@@ -703,7 +844,7 @@ export default function AdminPage() {
           <TabsTrigger value="actus">Actualités</TabsTrigger>
           <TabsTrigger value="equipe">Équipe</TabsTrigger>
           <TabsTrigger value="matchs">Matchs</TabsTrigger>
-          <TabsTrigger value="galerie" disabled>Galerie</TabsTrigger>
+          <TabsTrigger value="galerie">Galerie</TabsTrigger>
           <TabsTrigger value="partenaires" disabled>Partenaires</TabsTrigger>
           <TabsTrigger value="boutique" disabled>Boutique</TabsTrigger>
           <TabsTrigger value="webtv" disabled>Web TV</TabsTrigger>
@@ -778,7 +919,28 @@ export default function AdminPage() {
             </Tabs>
         </TabsContent>
 
-        <TabsContent value="galerie">Bientôt disponible.</TabsContent>
+        <TabsContent value="galerie">
+            <Tabs defaultValue="list">
+                <TabsList>
+                    <TabsTrigger value="list"><List className="w-4 h-4 mr-2" />Voir les photos</TabsTrigger>
+                    <TabsTrigger value="add"><PlusCircle className="w-4 h-4 mr-2" />Ajouter une photo</TabsTrigger>
+                </TabsList>
+                <TabsContent value="list" className="pt-6">
+                    <PhotosList />
+                </TabsContent>
+                <TabsContent value="add" className="pt-6">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Ajouter une nouvelle photo</CardTitle>
+                            <CardDescription>Remplissez le formulaire pour ajouter une photo à la galerie.</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <AddPhotoForm />
+                        </CardContent>
+                    </Card>
+                </TabsContent>
+            </Tabs>
+        </TabsContent>
         <TabsContent value="partenaires">Bientôt disponible.</TabsContent>
         <TabsContent value="boutique">Bientôt disponible.</TabsContent>
         <TabsContent value="webtv">Bientôt disponible.</TabsContent>

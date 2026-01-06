@@ -24,8 +24,16 @@ export interface Match {
   date: Timestamp;
   competition: string;
   homeTeam: string;
-  awayTeam: string;
+  awayTeam:string;
   homeScore?: number;
   awayScore?: number;
   status: 'Terminé' | 'À venir' | 'Reporté';
+}
+
+export interface Photo {
+    id: string;
+    title: string;
+    imageUrl: string;
+    imageHint?: string;
+    createdAt: Timestamp;
 }

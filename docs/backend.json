@@ -98,6 +98,31 @@
         }
       },
       "required": ["date", "competition", "homeTeam", "awayTeam", "status"]
+    },
+    "Photo": {
+      "title": "Photo",
+      "description": "Represents a photo in the gallery.",
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "description": "The title or description of the photo."
+        },
+        "imageUrl": {
+          "type": "string",
+          "description": "URL of the photo."
+        },
+        "imageHint": {
+          "type": "string",
+          "description": "A hint for AI to find a relevant image."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The timestamp when the photo was added."
+        }
+      },
+      "required": ["title", "imageUrl", "createdAt"]
     }
   },
   "auth": {
@@ -121,6 +146,12 @@
         "$ref": "#/backend/entities/Match"
       },
       "description": "Stores upcoming and past match information."
+    },
+    "/photos/{photoId}": {
+      "schema": {
+        "$ref": "#/backend/entities/Photo"
+      },
+      "description": "Stores photos for the media gallery."
     }
   }
 }

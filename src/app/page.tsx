@@ -6,16 +6,17 @@ import { PlaceHolderImages } from "@/lib/placeholder-images";
 import Link from "next/link";
 import { ArrowRight, Clock, LoaderCircle } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useCollection } from "@/firebase";
+import { useCollection, useDocument, useFirestore } from "@/firebase";
 import {
   getFirestore,
   collection,
   query,
   orderBy,
   limit,
+  doc,
 } from 'firebase/firestore';
 import { useMemo } from "react";
-import { Article } from "@/lib/types";
+import { Article, ClubInfo } from "@/lib/types";
 import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
@@ -36,17 +37,26 @@ const photoAlbum = [
 
 
 export default function Home() {
-  const firestore = getFirestore();
+  const firestore = useFirestore();
+  
   const articlesQuery = useMemo(() => {
     if (!firestore) return null;
     return query(collection(firestore, 'articles'), orderBy('createdAt', 'desc'), limit(7));
   }, [firestore]);
 
-  const { data: articles, loading } = useCollection<Article>(articlesQuery);
+  const clubInfoRef = useMemo(() => {
+    if (!firestore) return null;
+    return doc(firestore, 'clubInfo', 'main');
+  }, [firestore]);
+
+  const { data: articles, loading: articlesLoading } = useCollection<Article>(articlesQuery);
+  const { data: clubInfo, loading: clubInfoLoading } = useDocument<ClubInfo>(clubInfoRef);
 
   const mainArticle = articles?.[0];
   const sideArticles = articles?.slice(1, 4) || [];
   const trendyArticles = articles?.slice(4, 7) || [];
+
+  const loading = articlesLoading || clubInfoLoading;
 
   const formatTime = (date: Date) => {
     return formatDistanceToNow(date, { addSuffix: true, locale: fr });
@@ -68,7 +78,7 @@ export default function Home() {
                         <LoaderCircle className="w-12 h-12 animate-spin text-primary" />
                     </Card>
                 )}
-                {mainArticle && (
+                {!loading && mainArticle && (
                   <Card className="overflow-hidden group relative">
                     <Link href={`/actus/${mainArticle.id}`}>
                       <Image
@@ -98,16 +108,16 @@ export default function Home() {
                 {!loading && !mainArticle && (
                   <Card className="overflow-hidden group relative w-full aspect-video">
                     <Image
-                      src="https://images.unsplash.com/photo-1544189652-b7a393a25e7e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxzb2NjZXIlMjBjZWxlYnJhdGlvbnxlbnwwfHx8fDE3Njc3MDc5MzZ8MA&ixlib=rb-4.1.0&q=80&w=1080"
-                      alt="Bienvenue à l'ASC Khombole"
+                      src={clubInfo?.welcomeImageUrl || "https://images.unsplash.com/photo-1544189652-b7a393a25e7e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxzb2NjZXIlMjBjZWxlYnJhdGlvbnxlbnwwfHx8fDE3Njc3MDc5MzZ8MA&ixlib=rb-4.1.0&q=80&w=1080"}
+                      alt={clubInfo?.welcomeTitle || "Bienvenue à l'ASC Khombole"}
                       fill
                       className="object-cover"
-                      data-ai-hint="soccer celebration"
+                      data-ai-hint={clubInfo?.welcomeImageHint || "soccer celebration"}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
                     <CardContent className="absolute bottom-0 left-0 p-6">
-                        <h2 className="text-3xl font-extrabold text-white font-headline">Bienvenue sur le site de l'ASC Khombole</h2>
-                        <p className="text-white/90 mt-2">Toute l'actualité du club, les matchs et plus encore.</p>
+                        <h2 className="text-3xl font-extrabold text-white font-headline">{clubInfo?.welcomeTitle || "Bienvenue sur le site de l'ASC Khombole"}</h2>
+                        <p className="text-white/90 mt-2">{clubInfo?.welcomeSubtitle || "Toute l'actualité du club, les matchs et plus encore."}</p>
                     </CardContent>
                   </Card>
                 )}

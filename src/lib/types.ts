@@ -57,4 +57,8 @@ export interface ClubInfo {
     presidentWordImageUrl?: string;
     presidentWordImageHint?: string;
     presidentWishes: string;
+    welcomeTitle?: string;
+    welcomeSubtitle?: string;
+    welcomeImageUrl?: string;
+    welcomeImageHint?: string;
 }

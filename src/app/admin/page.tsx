@@ -1175,6 +1175,10 @@ const clubInfoFormSchema = z.object({
   presidentWordImageUrl: z.string().url({ message: "Veuillez entrer une URL d'image valide." }).optional().or(z.literal('')),
   presidentWordImageHint: z.string().optional(),
   presidentWishes: z.string().min(10, { message: 'Les vœux doivent contenir au moins 10 caractères.' }),
+  welcomeTitle: z.string().optional(),
+  welcomeSubtitle: z.string().optional(),
+  welcomeImageUrl: z.string().url({ message: "Veuillez entrer une URL d'image valide." }).optional().or(z.literal('')),
+  welcomeImageHint: z.string().optional(),
 });
 
 function ClubInfoForm() {
@@ -1199,6 +1203,10 @@ function ClubInfoForm() {
         presidentWordImageUrl: clubInfo?.presidentWordImageUrl || '',
         presidentWordImageHint: clubInfo?.presidentWordImageHint || '',
         presidentWishes: clubInfo?.presidentWishes || '',
+        welcomeTitle: clubInfo?.welcomeTitle || '',
+        welcomeSubtitle: clubInfo?.welcomeSubtitle || '',
+        welcomeImageUrl: clubInfo?.welcomeImageUrl || '',
+        welcomeImageHint: clubInfo?.welcomeImageHint || '',
     }
   });
 
@@ -1212,6 +1220,10 @@ function ClubInfoForm() {
         presidentWordImageUrl: clubInfo.presidentWordImageUrl || '',
         presidentWordImageHint: clubInfo.presidentWordImageHint || '',
         presidentWishes: clubInfo.presidentWishes || '',
+        welcomeTitle: clubInfo.welcomeTitle || '',
+        welcomeSubtitle: clubInfo.welcomeSubtitle || '',
+        welcomeImageUrl: clubInfo.welcomeImageUrl || '',
+        welcomeImageHint: clubInfo.welcomeImageHint || '',
       });
     }
   }, [clubInfo, form]);
@@ -1243,95 +1255,153 @@ function ClubInfoForm() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Informations du Club</CardTitle>
-        <CardDescription>Gérez le contenu de la page "Club".</CardDescription>
+        <CardTitle>Informations Générales du Club</CardTitle>
+        <CardDescription>Gérez le contenu des pages "Club" et de l'accueil.</CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-            <FormField
-              control={form.control}
-              name="history"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Histoire du club</FormLabel>
-                  <FormControl>
-                    <Textarea placeholder="Racontez l'histoire de l'ASC Khombole..." rows={8} {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="historyImageUrl"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>URL de l'image (Histoire)</FormLabel>
-                  <FormControl><Input placeholder="https://exemple.com/image.jpg" {...field} /></FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="historyImageHint"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Indice pour l'image (Histoire)</FormLabel>
-                  <FormControl><Input placeholder="soccer history" {...field} /></FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="presidentWord"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Mot du président</FormLabel>
-                  <FormControl>
-                    <Textarea placeholder="Le message du président aux supporters et partenaires..." rows={6} {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-             <FormField
-              control={form.control}
-              name="presidentWordImageUrl"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>URL de l'image (Mot du président)</FormLabel>
-                  <FormControl><Input placeholder="https://exemple.com/president.jpg" {...field} /></FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="presidentWordImageHint"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Indice pour l'image (Mot du président)</FormLabel>
-                  <FormControl><Input placeholder="club president" {...field} /></FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="presidentWishes"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Vœux et vision du président</FormLabel>
-                  <FormControl>
-                    <Textarea placeholder="Les ambitions et les vœux pour le futur du club..." rows={6} {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            
+            <Collapsible defaultOpen>
+                <CollapsibleTrigger className='text-xl font-headline text-primary'>Page d'Accueil</CollapsibleTrigger>
+                <CollapsibleContent className='space-y-4 pt-4'>
+                    <FormField
+                      control={form.control}
+                      name="welcomeTitle"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Titre de Bienvenue</FormLabel>
+                          <FormControl><Input placeholder="Bienvenue sur le site de l'ASC Khombole" {...field} /></FormControl>
+                          <FormDescription>S'affiche sur la page d'accueil quand il n'y a pas d'articles.</FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="welcomeSubtitle"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Sous-titre de Bienvenue</FormLabel>
+                          <FormControl><Input placeholder="Toute l'actualité du club, les matchs et plus encore." {...field} /></FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="welcomeImageUrl"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>URL de l'image de Bienvenue</FormLabel>
+                          <FormControl><Input placeholder="https://exemple.com/image.jpg" {...field} /></FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="welcomeImageHint"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Indice pour l'image de Bienvenue</FormLabel>
+                          <FormControl><Input placeholder="soccer celebration" {...field} /></FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                </CollapsibleContent>
+            </Collapsible>
+            
+            <Collapsible>
+                <CollapsibleTrigger className='text-xl font-headline text-primary'>Page Club</CollapsibleTrigger>
+                <CollapsibleContent className='space-y-4 pt-4'>
+                    <FormField
+                      control={form.control}
+                      name="history"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Histoire du club</FormLabel>
+                          <FormControl>
+                            <Textarea placeholder="Racontez l'histoire de l'ASC Khombole..." rows={8} {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="historyImageUrl"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>URL de l'image (Histoire)</FormLabel>
+                          <FormControl><Input placeholder="https://exemple.com/image.jpg" {...field} /></FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="historyImageHint"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Indice pour l'image (Histoire)</FormLabel>
+                          <FormControl><Input placeholder="soccer history" {...field} /></FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="presidentWord"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Mot du président</FormLabel>
+                          <FormControl>
+                            <Textarea placeholder="Le message du président aux supporters et partenaires..." rows={6} {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                     <FormField
+                      control={form.control}
+                      name="presidentWordImageUrl"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>URL de l'image (Mot du président)</FormLabel>
+                          <FormControl><Input placeholder="https://exemple.com/president.jpg" {...field} /></FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="presidentWordImageHint"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Indice pour l'image (Mot du président)</FormLabel>
+                          <FormControl><Input placeholder="club president" {...field} /></FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="presidentWishes"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Vœux et vision du président</FormLabel>
+                          <FormControl>
+                            <Textarea placeholder="Les ambitions et les vœux pour le futur du club..." rows={6} {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                </CollapsibleContent>
+            </Collapsible>
+            
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
               {isSubmitting ? 'Enregistrement...' : 'Enregistrer les informations'}
@@ -1391,7 +1461,7 @@ export default function AdminPage() {
             <TabsTrigger value="matchs">Matchs</TabsTrigger>
             <TabsTrigger value="galerie">Galerie</TabsTrigger>
             <TabsTrigger value="partenaires">Partenaires</TabsTrigger>
-            <TabsTrigger value="club">Club</TabsTrigger>
+            <TabsTrigger value="club">Club & Accueil</TabsTrigger>
             <TabsTrigger value="boutique" disabled>Boutique</TabsTrigger>
             <TabsTrigger value="contact">Contact</TabsTrigger>
             <TabsTrigger value="webtv" disabled>Web TV</TabsTrigger>

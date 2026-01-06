@@ -188,6 +188,22 @@
         "presidentWishes": {
           "type": "string",
           "description": "The president's wishes for the club."
+        },
+        "welcomeTitle": {
+            "type": "string",
+            "description": "The main title for the welcome message on the homepage."
+        },
+        "welcomeSubtitle": {
+            "type": "string",
+            "description": "The subtitle for the welcome message on the homepage."
+        },
+        "welcomeImageUrl": {
+            "type": "string",
+            "description": "URL of the main image for the homepage when no articles are present."
+        },
+        "welcomeImageHint": {
+            "type": "string",
+            "description": "A hint for AI to find a relevant image for the welcome section."
         }
       },
       "required": []

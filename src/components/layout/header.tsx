@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, X, User, Search, Tv, Store, Newspaper, Shield, Trophy, Image as ImageIcon, Users, Handshake, Mail, Home, LogOut, LogIn, PlugZap } from "lucide-react";
+import { Menu, X, User, Search, Tv, Store, Newspaper, Shield, Trophy, Image as ImageIcon, Users, Handshake, Mail, Home, LogOut, LogIn } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Logo } from "@/components/logo";
 import { useUser } from "@/firebase/auth/use-user";
@@ -33,7 +33,6 @@ const navLinks = [
   { href: "/boutique", label: "Boutique", icon: Store },
   { href: "/contact", label: "Contact", icon: Mail },
   { href: "/webtv", label: "Web TV", icon: Tv },
-  { href: "/integrations", label: "Intégrations", icon: PlugZap, disabled: true },
 ];
 
 

@@ -28,7 +28,7 @@ import {
 } from 'firebase/firestore';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useState, useEffect, useMemo } from 'react';
-import { LoaderCircle, LogOut, PlusCircle, Trash2, Pencil, Newspaper, List, Users } from 'lucide-react';
+import { LoaderCircle, LogOut, PlusCircle, Trash2, Pencil, List, Users, Trophy } from 'lucide-react';
 import { useUser } from '@/firebase/auth/use-user';
 import { useRouter } from 'next/navigation';
 import { signOut } from 'firebase/auth';
@@ -42,7 +42,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { Article, Player } from '@/lib/types';
+import { Article, Player, Match } from '@/lib/types';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import {
@@ -56,6 +56,11 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { CalendarIcon } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { Calendar } from '@/components/ui/calendar';
 
 
 const articleFormSchema = z.object({
@@ -109,6 +114,8 @@ function AddArticleForm() {
       });
       form.reset({
         ...form.getValues(),
+        title: '',
+        content: '',
         imageUrl: `https://picsum.photos/seed/${Math.random()}/800/450`,
       });
     } catch (error) {
@@ -449,6 +456,208 @@ function PlayersList() {
     )
 }
 
+const matchFormSchema = z.object({
+  date: z.date({ required_error: 'La date du match est obligatoire.' }),
+  competition: z.string().min(3, { message: 'La compétition doit contenir au moins 3 caractères.' }),
+  homeTeam: z.string().min(3, { message: 'Le nom de l\'équipe à domicile est obligatoire.' }),
+  awayTeam: z.string().min(3, { message: 'Le nom de l\'équipe à l\'extérieur est obligatoire.' }),
+  homeScore: z.coerce.number().int().optional(),
+  awayScore: z.coerce.number().int().optional(),
+  status: z.enum(['À venir', 'Terminé', 'Reporté']),
+});
+
+function AddMatchForm() {
+  const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const firestore = useFirestoreHook();
+
+  const form = useForm<z.infer<typeof matchFormSchema>>({
+    resolver: zodResolver(matchFormSchema),
+    defaultValues: {
+      competition: 'Ligue 1',
+      homeTeam: 'ASC Khombole',
+      awayTeam: '',
+      status: 'À venir',
+    },
+  });
+
+  async function onSubmit(values: z.infer<typeof matchFormSchema>) {
+    if (!firestore) return;
+    setIsSubmitting(true);
+    try {
+      await addDoc(collection(firestore, 'matches'), { ...values });
+      toast({ title: 'Match ajouté !', description: `Le match ${values.homeTeam} vs ${values.awayTeam} a été programmé.` });
+      form.reset({
+        ...values,
+        awayTeam: '',
+        homeScore: undefined,
+        awayScore: undefined,
+      });
+    } catch (error) {
+      console.error("Erreur lors de l'ajout du match: ", error);
+      toast({ variant: 'destructive', title: 'Erreur', description: "Impossible d'enregistrer le match." });
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+  
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <FormField control={form.control} name="homeTeam" render={({ field }) => (
+            <FormItem><FormLabel>Équipe à domicile</FormLabel><FormControl><Input placeholder="ASC Khombole" {...field} /></FormControl><FormMessage /></FormItem>
+          )} />
+          <FormField control={form.control} name="awayTeam" render={({ field }) => (
+            <FormItem><FormLabel>Équipe à l'extérieur</FormLabel><FormControl><Input placeholder="ASC Jaraaf" {...field} /></FormControl><FormMessage /></FormItem>
+          )} />
+        </div>
+         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <FormField control={form.control} name="homeScore" render={({ field }) => (
+              <FormItem><FormLabel>Score Domicile (Optionnel)</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
+            )} />
+            <FormField control={form.control} name="awayScore" render={({ field }) => (
+              <FormItem><FormLabel>Score Extérieur (Optionnel)</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
+            )} />
+        </div>
+        <FormField control={form.control} name="competition" render={({ field }) => (
+          <FormItem><FormLabel>Compétition</FormLabel><FormControl><Input placeholder="Ligue 1" {...field} /></FormControl><FormMessage /></FormItem>
+        )} />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <FormField
+              control={form.control}
+              name="date"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel>Date et heure du match</FormLabel>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant={"outline"}
+                          className={cn(
+                            "pl-3 text-left font-normal",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {field.value ? (
+                            format(field.value, "PPP 'à' HH:mm", { locale: fr })
+                          ) : (
+                            <span>Choisir une date</span>
+                          )}
+                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={field.value}
+                        onSelect={field.onChange}
+                        disabled={(date) => date < new Date("1900-01-01")}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          <FormField control={form.control} name="status" render={({ field }) => (
+            <FormItem><FormLabel>Statut</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl><SelectTrigger><SelectValue placeholder="Statut du match" /></SelectTrigger></FormControl>
+                <SelectContent>
+                  <SelectItem value="À venir">À venir</SelectItem>
+                  <SelectItem value="Terminé">Terminé</SelectItem>
+                  <SelectItem value="Reporté">Reporté</SelectItem>
+                </SelectContent>
+              </Select>
+            <FormMessage /></FormItem>
+          )} />
+        </div>
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
+          {isSubmitting ? 'Ajout...' : 'Ajouter le match'}
+        </Button>
+      </form>
+    </Form>
+  )
+}
+
+
+function MatchesList() {
+    const firestore = useFirestoreHook();
+    const { toast } = useToast();
+    const matchesQuery = useMemo(() => {
+        if (!firestore) return null;
+        return query(collection(firestore, 'matches'), orderBy('date', 'desc'));
+    }, [firestore]);
+
+    const { data: matches, loading } = useCollection<Match>(matchesQuery);
+
+    const handleDelete = async (matchId: string) => {
+        if (!firestore) return;
+        try {
+            await deleteDoc(doc(firestore, 'matches', matchId));
+            toast({ title: 'Match supprimé', description: 'Le match a été supprimé avec succès.' });
+        } catch (error) {
+            toast({ variant: 'destructive', title: 'Erreur', description: 'Impossible de supprimer le match.' });
+        }
+    };
+
+    return (
+         <Card>
+            <CardHeader><CardTitle>Liste des matchs</CardTitle><CardDescription>Gérez les matchs de votre équipe.</CardDescription></CardHeader>
+            <CardContent>
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Date</TableHead>
+                            <TableHead>Compétition</TableHead>
+                            <TableHead>Rencontre</TableHead>
+                            <TableHead>Score</TableHead>
+                             <TableHead>Statut</TableHead>
+                            <TableHead className="text-right">Actions</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {loading && (
+                            <TableRow><TableCell colSpan={6} className="text-center"><LoaderCircle className="mx-auto h-8 w-8 animate-spin text-primary" /></TableCell></TableRow>
+                        )}
+                        {!loading && matches?.map((match) => (
+                            <TableRow key={match.id}>
+                                <TableCell>{format(match.date.toDate(), 'P', { locale: fr })}</TableCell>
+                                <TableCell>{match.competition}</TableCell>
+                                <TableCell className="font-medium">{match.homeTeam} vs {match.awayTeam}</TableCell>
+                                <TableCell>{match.status === 'Terminé' ? `${match.homeScore} - ${match.awayScore}` : '-'}</TableCell>
+                                <TableCell>{match.status}</TableCell>
+                                <TableCell className="text-right">
+                                    <Button variant="ghost" size="icon" disabled><Pencil className="h-4 w-4" /></Button>
+                                    <AlertDialog>
+                                      <AlertDialogTrigger asChild><Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive" /></Button></AlertDialogTrigger>
+                                      <AlertDialogContent>
+                                        <AlertDialogHeader>
+                                          <AlertDialogTitle>Êtes-vous absolument sûr ?</AlertDialogTitle>
+                                          <AlertDialogDescription>Cette action est irréversible. Le match sera supprimé.</AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                          <AlertDialogCancel>Annuler</AlertDialogCancel>
+                                          <AlertDialogAction onClick={() => handleDelete(match.id)} className="bg-destructive hover:bg-destructive/90">Supprimer</AlertDialogAction>
+                                        </AlertDialogFooter>
+                                      </AlertDialogContent>
+                                    </AlertDialog>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </CardContent>
+        </Card>
+    )
+}
+
+
 
 export default function AdminPage() {
   const auth = useAuth();
@@ -493,7 +702,7 @@ export default function AdminPage() {
         <TabsList className="grid w-full grid-cols-3 md:grid-cols-4 lg:grid-cols-9 mb-4">
           <TabsTrigger value="actus">Actualités</TabsTrigger>
           <TabsTrigger value="equipe">Équipe</TabsTrigger>
-          <TabsTrigger value="matchs" disabled>Matchs</TabsTrigger>
+          <TabsTrigger value="matchs">Matchs</TabsTrigger>
           <TabsTrigger value="galerie" disabled>Galerie</TabsTrigger>
           <TabsTrigger value="partenaires" disabled>Partenaires</TabsTrigger>
           <TabsTrigger value="boutique" disabled>Boutique</TabsTrigger>
@@ -546,7 +755,29 @@ export default function AdminPage() {
             </Tabs>
         </TabsContent>
 
-        <TabsContent value="matchs">Bientôt disponible.</TabsContent>
+        <TabsContent value="matchs">
+            <Tabs defaultValue="list">
+                <TabsList>
+                    <TabsTrigger value="list"><List className="w-4 h-4 mr-2" />Voir les matchs</TabsTrigger>
+                    <TabsTrigger value="add"><PlusCircle className="w-4 h-4 mr-2" />Ajouter un match</TabsTrigger>
+                </TabsList>
+                <TabsContent value="list" className="pt-6">
+                    <MatchesList />
+                </TabsContent>
+                <TabsContent value="add" className="pt-6">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Ajouter un nouveau match</CardTitle>
+                            <CardDescription>Remplissez le formulaire pour programmer une nouvelle rencontre.</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <AddMatchForm />
+                        </CardContent>
+                    </Card>
+                </TabsContent>
+            </Tabs>
+        </TabsContent>
+
         <TabsContent value="galerie">Bientôt disponible.</TabsContent>
         <TabsContent value="partenaires">Bientôt disponible.</TabsContent>
         <TabsContent value="boutique">Bientôt disponible.</TabsContent>

@@ -60,6 +60,44 @@
         }
       },
       "required": ["name", "position", "number", "imageUrl"]
+    },
+    "Match": {
+      "title": "Match",
+      "description": "Represents a soccer match, either upcoming or completed.",
+      "type": "object",
+      "properties": {
+        "date": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The date and time of the match."
+        },
+        "competition": {
+          "type": "string",
+          "description": "The competition or league the match is part of."
+        },
+        "homeTeam": {
+          "type": "string",
+          "description": "The name of the home team."
+        },
+        "awayTeam": {
+          "type": "string",
+          "description": "The name of the away team."
+        },
+        "homeScore": {
+          "type": "number",
+          "description": "The final score of the home team."
+        },
+        "awayScore": {
+          "type": "number",
+          "description": "The final score of the away team."
+        },
+        "status": {
+          "type": "string",
+          "enum": ["Terminé", "À venir", "Reporté"],
+          "description": "The status of the match."
+        }
+      },
+      "required": ["date", "competition", "homeTeam", "awayTeam", "status"]
     }
   },
   "auth": {
@@ -77,6 +115,12 @@
         "$ref": "#/backend/entities/Player"
       },
       "description": "Stores individual player profiles for the team."
+    },
+    "/matches/{matchId}": {
+      "schema": {
+        "$ref": "#/backend/entities/Match"
+      },
+      "description": "Stores upcoming and past match information."
     }
   }
 }

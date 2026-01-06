@@ -18,3 +18,14 @@ export interface Player {
   imageUrl: string;
   imageHint?: string;
 }
+
+export interface Match {
+  id: string;
+  date: Timestamp;
+  competition: string;
+  homeTeam: string;
+  awayTeam: string;
+  homeScore?: number;
+  awayScore?: number;
+  status: 'Terminé' | 'À venir' | 'Reporté';
+}

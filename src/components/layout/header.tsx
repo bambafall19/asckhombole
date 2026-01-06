@@ -9,20 +9,18 @@ import { Menu, X, User, Search, Tv, Store, Newspaper, Shield, Trophy, Image as I
 import { cn } from "@/lib/utils";
 import { Logo } from "@/components/logo";
 
-const mainNavLinks = [
+const navLinks = [
   { href: "/club", label: "Club", icon: Shield },
   { href: "/equipe", label: "Équipe", icon: Users },
   { href: "/matchs", label: "Matchs", icon: Trophy },
   { href: "/actus", label: "Actus", icon: Newspaper },
   { href: "/galerie", label: "Galerie", icon: ImageIcon },
   { href: "/partenaires", label: "Partenaires", icon: Handshake },
+  { href: "/boutique", label: "Boutique", icon: Store },
+  { href: "/contact", label: "Contact", icon: Mail },
+  { href: "/webtv", label: "Web TV", icon: Tv },
 ];
 
-const secondaryNavLinks = [
-  { href: "/boutique", label: "Boutique", icon: Store },
-  { href: "/webtv", label: "Web TV", icon: Tv },
-  { href: "/contact", label: "Contact", icon: Mail },
-];
 
 export function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -84,14 +82,11 @@ export function Header() {
         </Link>
         <nav className="hidden md:flex items-center gap-6">
           <NavLink href="/" label="Accueil" />
-          {mainNavLinks.map((link) => (
+          {navLinks.map((link) => (
             <NavLink key={link.href} {...link} />
           ))}
         </nav>
         <div className="hidden md:flex items-center gap-2">
-          {secondaryNavLinks.map((link) => (
-             <NavLink key={link.href} {...link} className="text-foreground/60"/>
-          ))}
           <div className="w-px h-6 bg-border mx-2"></div>
           <Button variant="ghost" size="icon">
             <Search className="h-5 w-5" />
@@ -118,7 +113,7 @@ export function Header() {
                 </div>
                 <nav className="flex-grow p-4 space-y-2 overflow-y-auto">
                     <MobileNavLink href="/" label="Accueil" Icon={Home} />
-                    {[...mainNavLinks, ...secondaryNavLinks].map((link) => (
+                    {navLinks.map((link) => (
                         <MobileNavLink key={link.href} href={link.href} label={link.label} Icon={link.icon} />
                     ))}
                 </nav>

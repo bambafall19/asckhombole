@@ -1,4 +1,6 @@
-export function SoccerBallIcon(props: React.SVGProps<SVGSVGElement>) {
+import { cn } from "@/lib/utils";
+
+export function SoccerBallIcon({ className, ...props }: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
       {...props}
@@ -11,6 +13,7 @@ export function SoccerBallIcon(props: React.SVGProps<SVGSVGElement>) {
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
+      className={cn("h-8 w-8 text-primary", className)}
     >
       <circle cx="12" cy="12" r="10" />
       <path d="m16.23 7.77-1.15 4.23-4.23 1.15-4.23-1.15 1.15-4.23 4.23-1.15Z" />

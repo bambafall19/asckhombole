@@ -18,13 +18,13 @@ import { Article } from "@/lib/types";
 function ArticleCard({ article }: { article: Article }) {
   return (
     <Link href={`/actus/${article.id}`}>
-      <Card className="overflow-hidden group hover:shadow-lg transition-shadow">
+      <Card className="overflow-hidden group transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
         <Image
           src={article.imageUrl}
           alt={article.title}
           width={400}
           height={225}
-          className="object-cover w-full h-48"
+          className="object-cover w-full h-48 transition-transform group-hover:scale-105"
           data-ai-hint={article.imageHint || 'news article'}
         />
         <CardContent className="p-4">

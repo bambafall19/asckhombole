@@ -10,7 +10,7 @@ import { Photo } from "@/lib/types";
 
 function PhotoCard({ photo }: { photo: Photo }) {
   return (
-    <Card className="overflow-hidden group">
+    <Card className="overflow-hidden group transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
         <div className="relative aspect-video w-full bg-muted overflow-hidden">
         <Image
           src={photo.imageUrl}

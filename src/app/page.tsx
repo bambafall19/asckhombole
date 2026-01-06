@@ -100,7 +100,7 @@ export default function Home() {
                     </Card>
                 )}
                 {!loading && mainArticle && (
-                  <Card className="overflow-hidden group relative">
+                  <Card className="overflow-hidden group relative transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
                     <Link href={`/actus/${mainArticle.id}`}>
                       <Image
                         src={mainArticle.imageUrl}
@@ -192,7 +192,7 @@ export default function Home() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                     {trendyArticles.map((article) => (
                     <Link href={`/actus/${article.id}`} key={article.id}>
-                        <Card className="overflow-hidden group">
+                        <Card className="overflow-hidden group transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
                         <Image
                             src={article.imageUrl}
                             alt={article.title}

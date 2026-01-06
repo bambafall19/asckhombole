@@ -1,0 +1,48 @@
+{
+  "entities": {
+    "Article": {
+      "title": "Article",
+      "description": "Represents a news article or a blog post.",
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "description": "The title of the article."
+        },
+        "content": {
+          "type": "string",
+          "description": "The main content of the article in Markdown format."
+        },
+        "imageUrl": {
+          "type": "string",
+          "description": "URL of the main image for the article."
+        },
+        "imageHint": {
+          "type": "string",
+          "description": "A hint for AI to find a relevant image."
+        },
+        "category": {
+          "type": "string",
+          "description": "The category of the article (e.g., 'Club', 'Match', 'Interview')."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The timestamp when the article was created."
+        }
+      },
+      "required": ["title", "content", "category", "createdAt"]
+    }
+  },
+  "auth": {
+    "providers": ["anonymous"]
+  },
+  "firestore": {
+    "/articles/{articleId}": {
+      "schema": {
+        "$ref": "#/backend/entities/Article"
+      },
+      "description": "Stores individual news articles for the club."
+    }
+  }
+}

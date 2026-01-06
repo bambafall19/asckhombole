@@ -1,80 +1,23 @@
+'use client';
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import Link from "next/link";
-import { ArrowRight, Clock } from "lucide-react";
+import { ArrowRight, Clock, LoaderCircle } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-
-const featuredNews = {
-  main: {
-    id: 1,
-    title: "L'ASC Khombole dévoile son nouveau maillot pour la saison à venir",
-    category: "Club",
-    time: "39 minutes",
-    image: PlaceHolderImages.find(img => img.id === 'news-hero-main'),
-  },
-  side: [
-    {
-      id: 2,
-      title: "Le coach analyse la dernière victoire en championnat",
-      category: "Interview",
-      time: "20 min",
-      image: PlaceHolderImages.find(img => img.id === 'news-side-1'),
-    },
-    {
-      id: 3,
-      title: "Recrue surprise : un nouvel attaquant rejoint l'équipe !",
-      category: "Mercato",
-      time: "45 min",
-      image: PlaceHolderImages.find(img => img.id === 'news-side-2'),
-      highlight: true,
-    },
-    {
-      id: 4,
-      title: "Résumé du match : une victoire écrasante à domicile",
-      category: "Match",
-      time: "1 hr",
-      image: PlaceHolderImages.find(img => img.id === 'news-side-3'),
-    }
-  ]
-};
-
-const trendyNews = [
-  {
-    id: 1,
-    title: "Le jeune prodige du centre de formation signe son premier contrat pro",
-    category: "Formation",
-    image: PlaceHolderImages.find(img => img.id === 'news-trendy-1'),
-  },
-  {
-    id: 2,
-    title: "Les supporters préparent un tifo géant pour le prochain derby",
-    category: "Supporters",
-    image: PlaceHolderImages.find(img => img.id === 'news-trendy-2'),
-  },
-  {
-    id: 3,
-    title: "Le capitaine optimiste avant le match crucial de ce week-end",
-    category: "Interview",
-    image: PlaceHolderImages.find(img => img.id === 'news-trendy-3'),
-  },
-];
-
-const photoAlbum = [
-  {
-    id: 1,
-    image: PlaceHolderImages.find(img => img.id === 'album-1'),
-  },
-  {
-    id: 2,
-    image: PlaceHolderImages.find(img => img.id === 'album-2'),
-  },
-  {
-    id: 3,
-    image: PlaceHolderImages.find(img => img.id === 'album-3'),
-  },
-]
+import { useCollection } from "@/firebase";
+import {
+  getFirestore,
+  collection,
+  query,
+  orderBy,
+  limit,
+} from 'firebase/firestore';
+import { useMemo } from "react";
+import { Article } from "@/lib/types";
+import { formatDistanceToNow } from 'date-fns';
+import { fr } from 'date-fns/locale';
 
 const liveMatches = [
   {
@@ -99,31 +42,38 @@ const liveMatches = [
   },
 ];
 
-const todaysSpotlight = [
+const photoAlbum = [
   {
     id: 1,
-    title: "Focus sur le parcours de notre gardien, le mur infranchissable",
-    category: "Portrait",
-    time: "3 jours",
-    image: PlaceHolderImages.find(img => img.id === 'spotlight-1')
+    image: PlaceHolderImages.find(img => img.id === 'album-1'),
   },
   {
     id: 2,
-    title: "Les infrastructures du club se modernisent avec un nouveau terrain",
-    category: "Club",
-    time: "4 jours",
-    image: PlaceHolderImages.find(img => img.id === 'spotlight-2')
+    image: PlaceHolderImages.find(img => img.id === 'album-2'),
   },
   {
     id: 3,
-    title: "L'équipe U17 remporte le tournoi régional",
-    category: "Jeunes",
-    time: "6 jours",
-    image: PlaceHolderImages.find(img => img.id === 'spotlight-3')
-  }
-];
+    image: PlaceHolderImages.find(img => img.id === 'album-3'),
+  },
+]
+
 
 export default function Home() {
+  const firestore = getFirestore();
+  const articlesQuery = useMemo(() => {
+    if (!firestore) return null;
+    return query(collection(firestore, 'articles'), orderBy('createdAt', 'desc'), limit(7));
+  }, [firestore]);
+
+  const { data: articles, loading } = useCollection<Article>(articlesQuery);
+
+  const mainArticle = articles?.[0];
+  const sideArticles = articles?.slice(1, 4) || [];
+  const trendyArticles = articles?.slice(4, 7) || [];
+
+  const formatTime = (date: Date) => {
+    return formatDistanceToNow(date, { addSuffix: true, locale: fr });
+  }
 
   return (
     <div className="bg-gray-100/50">
@@ -136,29 +86,43 @@ export default function Home() {
             <section>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="md:col-span-2">
+                {loading && (
+                    <Card className="overflow-hidden group relative w-full aspect-video flex items-center justify-center">
+                        <LoaderCircle className="w-12 h-12 animate-spin text-primary" />
+                    </Card>
+                )}
+                {mainArticle && (
                   <Card className="overflow-hidden group relative">
-                    {featuredNews.main.image && (
+                    <Link href={`/actus/${mainArticle.id}`}>
                       <Image
-                        src={featuredNews.main.image.imageUrl}
-                        alt={featuredNews.main.image.description}
+                        src={mainArticle.imageUrl}
+                        alt={mainArticle.title}
                         width={800}
                         height={450}
                         className="object-cover w-full h-full"
-                        data-ai-hint={featuredNews.main.image.imageHint}
+                        data-ai-hint={mainArticle.imageHint || 'news article'}
                       />
-                    )}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
                     <CardContent className="absolute bottom-0 left-0 p-6">
                       <div className="flex items-center gap-4">
-                        <span className="text-xs font-semibold uppercase bg-accent text-accent-foreground px-2 py-1 rounded">{featuredNews.main.category}</span>
-                        <div className="flex items-center gap-1 text-white text-xs">
-                          <Clock className="w-3 h-3" />
-                          <span>{featuredNews.main.time}</span>
-                        </div>
+                        <span className="text-xs font-semibold uppercase bg-accent text-accent-foreground px-2 py-1 rounded">{mainArticle.category}</span>
+                        {mainArticle.createdAt && 
+                          <div className="flex items-center gap-1 text-white text-xs">
+                            <Clock className="w-3 h-3" />
+                            <span>{formatTime(mainArticle.createdAt.toDate())}</span>
+                          </div>
+                        }
                       </div>
-                      <h2 className="text-2xl font-bold text-white mt-2 font-headline">{featuredNews.main.title}</h2>
+                      <h2 className="text-2xl font-bold text-white mt-2 font-headline">{mainArticle.title}</h2>
                     </CardContent>
+                    </Link>
                   </Card>
+                )}
+                {!loading && !mainArticle && (
+                  <Card className="flex items-center justify-center w-full aspect-video">
+                    <p className="text-muted-foreground">Aucune actualité à afficher.</p>
+                  </Card>
+                )}
                 </div>
               </div>
             </section>
@@ -171,24 +135,29 @@ export default function Home() {
                   <Link href="/actus">Voir plus <ArrowRight className="ml-2 h-4 w-4" /></Link>
                 </Button>
               </div>
+              {loading && <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                  <Card className="h-44 flex items-center justify-center"><LoaderCircle className="w-8 h-8 animate-spin text-primary"/></Card>
+                  <Card className="h-44 flex items-center justify-center"><LoaderCircle className="w-8 h-8 animate-spin text-primary"/></Card>
+                  <Card className="h-44 flex items-center justify-center"><LoaderCircle className="w-8 h-8 animate-spin text-primary"/></Card>
+              </div>}
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                {trendyNews.map((article) => (
-                  <Card key={article.id} className="overflow-hidden group">
-                     {article.image && (
+                {trendyArticles.map((article) => (
+                  <Link href={`/actus/${article.id}`} key={article.id}>
+                    <Card className="overflow-hidden group">
                       <Image
-                        src={article.image.imageUrl}
-                        alt={article.image.description}
-                        width={400}
-                        height={250}
-                        className="object-cover w-full h-32"
-                        data-ai-hint={article.image.imageHint}
-                      />
-                    )}
-                    <CardContent className="p-4">
-                      <span className="text-xs text-muted-foreground">{article.category}</span>
-                      <h3 className="text-sm font-bold mt-1 line-clamp-2">{article.title}</h3>
-                    </CardContent>
-                  </Card>
+                          src={article.imageUrl}
+                          alt={article.title}
+                          width={400}
+                          height={250}
+                          className="object-cover w-full h-32"
+                          data-ai-hint={article.imageHint || 'trendy news'}
+                        />
+                      <CardContent className="p-4">
+                        <span className="text-xs text-muted-foreground">{article.category}</span>
+                        <h3 className="text-sm font-bold mt-1 line-clamp-2">{article.title}</h3>
+                      </CardContent>
+                    </Card>
+                  </Link>
                 ))}
               </div>
             </section>
@@ -210,7 +179,7 @@ export default function Home() {
                         alt={photo.image.description}
                         width={400}
                         height={250}
-                        className="object-cover w-full h-40 transition-transform duration-300 group-hover:scale-105"
+                        className="object-cover w-full h-32 transition-transform duration-300 group-hover:scale-105"
                         data-ai-hint={photo.image.imageHint}
                       />
                     )}
@@ -227,21 +196,32 @@ export default function Home() {
                     <button role="tab" className="text-sm font-semibold pb-2 border-b-2 border-primary">Dernières infos</button>
                     <button role="tab" className="text-sm text-muted-foreground pb-2">Top nouvelles</button>
                 </div>
+                {loading && <div className="space-y-4">
+                    {[...Array(3)].map((_, i) => (
+                      <div key={i} className="flex items-start gap-4 p-2 rounded-lg">
+                        <div className="w-24 h-16 rounded-md bg-muted animate-pulse"></div>
+                        <div className="flex-1 space-y-2">
+                          <div className="h-4 bg-muted rounded w-3/4 animate-pulse"></div>
+                          <div className="h-4 bg-muted rounded w-1/2 animate-pulse"></div>
+                        </div>
+                      </div>
+                    ))}
+                </div>}
                 <div className="space-y-4">
-                    {featuredNews.side.map((item) => (
-                    <Link href="/actus" key={item.id} className={`flex items-start gap-4 p-2 rounded-lg ${item.highlight ? 'bg-accent/20' : 'hover:bg-gray-100'}`}>
-                        {item.image && (
-                           <Image
-                            src={item.image.imageUrl}
-                            alt={item.image.description}
-                            width={100}
-                            height={75}
-                            className="object-cover w-24 h-16 rounded-md"
-                            data-ai-hint={item.image.imageHint}
-                          />
-                        )}
+                    {sideArticles.map((item) => (
+                    <Link href={`/actus/${item.id}`} key={item.id} className={`flex items-start gap-4 p-2 rounded-lg hover:bg-gray-100`}>
+                        <Image
+                          src={item.imageUrl}
+                          alt={item.title}
+                          width={100}
+                          height={75}
+                          className="object-cover w-24 h-16 rounded-md"
+                          data-ai-hint={item.imageHint || 'news side'}
+                        />
                         <div>
-                            <span className="text-xs text-muted-foreground">{item.category} • {item.time}</span>
+                            <span className="text-xs text-muted-foreground">
+                              {item.category} • {item.createdAt && formatTime(item.createdAt.toDate())}
+                            </span>
                             <h4 className="text-sm font-semibold leading-tight line-clamp-2">{item.title}</h4>
                         </div>
                     </Link>
@@ -281,27 +261,36 @@ export default function Home() {
             </div>
             
             <div className="bg-card p-4 rounded-lg shadow-sm">
-              <h3 className="font-bold text-lg font-headline mb-4">À la une</h3>
-              <div className="space-y-4">
-                {todaysSpotlight.map((item) => (
-                  <Link href="/actus" key={item.id} className="flex items-center gap-4 hover:bg-gray-100 p-2 rounded-lg">
-                    {item.image && (
-                      <Image 
-                        src={item.image.imageUrl}
-                        alt={item.title}
-                        width={64}
-                        height={64}
-                        className="w-16 h-16 rounded-lg object-cover"
-                        data-ai-hint={item.image.imageHint}
-                      />
-                    )}
-                    <div>
-                      <span className="text-xs text-muted-foreground">{item.category} • {item.time}</span>
-                      <h4 className="text-sm font-semibold leading-tight line-clamp-2">{item.title}</h4>
-                    </div>
-                  </Link>
-                ))}
-              </div>
+                <h3 className="font-bold text-lg font-headline mb-4">À la une</h3>
+                {loading && <div className="space-y-4">
+                    {[...Array(3)].map((_, i) => (
+                      <div key={i} className="flex items-start gap-4 p-2 rounded-lg">
+                        <div className="w-16 h-16 rounded-lg bg-muted animate-pulse"></div>
+                        <div className="flex-1 space-y-2">
+                          <div className="h-4 bg-muted rounded w-3/4 animate-pulse"></div>
+                          <div className="h-4 bg-muted rounded w-1/2 animate-pulse"></div>
+                        </div>
+                      </div>
+                    ))}
+                </div>}
+                <div className="space-y-4">
+                    {sideArticles.map((item) => (
+                      <Link href={`/actus/${item.id}`} key={item.id} className="flex items-center gap-4 hover:bg-gray-100 p-2 rounded-lg">
+                        <Image 
+                          src={item.imageUrl}
+                          alt={item.title}
+                          width={64}
+                          height={64}
+                          className="w-16 h-16 rounded-lg object-cover"
+                          data-ai-hint={item.imageHint || 'spotlight news'}
+                        />
+                        <div>
+                          <span className="text-xs text-muted-foreground">{item.category} • {item.createdAt && formatTime(item.createdAt.toDate())}</span>
+                          <h4 className="text-sm font-semibold leading-tight line-clamp-2">{item.title}</h4>
+                        </div>
+                      </Link>
+                    ))}
+                </div>
             </div>
 
             <div className="bg-muted p-4 rounded-lg shadow-sm text-center">

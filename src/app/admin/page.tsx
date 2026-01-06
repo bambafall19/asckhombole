@@ -61,6 +61,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { CalendarIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Calendar } from '@/components/ui/calendar';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 
 const articleFormSchema = z.object({
@@ -131,89 +132,97 @@ function AddArticleForm() {
   }
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <FormField
-          control={form.control}
-          name="title"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Titre de l'article</FormLabel>
-              <FormControl>
-                <Input placeholder="L'ASC Khombole gagne le championnat..." {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="content"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Contenu</FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder="Écrivez le contenu de votre article ici..."
-                  rows={10}
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="category"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Catégorie</FormLabel>
-              <FormControl>
-                <Input placeholder="Ex: Match, Club, Interview" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="imageUrl"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>URL de l'image</FormLabel>
-              <FormControl>
-                <Input placeholder="https://exemple.com/image.jpg" {...field} />
-              </FormControl>
-              <FormDescription>
-                Le lien vers l'image principale de l'article.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-          <FormField
-          control={form.control}
-          name="imageHint"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Indice pour l'image (Optionnel)</FormLabel>
-              <FormControl>
-                <Input placeholder="Ex: soccer celebration" {...field} />
-              </FormControl>
-              <FormDescription>
-                Un ou deux mots en anglais pour décrire l'image (utile pour l'IA).
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
-          {isSubmitting ? 'Publication...' : 'Publier l\'article'}
-        </Button>
-      </form>
-    </Form>
+    <Card>
+      <CardHeader>
+        <CardTitle>Ajouter un article</CardTitle>
+        <CardDescription>Remplissez le formulaire ci-dessous pour publier une nouvelle actualité.</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <FormField
+              control={form.control}
+              name="title"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Titre de l'article</FormLabel>
+                  <FormControl>
+                    <Input placeholder="L'ASC Khombole gagne le championnat..." {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="content"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Contenu</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Écrivez le contenu de votre article ici..."
+                      rows={10}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="category"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Catégorie</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Ex: Match, Club, Interview" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="imageUrl"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>URL de l'image</FormLabel>
+                  <FormControl>
+                    <Input placeholder="https://exemple.com/image.jpg" {...field} />
+                  </FormControl>
+                  <FormDescription>
+                    Le lien vers l'image principale de l'article.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+              <FormField
+              control={form.control}
+              name="imageHint"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Indice pour l'image (Optionnel)</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Ex: soccer celebration" {...field} />
+                  </FormControl>
+                  <FormDescription>
+                    Un ou deux mots en anglais pour décrire l'image (utile pour l'IA).
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
+              {isSubmitting ? 'Publication...' : 'Publier l\'article'}
+            </Button>
+          </form>
+        </Form>
+      </CardContent>
+    </Card>
   )
 }
 
@@ -353,39 +362,47 @@ function AddPlayerForm() {
   }
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <FormField control={form.control} name="name" render={({ field }) => (
-          <FormItem><FormLabel>Nom du joueur</FormLabel><FormControl><Input placeholder="John Doe" {...field} /></FormControl><FormMessage /></FormItem>
-        )} />
-        <FormField control={form.control} name="position" render={({ field }) => (
-          <FormItem><FormLabel>Poste</FormLabel><FormControl><Input placeholder="Défenseur, Milieu, etc." {...field} /></FormControl><FormMessage /></FormItem>
-        )} />
-        <FormField control={form.control} name="number" render={({ field }) => (
-          <FormItem><FormLabel>Numéro</FormLabel><FormControl><Input type="number" placeholder="10" {...field} /></FormControl><FormMessage /></FormItem>
-        )} />
-        <FormField control={form.control} name="imageUrl" render={({ field }) => (
-          <FormItem>
-            <FormLabel>URL de la photo</FormLabel>
-            <FormControl><Input placeholder="https://exemple.com/photo.jpg" {...field} /></FormControl>
-            <FormDescription>Utilisez une image au format portrait (carré ou vertical).</FormDescription>
-            <FormMessage />
-          </FormItem>
-        )} />
-        <FormField control={form.control} name="imageHint" render={({ field }) => (
-          <FormItem>
-            <FormLabel>Indice pour l'image (Optionnel)</FormLabel>
-            <FormControl><Input placeholder="soccer player portrait" {...field} /></FormControl>
-            <FormDescription>Un ou deux mots en anglais pour l'IA.</FormDescription>
-            <FormMessage />
-          </FormItem>
-        )} />
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
-          {isSubmitting ? 'Ajout...' : 'Ajouter le joueur'}
-        </Button>
-      </form>
-    </Form>
+    <Card>
+        <CardHeader>
+            <CardTitle>Ajouter un joueur</CardTitle>
+            <CardDescription>Remplissez le formulaire pour ajouter un joueur à l'effectif.</CardDescription>
+        </CardHeader>
+        <CardContent>
+            <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+                <FormField control={form.control} name="name" render={({ field }) => (
+                <FormItem><FormLabel>Nom du joueur</FormLabel><FormControl><Input placeholder="John Doe" {...field} /></FormControl><FormMessage /></FormItem>
+                )} />
+                <FormField control={form.control} name="position" render={({ field }) => (
+                <FormItem><FormLabel>Poste</FormLabel><FormControl><Input placeholder="Défenseur, Milieu, etc." {...field} /></FormControl><FormMessage /></FormItem>
+                )} />
+                <FormField control={form.control} name="number" render={({ field }) => (
+                <FormItem><FormLabel>Numéro</FormLabel><FormControl><Input type="number" placeholder="10" {...field} /></FormControl><FormMessage /></FormItem>
+                )} />
+                <FormField control={form.control} name="imageUrl" render={({ field }) => (
+                <FormItem>
+                    <FormLabel>URL de la photo</FormLabel>
+                    <FormControl><Input placeholder="https://exemple.com/photo.jpg" {...field} /></FormControl>
+                    <FormDescription>Utilisez une image au format portrait (carré ou vertical).</FormDescription>
+                    <FormMessage />
+                </FormItem>
+                )} />
+                <FormField control={form.control} name="imageHint" render={({ field }) => (
+                <FormItem>
+                    <FormLabel>Indice pour l'image (Optionnel)</FormLabel>
+                    <FormControl><Input placeholder="soccer player portrait" {...field} /></FormControl>
+                    <FormDescription>Un ou deux mots en anglais pour l'IA.</FormDescription>
+                    <FormMessage />
+                </FormItem>
+                )} />
+                <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
+                {isSubmitting ? 'Ajout...' : 'Ajouter le joueur'}
+                </Button>
+            </form>
+            </Form>
+        </CardContent>
+    </Card>
   )
 }
 
@@ -502,86 +519,94 @@ function AddMatchForm() {
   }
   
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <FormField control={form.control} name="homeTeam" render={({ field }) => (
-            <FormItem><FormLabel>Équipe à domicile</FormLabel><FormControl><Input placeholder="ASC Khombole" {...field} /></FormControl><FormMessage /></FormItem>
-          )} />
-          <FormField control={form.control} name="awayTeam" render={({ field }) => (
-            <FormItem><FormLabel>Équipe à l'extérieur</FormLabel><FormControl><Input placeholder="ASC Jaraaf" {...field} /></FormControl><FormMessage /></FormItem>
-          )} />
-        </div>
-         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <FormField control={form.control} name="homeScore" render={({ field }) => (
-              <FormItem><FormLabel>Score Domicile (Optionnel)</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
-            )} />
-            <FormField control={form.control} name="awayScore" render={({ field }) => (
-              <FormItem><FormLabel>Score Extérieur (Optionnel)</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
-            )} />
-        </div>
-        <FormField control={form.control} name="competition" render={({ field }) => (
-          <FormItem><FormLabel>Compétition</FormLabel><FormControl><Input placeholder="Ligue 1" {...field} /></FormControl><FormMessage /></FormItem>
-        )} />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <FormField
-              control={form.control}
-              name="date"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>Date et heure du match</FormLabel>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant={"outline"}
-                          className={cn(
-                            "pl-3 text-left font-normal",
-                            !field.value && "text-muted-foreground"
-                          )}
-                        >
-                          {field.value ? (
-                            format(field.value, "PPP 'à' HH:mm", { locale: fr })
-                          ) : (
-                            <span>Choisir une date</span>
-                          )}
-                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={field.value}
-                        onSelect={field.onChange}
-                        disabled={(date) => date < new Date("1900-01-01")}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          <FormField control={form.control} name="status" render={({ field }) => (
-            <FormItem><FormLabel>Statut</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl><SelectTrigger><SelectValue placeholder="Statut du match" /></SelectTrigger></FormControl>
-                <SelectContent>
-                  <SelectItem value="À venir">À venir</SelectItem>
-                  <SelectItem value="Terminé">Terminé</SelectItem>
-                  <SelectItem value="Reporté">Reporté</SelectItem>
-                </SelectContent>
-              </Select>
-            <FormMessage /></FormItem>
-          )} />
-        </div>
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
-          {isSubmitting ? 'Ajout...' : 'Ajouter le match'}
-        </Button>
-      </form>
-    </Form>
+    <Card>
+        <CardHeader>
+            <CardTitle>Ajouter un match</CardTitle>
+            <CardDescription>Remplissez le formulaire pour programmer une nouvelle rencontre.</CardDescription>
+        </CardHeader>
+        <CardContent>
+            <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <FormField control={form.control} name="homeTeam" render={({ field }) => (
+                    <FormItem><FormLabel>Équipe à domicile</FormLabel><FormControl><Input placeholder="ASC Khombole" {...field} /></FormControl><FormMessage /></FormItem>
+                )} />
+                <FormField control={form.control} name="awayTeam" render={({ field }) => (
+                    <FormItem><FormLabel>Équipe à l'extérieur</FormLabel><FormControl><Input placeholder="ASC Jaraaf" {...field} /></FormControl><FormMessage /></FormItem>
+                )} />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <FormField control={form.control} name="homeScore" render={({ field }) => (
+                    <FormItem><FormLabel>Score Domicile (Optionnel)</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
+                    )} />
+                    <FormField control={form.control} name="awayScore" render={({ field }) => (
+                    <FormItem><FormLabel>Score Extérieur (Optionnel)</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
+                    )} />
+                </div>
+                <FormField control={form.control} name="competition" render={({ field }) => (
+                <FormItem><FormLabel>Compétition</FormLabel><FormControl><Input placeholder="Ligue 1" {...field} /></FormControl><FormMessage /></FormItem>
+                )} />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <FormField
+                    control={form.control}
+                    name="date"
+                    render={({ field }) => (
+                        <FormItem className="flex flex-col">
+                        <FormLabel>Date et heure du match</FormLabel>
+                        <Popover>
+                            <PopoverTrigger asChild>
+                            <FormControl>
+                                <Button
+                                variant={"outline"}
+                                className={cn(
+                                    "pl-3 text-left font-normal",
+                                    !field.value && "text-muted-foreground"
+                                )}
+                                >
+                                {field.value ? (
+                                    format(field.value, "PPP 'à' HH:mm", { locale: fr })
+                                ) : (
+                                    <span>Choisir une date</span>
+                                )}
+                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                </Button>
+                            </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                                mode="single"
+                                selected={field.value}
+                                onSelect={field.onChange}
+                                disabled={(date) => date < new Date("1900-01-01")}
+                                initialFocus
+                            />
+                            </PopoverContent>
+                        </Popover>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                    />
+                <FormField control={form.control} name="status" render={({ field }) => (
+                    <FormItem><FormLabel>Statut</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl><SelectTrigger><SelectValue placeholder="Statut du match" /></SelectTrigger></FormControl>
+                        <SelectContent>
+                        <SelectItem value="À venir">À venir</SelectItem>
+                        <SelectItem value="Terminé">Terminé</SelectItem>
+                        <SelectItem value="Reporté">Reporté</SelectItem>
+                        </SelectContent>
+                    </Select>
+                    <FormMessage /></FormItem>
+                )} />
+                </div>
+                <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
+                {isSubmitting ? 'Ajout...' : 'Ajouter le match'}
+                </Button>
+            </form>
+            </Form>
+        </CardContent>
+    </Card>
   )
 }
 
@@ -699,33 +724,41 @@ function AddPhotoForm() {
   }
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <FormField control={form.control} name="title" render={({ field }) => (
-          <FormItem><FormLabel>Titre / Description</FormLabel><FormControl><Input placeholder="Célébration après le but" {...field} /></FormControl><FormMessage /></FormItem>
-        )} />
-        <FormField control={form.control} name="imageUrl" render={({ field }) => (
-          <FormItem>
-            <FormLabel>URL de la photo</FormLabel>
-            <FormControl><Input placeholder="https://exemple.com/photo.jpg" {...field} /></FormControl>
-            <FormDescription>Lien vers l'image à ajouter.</FormDescription>
-            <FormMessage />
-          </FormItem>
-        )} />
-        <FormField control={form.control} name="imageHint" render={({ field }) => (
-          <FormItem>
-            <FormLabel>Indice pour l'image (Optionnel)</FormLabel>
-            <FormControl><Input placeholder="soccer celebration" {...field} /></FormControl>
-            <FormDescription>Un ou deux mots en anglais pour l'IA.</FormDescription>
-            <FormMessage />
-          </FormItem>
-        )} />
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
-          {isSubmitting ? 'Ajout...' : 'Ajouter la photo'}
-        </Button>
-      </form>
-    </Form>
+    <Card>
+        <CardHeader>
+            <CardTitle>Ajouter une photo</CardTitle>
+            <CardDescription>Remplissez le formulaire pour ajouter une photo à la galerie.</CardDescription>
+        </CardHeader>
+        <CardContent>
+            <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+                <FormField control={form.control} name="title" render={({ field }) => (
+                <FormItem><FormLabel>Titre / Description</FormLabel><FormControl><Input placeholder="Célébration après le but" {...field} /></FormControl><FormMessage /></FormItem>
+                )} />
+                <FormField control={form.control} name="imageUrl" render={({ field }) => (
+                <FormItem>
+                    <FormLabel>URL de la photo</FormLabel>
+                    <FormControl><Input placeholder="https://exemple.com/photo.jpg" {...field} /></FormControl>
+                    <FormDescription>Lien vers l'image à ajouter.</FormDescription>
+                    <FormMessage />
+                </FormItem>
+                )} />
+                <FormField control={form.control} name="imageHint" render={({ field }) => (
+                <FormItem>
+                    <FormLabel>Indice pour l'image (Optionnel)</FormLabel>
+                    <FormControl><Input placeholder="soccer celebration" {...field} /></FormControl>
+                    <FormDescription>Un ou deux mots en anglais pour l'IA.</FormDescription>
+                    <FormMessage />
+                </FormItem>
+                )} />
+                <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
+                {isSubmitting ? 'Ajout...' : 'Ajouter la photo'}
+                </Button>
+            </form>
+            </Form>
+        </CardContent>
+    </Card>
   )
 }
 
@@ -836,32 +869,40 @@ function AddPartnerForm() {
   }
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <FormField control={form.control} name="name" render={({ field }) => (
-          <FormItem><FormLabel>Nom du Partenaire</FormLabel><FormControl><Input placeholder="Nom de l'entreprise" {...field} /></FormControl><FormMessage /></FormItem>
-        )} />
-        <FormField control={form.control} name="logoUrl" render={({ field }) => (
-          <FormItem>
-            <FormLabel>URL du Logo</FormLabel>
-            <FormControl><Input placeholder="https://exemple.com/logo.png" {...field} /></FormControl>
-            <FormDescription>Utilisez une image au format paysage (ratio 2:1 conseillé).</FormDescription>
-            <FormMessage />
-          </FormItem>
-        )} />
-        <FormField control={form.control} name="website" render={({ field }) => (
-          <FormItem>
-            <FormLabel>Site Web (Optionnel)</FormLabel>
-            <FormControl><Input placeholder="https://exemple.com" {...field} /></FormControl>
-            <FormMessage />
-          </FormItem>
-        )} />
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
-          {isSubmitting ? 'Ajout...' : 'Ajouter le partenaire'}
-        </Button>
-      </form>
-    </Form>
+    <Card>
+        <CardHeader>
+            <CardTitle>Ajouter un partenaire</CardTitle>
+            <CardDescription>Remplissez le formulaire pour ajouter un sponsor ou partenaire.</CardDescription>
+        </CardHeader>
+        <CardContent>
+            <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+                <FormField control={form.control} name="name" render={({ field }) => (
+                <FormItem><FormLabel>Nom du Partenaire</FormLabel><FormControl><Input placeholder="Nom de l'entreprise" {...field} /></FormControl><FormMessage /></FormItem>
+                )} />
+                <FormField control={form.control} name="logoUrl" render={({ field }) => (
+                <FormItem>
+                    <FormLabel>URL du Logo</FormLabel>
+                    <FormControl><Input placeholder="https://exemple.com/logo.png" {...field} /></FormControl>
+                    <FormDescription>Utilisez une image au format paysage (ratio 2:1 conseillé).</FormDescription>
+                    <FormMessage />
+                </FormItem>
+                )} />
+                <FormField control={form.control} name="website" render={({ field }) => (
+                <FormItem>
+                    <FormLabel>Site Web (Optionnel)</FormLabel>
+                    <FormControl><Input placeholder="https://exemple.com" {...field} /></FormControl>
+                    <FormMessage />
+                </FormItem>
+                )} />
+                <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
+                {isSubmitting ? 'Ajout...' : 'Ajouter le partenaire'}
+                </Button>
+            </form>
+            </Form>
+        </CardContent>
+    </Card>
   )
 }
 
@@ -936,50 +977,6 @@ function PartnersList() {
     )
 }
 
-function SectionManager({
-  listComponent,
-  addComponent,
-  listTitle,
-  addTitle,
-  listIcon: ListIcon,
-  addIcon: AddIcon,
-  addDescription,
-  defaultTab = 'list'
-}: {
-  listComponent: React.ReactNode,
-  addComponent: React.ReactNode,
-  listTitle: string,
-  addTitle: string,
-  listIcon: React.ElementType,
-  addIcon: React.ElementType,
-  addDescription: string,
-  defaultTab?: string,
-}) {
-  return (
-    <Tabs defaultValue={defaultTab}>
-      <TabsList>
-        <TabsTrigger value="list"><ListIcon className="w-4 h-4 mr-2" />{listTitle}</TabsTrigger>
-        <TabsTrigger value="add"><AddIcon className="w-4 h-4 mr-2" />{addTitle}</TabsTrigger>
-      </TabsList>
-      <TabsContent value="list" className="pt-6">
-        {listComponent}
-      </TabsContent>
-      <TabsContent value="add" className="pt-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>{addTitle}</CardTitle>
-            <CardDescription>{addDescription}</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {addComponent}
-          </CardContent>
-        </Card>
-      </TabsContent>
-    </Tabs>
-  );
-}
-
-
 export default function AdminPage() {
   const auth = useAuth();
   const { user, loading } = useUser();
@@ -1030,68 +1027,96 @@ export default function AdminPage() {
           <TabsTrigger value="webtv" disabled>Web TV</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="actus">
-            <SectionManager 
-                listComponent={<ArticlesList />}
-                addComponent={<AddArticleForm />}
-                listTitle="Voir les articles"
-                addTitle="Ajouter un article"
-                listIcon={List}
-                addIcon={PlusCircle}
-                addDescription="Remplissez le formulaire ci-dessous pour publier une nouvelle actualité."
-            />
+        <TabsContent value="actus" className="mt-6 space-y-6">
+            <ArticlesList />
+            <Collapsible>
+              <CollapsibleTrigger asChild>
+                <Button>
+                  <PlusCircle className="mr-2 h-4 w-4" /> Ajouter un article
+                </Button>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="mt-4">
+                <AddArticleForm />
+              </CollapsibleContent>
+            </Collapsible>
         </TabsContent>
         
-        <TabsContent value="equipe">
-            <SectionManager 
-                listComponent={<PlayersList />}
-                addComponent={<AddPlayerForm />}
-                listTitle="Voir l'effectif"
-                addTitle="Ajouter un joueur"
-                listIcon={Users}
-                addIcon={PlusCircle}
-                addDescription="Remplissez le formulaire pour ajouter un joueur à l'effectif."
-            />
+        <TabsContent value="equipe" className="mt-6 space-y-6">
+            <PlayersList />
+             <Collapsible>
+              <CollapsibleTrigger asChild>
+                <Button>
+                  <PlusCircle className="mr-2 h-4 w-4" /> Ajouter un joueur
+                </Button>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="mt-4">
+                <AddPlayerForm />
+              </CollapsibleContent>
+            </Collapsible>
         </TabsContent>
 
-        <TabsContent value="matchs">
-             <SectionManager 
-                listComponent={<MatchesList />}
-                addComponent={<AddMatchForm />}
-                listTitle="Voir les matchs"
-                addTitle="Ajouter un match"
-                listIcon={Trophy}
-                addIcon={PlusCircle}
-                addDescription="Remplissez le formulaire pour programmer une nouvelle rencontre."
-            />
+        <TabsContent value="matchs" className="mt-6 space-y-6">
+             <MatchesList />
+             <Collapsible>
+              <CollapsibleTrigger asChild>
+                <Button>
+                  <PlusCircle className="mr-2 h-4 w-4" /> Ajouter un match
+                </Button>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="mt-4">
+                <AddMatchForm />
+              </CollapsibleContent>
+            </Collapsible>
         </TabsContent>
 
-        <TabsContent value="galerie">
-             <SectionManager 
-                listComponent={<PhotosList />}
-                addComponent={<AddPhotoForm />}
-                listTitle="Voir les photos"
-                addTitle="Ajouter une photo"
-                listIcon={ImageIcon}
-                addIcon={PlusCircle}
-                addDescription="Remplissez le formulaire pour ajouter une photo à la galerie."
-            />
+        <TabsContent value="galerie" className="mt-6 space-y-6">
+             <PhotosList />
+             <Collapsible>
+              <CollapsibleTrigger asChild>
+                <Button>
+                  <PlusCircle className="mr-2 h-4 w-4" /> Ajouter une photo
+                </Button>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="mt-4">
+                <AddPhotoForm />
+              </CollapsibleContent>
+            </Collapsible>
         </TabsContent>
 
-        <TabsContent value="partenaires">
-              <SectionManager 
-                listComponent={<PartnersList />}
-                addComponent={<AddPartnerForm />}
-                listTitle="Voir les partenaires"
-                addTitle="Ajouter un partenaire"
-                listIcon={Handshake}
-                addIcon={PlusCircle}
-                addDescription="Remplissez le formulaire pour ajouter un sponsor ou partenaire."
-            />
+        <TabsContent value="partenaires" className="mt-6 space-y-6">
+              <PartnersList />
+              <Collapsible>
+              <CollapsibleTrigger asChild>
+                <Button>
+                  <PlusCircle className="mr-2 h-4 w-4" /> Ajouter un partenaire
+                </Button>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="mt-4">
+                <AddPartnerForm />
+              </CollapsibleContent>
+            </Collapsible>
         </TabsContent>
 
-        <TabsContent value="boutique">Bientôt disponible.</TabsContent>
-        <TabsContent value="webtv">Bientôt disponible.</TabsContent>
+        <TabsContent value="boutique">
+            <Card>
+                <CardHeader>
+                    <CardTitle>Boutique</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <p className="text-muted-foreground">La gestion de la boutique sera bientôt disponible.</p>
+                </CardContent>
+            </Card>
+        </TabsContent>
+        <TabsContent value="webtv">
+            <Card>
+                <CardHeader>
+                    <CardTitle>Web TV</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <p className="text-muted-foreground">La gestion de la Web TV sera bientôt disponible.</p>
+                </CardContent>
+            </Card>
+        </TabsContent>
       </Tabs>
     </main>
   );

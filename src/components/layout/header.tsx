@@ -173,7 +173,7 @@ export function Header() {
         isScrolled ? "bg-card/95 backdrop-blur-sm" : "bg-card"
       )}
     >
-      <div className="container flex h-20 items-center justify-between">
+      <div className="container flex h-24 items-center justify-between">
         <Link href="/" className="flex items-center gap-2">
           <Logo logoUrl={clubInfo?.logoUrl} />
         </Link>

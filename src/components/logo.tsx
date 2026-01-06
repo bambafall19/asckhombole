@@ -8,12 +8,12 @@ interface LogoProps {
 
 export function Logo({ logoUrl, className }: LogoProps) {
   return (
-    <div className={`flex items-center gap-2 ${className}`}>
-       <div className="w-8 h-8 bg-accent rounded-sm flex items-center justify-center">
+    <div className={`flex items-center gap-3 ${className}`}>
+       <div className="w-10 h-10 rounded-sm flex items-center justify-center">
         {logoUrl ? (
-            <Image src={logoUrl} alt="Logo ASC Khombole" width={28} height={28} className="object-contain" />
+            <Image src={logoUrl} alt="Logo ASC Khombole" width={36} height={36} className="object-contain" />
         ) : (
-            <SoccerBallIcon className="text-accent-foreground h-6 w-6" />
+            <SoccerBallIcon className="text-primary h-8 w-8" />
         )}
       </div>
       <span className="font-bold text-xl text-foreground font-headline">

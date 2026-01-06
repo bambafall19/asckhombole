@@ -50,6 +50,7 @@ export interface Partner {
 
 export interface ClubInfo {
     id: string;
+    logoUrl?: string;
     history: string;
     historyImageUrl?: string;
     historyImageHint?: string;

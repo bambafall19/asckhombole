@@ -3,7 +3,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu, X, User, Search, Tv, Store, Newspaper, Shield, Trophy, Image as ImageIcon, Users, Handshake, Mail, Home, LogOut, LogIn } from "lucide-react";
@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
 import { Logo } from "@/components/logo";
 import { useUser } from "@/firebase/auth/use-user";
 import { signOut } from "firebase/auth";
-import { useAuth } from "@/firebase";
+import { useAuth, useDocument, useFirestore } from "@/firebase";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,6 +21,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { ClubInfo } from "@/lib/types";
+import { doc } from "firebase/firestore";
 
 
 const navLinks = [
@@ -42,6 +44,14 @@ export function Header() {
   const pathname = usePathname();
   const auth = useAuth();
   const { user, loading } = useUser();
+  const firestore = useFirestore();
+
+  const clubInfoRef = useMemo(() => {
+    if (!firestore) return null;
+    return doc(firestore, 'clubInfo', 'main');
+  }, [firestore]);
+
+  const { data: clubInfo } = useDocument<ClubInfo>(clubInfoRef);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -165,7 +175,7 @@ export function Header() {
     >
       <div className="container flex h-20 items-center justify-between">
         <Link href="/" className="flex items-center gap-2">
-          <Logo />
+          <Logo logoUrl={clubInfo?.logoUrl} />
         </Link>
         <nav className="hidden md:flex items-center gap-6">
           <NavLink href="/" label="Accueil" />
@@ -190,7 +200,7 @@ export function Header() {
             <div className="flex flex-col h-full">
                 <div className="flex items-center justify-between p-4 border-b">
                     <Link href="/" onClick={() => setIsMobileMenuOpen(false)}>
-                        <Logo />
+                        <Logo logoUrl={clubInfo?.logoUrl} />
                     </Link>
                     <Button variant="ghost" size="icon" onClick={() => setIsMobileMenuOpen(false)}>
                         <X className="h-6 w-6" />

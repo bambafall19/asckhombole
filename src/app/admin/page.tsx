@@ -1168,6 +1168,7 @@ function PartnersList() {
 }
 
 const clubInfoFormSchema = z.object({
+  logoUrl: z.string().url({ message: "Veuillez entrer une URL de logo valide." }).optional().or(z.literal('')),
   history: z.string().min(10, { message: "L'histoire doit contenir au moins 10 caractères." }),
   historyImageUrl: z.string().url({ message: "Veuillez entrer une URL d'image valide." }).optional().or(z.literal('')),
   historyImageHint: z.string().optional(),
@@ -1200,6 +1201,7 @@ function ClubInfoForm() {
   const form = useForm<z.infer<typeof clubInfoFormSchema>>({
     resolver: zodResolver(clubInfoFormSchema),
     values: {
+        logoUrl: clubInfo?.logoUrl || '',
         history: clubInfo?.history || '',
         historyImageUrl: clubInfo?.historyImageUrl || '',
         historyImageHint: clubInfo?.historyImageHint || '',
@@ -1221,6 +1223,7 @@ function ClubInfoForm() {
   useEffect(() => {
     if (clubInfo) {
       form.reset({
+        logoUrl: clubInfo.logoUrl || '',
         history: clubInfo.history || '',
         historyImageUrl: clubInfo.historyImageUrl || '',
         historyImageHint: clubInfo.historyImageHint || '',
@@ -1268,13 +1271,31 @@ function ClubInfoForm() {
     <Card>
       <CardHeader>
         <CardTitle>Informations Générales du Club</CardTitle>
-        <CardDescription>Gérez le contenu des pages "Club" et de l'accueil.</CardDescription>
+        <CardDescription>Gérez le contenu des pages "Club", de l'accueil et le logo du site.</CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             
             <Collapsible defaultOpen>
+                <CollapsibleTrigger className='text-xl font-headline text-primary'>Identité du Club</CollapsibleTrigger>
+                <CollapsibleContent className='space-y-6 pt-4 border-l pl-4 ml-2'>
+                    <FormField
+                      control={form.control}
+                      name="logoUrl"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>URL du Logo du Club</FormLabel>
+                          <FormControl><Input placeholder="https://exemple.com/logo.png" {...field} /></FormControl>
+                           <FormDescription>Ce logo apparaîtra dans l'en-tête et le pied de page du site.</FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                </CollapsibleContent>
+            </Collapsible>
+            
+            <Collapsible>
                 <CollapsibleTrigger className='text-xl font-headline text-primary'>Page d'Accueil (Diaporama)</CollapsibleTrigger>
                 <CollapsibleContent className='space-y-6 pt-4 border-l pl-4 ml-2'>
                     <FormField

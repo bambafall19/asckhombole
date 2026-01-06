@@ -161,6 +161,10 @@
       "description": "Stores general information about the club.",
       "type": "object",
       "properties": {
+        "logoUrl": {
+          "type": "string",
+          "description": "URL of the club's main logo."
+        },
         "history": {
           "type": "string",
           "description": "The history of the club."

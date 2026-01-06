@@ -1,7 +1,13 @@
+"use client";
+
 import Link from "next/link";
 import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import { FacebookIcon, InstagramIcon, TwitterIcon, YoutubeIcon } from "../icons/social-icons";
+import { useDocument, useFirestore } from "@/firebase";
+import { useMemo } from "react";
+import { doc } from "firebase/firestore";
+import { ClubInfo } from "@/lib/types";
 
 const SocialIcon = ({ children, href }: { children: React.ReactNode, href: string }) => (
   <Button variant="ghost" size="icon" asChild>
@@ -12,12 +18,21 @@ const SocialIcon = ({ children, href }: { children: React.ReactNode, href: strin
 );
 
 export function Footer() {
+  const firestore = useFirestore();
+
+  const clubInfoRef = useMemo(() => {
+    if (!firestore) return null;
+    return doc(firestore, 'clubInfo', 'main');
+  }, [firestore]);
+
+  const { data: clubInfo } = useDocument<ClubInfo>(clubInfoRef);
+
   return (
     <footer className="bg-card border-t">
       <div className="container py-12 px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="space-y-4 md:col-span-1">
-            <Logo />
+            <Logo logoUrl={clubInfo?.logoUrl} />
             <p className="text-muted-foreground text-sm max-w-xs">
               Le site officiel de l'Association Sportive et Culturelle de Khombole, toute l'actualité du club.
             </p>

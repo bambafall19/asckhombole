@@ -41,7 +41,7 @@ export default function ClubPage() {
           <section className="bg-muted/50 rounded-lg p-8 md:p-12">
             <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center">
               {clubInfo?.presidentWordImageUrl && (
-                <div className="relative aspect-square md:aspect-[4/5] h-full w-full rounded-lg overflow-hidden shadow-md group">
+                <div className="relative aspect-square md:aspect-[4/5] h-full w-full rounded-lg overflow-hidden shadow-md group order-first md:order-last">
                   <Image
                     src={clubInfo.presidentWordImageUrl}
                     alt="Mot du président"

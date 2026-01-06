@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -5,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, X, User, Search, Tv, Store, Newspaper, Shield, Trophy, Image as ImageIcon, Users, Handshake, Mail, Home, LogOut, LogIn } from "lucide-react";
+import { Menu, X, User, Search, Tv, Store, Newspaper, Shield, Trophy, Image as ImageIcon, Users, Handshake, Mail, Home, LogOut, LogIn, PlugZap } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Logo } from "@/components/logo";
 import { useUser } from "@/firebase/auth/use-user";
@@ -32,6 +33,7 @@ const navLinks = [
   { href: "/boutique", label: "Boutique", icon: Store },
   { href: "/contact", label: "Contact", icon: Mail },
   { href: "/webtv", label: "Web TV", icon: Tv },
+  { href: "/integrations", label: "Intégrations", icon: PlugZap, disabled: true },
 ];
 
 
@@ -57,16 +59,23 @@ export function Header() {
     }
   };
 
-  const NavLink = ({ href, label, className }: { href: string; label: string; className?: string }) => {
+  const NavLink = ({ href, label, className, disabled }: { href: string; label: string; className?: string, disabled?: boolean }) => {
     const isActive = pathname === href;
+    const linkClasses = cn(
+        "text-sm font-medium transition-colors hover:text-primary",
+        isActive ? "text-primary font-semibold" : "text-foreground/80",
+        disabled && "text-muted-foreground cursor-not-allowed hover:text-muted-foreground",
+        className
+    );
+
+    if (disabled) {
+        return <span className={linkClasses}>{label}</span>
+    }
+
     return (
       <Link
         href={href}
-        className={cn(
-          "text-sm font-medium transition-colors hover:text-primary",
-          isActive ? "text-primary font-semibold" : "text-foreground/80",
-          className
-        )}
+        className={linkClasses}
         onClick={() => setIsMobileMenuOpen(false)}
       >
         {label}
@@ -74,15 +83,27 @@ export function Header() {
     );
   };
   
-  const MobileNavLink = ({ href, label, Icon }: { href: string; label: string, Icon: React.ElementType }) => {
+  const MobileNavLink = ({ href, label, Icon, disabled }: { href: string; label: string, Icon: React.ElementType, disabled?: boolean }) => {
     const isActive = pathname === href;
+    const linkClasses = cn(
+        "flex items-center p-3 rounded-lg transition-colors",
+        isActive ? "bg-accent text-accent-foreground" : "hover:bg-accent/50",
+        disabled && "text-muted-foreground cursor-not-allowed hover:bg-transparent"
+      );
+
+    if (disabled) {
+        return (
+            <div className={linkClasses}>
+                <Icon className="w-5 h-5 mr-3" />
+                <span className="text-base font-medium">{label}</span>
+            </div>
+        )
+    }
+
     return (
         <Link
           href={href}
-          className={cn(
-            "flex items-center p-3 rounded-lg transition-colors",
-            isActive ? "bg-accent text-accent-foreground" : "hover:bg-accent/50"
-          )}
+          className={linkClasses}
           onClick={() => setIsMobileMenuOpen(false)}
         >
           <Icon className="w-5 h-5 mr-3" />
@@ -179,7 +200,7 @@ export function Header() {
                 <nav className="flex-grow p-4 space-y-2 overflow-y-auto">
                     <MobileNavLink href="/" label="Accueil" Icon={Home} />
                     {navLinks.map((link) => (
-                        <MobileNavLink key={link.href} href={link.href} label={link.label} Icon={link.icon} />
+                        <MobileNavLink key={link.href} href={link.href} label={link.label} Icon={link.icon} disabled={link.disabled} />
                     ))}
                 </nav>
                 <div className="p-4 border-t">

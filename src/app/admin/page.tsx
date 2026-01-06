@@ -28,7 +28,7 @@ import {
 } from 'firebase/firestore';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useState, useEffect, useMemo } from 'react';
-import { LoaderCircle, LogOut, PlusCircle, Trash2, Pencil, List, Users, Trophy, Image as ImageIcon } from 'lucide-react';
+import { LoaderCircle, LogOut, PlusCircle, Trash2, Pencil, List, Users, Trophy, Image as ImageIcon, Handshake } from 'lucide-react';
 import { useUser } from '@/firebase/auth/use-user';
 import { useRouter } from 'next/navigation';
 import { signOut } from 'firebase/auth';
@@ -42,7 +42,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { Article, Player, Match, Photo } from '@/lib/types';
+import { Article, Player, Match, Photo, Partner } from '@/lib/types';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import {
@@ -626,7 +626,7 @@ function MatchesList() {
                         )}
                         {!loading && matches?.map((match) => (
                             <TableRow key={match.id}>
-                                <TableCell>{format(match.date.toDate(), 'P', { locale: fr })}</TableCell>
+                                <TableCell>{match.date ? format(match.date.toDate(), 'P', { locale: fr }) : ''}</TableCell>
                                 <TableCell>{match.competition}</TableCell>
                                 <TableCell className="font-medium">{match.homeTeam} vs {match.awayTeam}</TableCell>
                                 <TableCell>{match.status === 'Terminé' ? `${match.homeScore} - ${match.awayScore}` : '-'}</TableCell>
@@ -800,6 +800,142 @@ function PhotosList() {
     )
 }
 
+const partnerFormSchema = z.object({
+  name: z.string().min(2, { message: 'Le nom doit contenir au moins 2 caractères.' }),
+  logoUrl: z.string().url({ message: "Veuillez entrer une URL de logo valide." }),
+  website: z.string().url({ message: "Veuillez entrer une URL de site web valide." }).optional().or(z.literal('')),
+});
+
+function AddPartnerForm() {
+  const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const firestore = useFirestoreHook();
+
+  const form = useForm<z.infer<typeof partnerFormSchema>>({
+    resolver: zodResolver(partnerFormSchema),
+    defaultValues: {
+      name: '',
+      logoUrl: `https://picsum.photos/seed/${Math.random()}/200/100`,
+      website: '',
+    },
+  });
+
+  async function onSubmit(values: z.infer<typeof partnerFormSchema>) {
+    if (!firestore) return;
+    setIsSubmitting(true);
+    try {
+      await addDoc(collection(firestore, 'partners'), { ...values });
+      toast({ title: 'Partenaire ajouté !', description: `Le partenaire ${values.name} a été ajouté.` });
+      form.reset();
+    } catch (error) {
+      console.error("Erreur lors de l'ajout du partenaire: ", error);
+      toast({ variant: 'destructive', title: 'Erreur', description: "Impossible d'enregistrer le partenaire." });
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        <FormField control={form.control} name="name" render={({ field }) => (
+          <FormItem><FormLabel>Nom du Partenaire</FormLabel><FormControl><Input placeholder="Nom de l'entreprise" {...field} /></FormControl><FormMessage /></FormItem>
+        )} />
+        <FormField control={form.control} name="logoUrl" render={({ field }) => (
+          <FormItem>
+            <FormLabel>URL du Logo</FormLabel>
+            <FormControl><Input placeholder="https://exemple.com/logo.png" {...field} /></FormControl>
+            <FormDescription>Utilisez une image au format paysage (ratio 2:1 conseillé).</FormDescription>
+            <FormMessage />
+          </FormItem>
+        )} />
+        <FormField control={form.control} name="website" render={({ field }) => (
+          <FormItem>
+            <FormLabel>Site Web (Optionnel)</FormLabel>
+            <FormControl><Input placeholder="https://exemple.com" {...field} /></FormControl>
+            <FormMessage />
+          </FormItem>
+        )} />
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
+          {isSubmitting ? 'Ajout...' : 'Ajouter le partenaire'}
+        </Button>
+      </form>
+    </Form>
+  )
+}
+
+function PartnersList() {
+    const firestore = useFirestoreHook();
+    const { toast } = useToast();
+    const partnersQuery = useMemo(() => {
+        if (!firestore) return null;
+        return query(collection(firestore, 'partners'), orderBy('name', 'asc'));
+    }, [firestore]);
+
+    const { data: partners, loading } = useCollection<Partner>(partnersQuery);
+
+    const handleDelete = async (partnerId: string) => {
+        if (!firestore) return;
+        try {
+            await deleteDoc(doc(firestore, 'partners', partnerId));
+            toast({ title: 'Partenaire supprimé', description: 'Le partenaire a été supprimé.' });
+        } catch (error) {
+            toast({ variant: 'destructive', title: 'Erreur', description: 'Impossible de supprimer le partenaire.' });
+        }
+    };
+
+    return (
+         <Card>
+            <CardHeader><CardTitle>Liste des partenaires</CardTitle><CardDescription>Gérez les partenaires et sponsors de votre club.</CardDescription></CardHeader>
+            <CardContent>
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Logo</TableHead>
+                            <TableHead>Nom</TableHead>
+                            <TableHead className="hidden md:table-cell">Site Web</TableHead>
+                            <TableHead className="text-right">Actions</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {loading && (
+                            <TableRow><TableCell colSpan={4} className="text-center"><LoaderCircle className="mx-auto h-8 w-8 animate-spin text-primary" /></TableCell></TableRow>
+                        )}
+                        {!loading && partners?.map((partner) => (
+                            <TableRow key={partner.id}>
+                                <TableCell>
+                                    <img src={partner.logoUrl} alt={`Logo de ${partner.name}`} className="h-10 max-w-[100px] object-contain" />
+                                </TableCell>
+                                <TableCell className="font-medium">{partner.name}</TableCell>
+                                <TableCell className="hidden md:table-cell">
+                                    <a href={partner.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">{partner.website}</a>
+                                </TableCell>
+                                <TableCell className="text-right">
+                                    <Button variant="ghost" size="icon" disabled><Pencil className="h-4 w-4" /></Button>
+                                    <AlertDialog>
+                                      <AlertDialogTrigger asChild><Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive" /></Button></AlertDialogTrigger>
+                                      <AlertDialogContent>
+                                        <AlertDialogHeader>
+                                          <AlertDialogTitle>Êtes-vous absolument sûr ?</AlertDialogTitle>
+                                          <AlertDialogDescription>Cette action est irréversible. Le partenaire sera supprimé.</AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                          <AlertDialogCancel>Annuler</AlertDialogCancel>
+                                          <AlertDialogAction onClick={() => handleDelete(partner.id)} className="bg-destructive hover:bg-destructive/90">Supprimer</AlertDialogAction>
+                                        </AlertDialogFooter>
+                                      </AlertDialogContent>
+                                    </AlertDialog>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </CardContent>
+        </Card>
+    )
+}
+
 export default function AdminPage() {
   const auth = useAuth();
   const { user, loading } = useUser();
@@ -839,13 +975,13 @@ export default function AdminPage() {
         </Button>
       </div>
 
-      <Tabs defaultValue="actus">
-        <TabsList className="grid w-full grid-cols-3 md:grid-cols-4 lg:grid-cols-9 mb-4">
+      <Tabs defaultValue="actus" className="w-full">
+        <TabsList className="overflow-x-auto w-full justify-start md:justify-center">
           <TabsTrigger value="actus">Actualités</TabsTrigger>
           <TabsTrigger value="equipe">Équipe</TabsTrigger>
           <TabsTrigger value="matchs">Matchs</TabsTrigger>
           <TabsTrigger value="galerie">Galerie</TabsTrigger>
-          <TabsTrigger value="partenaires" disabled>Partenaires</TabsTrigger>
+          <TabsTrigger value="partenaires">Partenaires</TabsTrigger>
           <TabsTrigger value="boutique" disabled>Boutique</TabsTrigger>
           <TabsTrigger value="webtv" disabled>Web TV</TabsTrigger>
         </TabsList>
@@ -941,7 +1077,30 @@ export default function AdminPage() {
                 </TabsContent>
             </Tabs>
         </TabsContent>
-        <TabsContent value="partenaires">Bientôt disponible.</TabsContent>
+
+        <TabsContent value="partenaires">
+             <Tabs defaultValue="list">
+                <TabsList>
+                    <TabsTrigger value="list"><List className="w-4 h-4 mr-2" />Voir les partenaires</TabsTrigger>
+                    <TabsTrigger value="add"><PlusCircle className="w-4 h-4 mr-2" />Ajouter un partenaire</TabsTrigger>
+                </TabsList>
+                <TabsContent value="list" className="pt-6">
+                    <PartnersList />
+                </TabsContent>
+                <TabsContent value="add" className="pt-6">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Ajouter un nouveau partenaire</CardTitle>
+                            <CardDescription>Remplissez le formulaire pour ajouter un sponsor ou partenaire.</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <AddPartnerForm />
+                        </CardContent>
+                    </Card>
+                </TabsContent>
+            </Tabs>
+        </TabsContent>
+
         <TabsContent value="boutique">Bientôt disponible.</TabsContent>
         <TabsContent value="webtv">Bientôt disponible.</TabsContent>
       </Tabs>

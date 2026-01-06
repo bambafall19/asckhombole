@@ -123,6 +123,26 @@
         }
       },
       "required": ["title", "imageUrl", "createdAt"]
+    },
+    "Partner": {
+      "title": "Partner",
+      "description": "Represents a club sponsor or partner.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The name of the partner company."
+        },
+        "logoUrl": {
+          "type": "string",
+          "description": "URL of the partner's logo."
+        },
+        "website": {
+            "type": "string",
+            "description": "URL of the partner's website."
+        }
+      },
+      "required": ["name", "logoUrl"]
     }
   },
   "auth": {
@@ -152,6 +172,12 @@
         "$ref": "#/backend/entities/Photo"
       },
       "description": "Stores photos for the media gallery."
+    },
+    "/partners/{partnerId}": {
+        "schema": {
+            "$ref": "#/backend/entities/Partner"
+        },
+        "description": "Stores information about club partners and sponsors."
     }
   }
 }

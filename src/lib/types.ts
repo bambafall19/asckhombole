@@ -37,3 +37,10 @@ export interface Photo {
     imageHint?: string;
     createdAt: Timestamp;
 }
+
+export interface Partner {
+    id: string;
+    name: string;
+    logoUrl: string;
+    website?: string;
+}

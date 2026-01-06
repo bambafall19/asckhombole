@@ -44,7 +44,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Article, Player, Match, Photo, Partner } from '@/lib/types';
-import { format } from 'date-fns';
+import { format, setHours, setMinutes } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import {
   AlertDialog,
@@ -502,6 +502,10 @@ function PlayersList() {
 
 const matchFormSchema = z.object({
   date: z.date({ required_error: 'La date du match est obligatoire.' }),
+  time: z.object({
+    hours: z.coerce.number().min(0).max(23),
+    minutes: z.coerce.number().min(0).max(59),
+  }),
   competition: z.string().min(3, { message: 'La compétition doit contenir au moins 3 caractères.' }),
   homeTeam: z.string().min(3, { message: 'Le nom de l\'équipe à domicile est obligatoire.' }),
   awayTeam: z.string().min(3, { message: 'Le nom de l\'équipe à l\'extérieur est obligatoire.' }),
@@ -522,18 +526,24 @@ function AddMatchForm() {
       homeTeam: 'ASC Khombole',
       awayTeam: '',
       status: 'À venir',
+      time: { hours: 16, minutes: 0 },
     },
   });
 
   async function onSubmit(values: z.infer<typeof matchFormSchema>) {
     if (!firestore) return;
     setIsSubmitting(true);
+    
+    const combinedDate = setMinutes(setHours(values.date, values.time.hours), values.time.minutes);
 
     const matchData = {
-      ...values,
-      date: Timestamp.fromDate(values.date),
-      homeScore: values.status === 'Terminé' ? values.homeScore || 0 : null,
-      awayScore: values.status === 'Terminé' ? values.awayScore || 0 : null,
+      competition: values.competition,
+      homeTeam: values.homeTeam,
+      awayTeam: values.awayTeam,
+      status: values.status,
+      date: Timestamp.fromDate(combinedDate),
+      homeScore: values.status === 'Terminé' ? values.homeScore ?? null : null,
+      awayScore: values.status === 'Terminé' ? values.awayScore ?? null : null,
     };
     
     const matchesCollection = collection(firestore, 'matches');
@@ -580,10 +590,10 @@ function AddMatchForm() {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <FormField control={form.control} name="homeScore" render={({ field }) => (
-                    <FormItem><FormLabel>Score Domicile (Optionnel)</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
+                    <FormItem><FormLabel>Score Domicile (si terminé)</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
                     )} />
                     <FormField control={form.control} name="awayScore" render={({ field }) => (
-                    <FormItem><FormLabel>Score Extérieur (Optionnel)</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
+                    <FormItem><FormLabel>Score Extérieur (si terminé)</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
                     )} />
                 </div>
                 <FormField control={form.control} name="competition" render={({ field }) => (
@@ -595,7 +605,7 @@ function AddMatchForm() {
                     name="date"
                     render={({ field }) => (
                         <FormItem className="flex flex-col">
-                        <FormLabel>Date et heure du match</FormLabel>
+                        <FormLabel>Date du match</FormLabel>
                         <Popover>
                             <PopoverTrigger asChild>
                             <FormControl>
@@ -607,7 +617,7 @@ function AddMatchForm() {
                                 )}
                                 >
                                 {field.value ? (
-                                    format(field.value, "PPP 'à' HH:mm", { locale: fr })
+                                    format(field.value, "PPP", { locale: fr })
                                 ) : (
                                     <span>Choisir une date</span>
                                 )}
@@ -629,6 +639,22 @@ function AddMatchForm() {
                         </FormItem>
                     )}
                     />
+                    <div className='space-y-2'>
+                        <FormLabel>Heure du match</FormLabel>
+                        <div className="flex items-center gap-2">
+                           <FormField control={form.control} name="time.hours" render={({ field }) => (
+                                <FormItem><FormControl><Input type="number" min="0" max="23" placeholder="HH" {...field} /></FormControl></FormItem>
+                            )} />
+                            <span>:</span>
+                             <FormField control={form.control} name="time.minutes" render={({ field }) => (
+                                <FormItem><FormControl><Input type="number" min="0" max="59" placeholder="MM" {...field} /></FormControl></FormItem>
+                            )} />
+                        </div>
+                         <FormMessage>{form.formState.errors.time?.hours?.message || form.formState.errors.time?.minutes?.message}</FormMessage>
+                    </div>
+
+                </div>
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <FormField control={form.control} name="status" render={({ field }) => (
                     <FormItem><FormLabel>Statut</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
@@ -699,7 +725,7 @@ function MatchesList() {
                         )}
                         {!loading && matches?.map((match) => (
                             <TableRow key={match.id}>
-                                <TableCell>{match.date ? format(match.date.toDate(), 'P', { locale: fr }) : ''}</TableCell>
+                                <TableCell>{match.date ? format(match.date.toDate(), "PPP 'à' HH:mm", { locale: fr }) : ''}</TableCell>
                                 <TableCell>{match.competition}</TableCell>
                                 <TableCell className="font-medium">{match.homeTeam} vs {match.awayTeam}</TableCell>
                                 <TableCell>{match.status === 'Terminé' ? `${match.homeScore} - ${match.awayScore}` : '-'}</TableCell>
@@ -1215,3 +1241,5 @@ export default function AdminPage() {
     </main>
   );
 }
+
+    

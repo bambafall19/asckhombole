@@ -19,29 +19,6 @@ import { Article } from "@/lib/types";
 import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
-const liveMatches = [
-  {
-    id: 1,
-    sport: "Football",
-    league: "Ligue 1 • 78m",
-    teams: [
-      { name: "ASC Khombole", score: "2" },
-      { name: "ASC Jaraaf", score: "1" }
-    ],
-    logos: ["/icons/teams/fcb.svg", "/icons/teams/rma.svg"]
-  },
-  {
-    id: 2,
-    sport: "Football",
-    league: "Coupe du Sénégal • Mi-temps",
-    teams: [
-      { name: "ASC Khombole", score: "1" },
-      { name: "Génération Foot", score: "0" }
-    ],
-    logos: ["/icons/teams/fcb.svg", "/icons/teams/rma.svg"]
-  },
-];
-
 const photoAlbum = [
   {
     id: 1,
@@ -227,37 +204,6 @@ export default function Home() {
                     </Link>
                     ))}
                 </div>
-            </div>
-
-            <div className="bg-card p-4 rounded-lg shadow-sm">
-              <div className="flex items-center gap-2 mb-4">
-                <span className="relative flex h-3 w-3">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
-                </span>
-                <h3 className="font-bold text-lg font-headline">Matchs en direct</h3>
-              </div>
-              <div className="space-y-4">
-                {liveMatches.map((match) => (
-                  <div key={match.id} className="text-sm border-t pt-4">
-                    <p className="font-semibold text-muted-foreground">{match.sport} - {match.league}</p>
-                    <div className="space-y-2 mt-2">
-                      {match.teams.map((team, index) => (
-                        <div key={team.name} className="flex justify-between items-center">
-                          <div className="flex items-center gap-2">
-                             <Avatar className="w-5 h-5">
-                              <AvatarImage src={match.logos?.[index]} />
-                              <AvatarFallback>{team.name.substring(0, 1)}</AvatarFallback>
-                            </Avatar>
-                            <span>{team.name}</span>
-                          </div>
-                          <span className="font-bold">{team.score}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
             </div>
             
             <div className="bg-card p-4 rounded-lg shadow-sm">

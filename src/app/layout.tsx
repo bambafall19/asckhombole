@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Dancing_Script } from "next/font/google";
+import { Inter, Oswald } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/toaster";
@@ -8,7 +8,7 @@ import { Footer } from "@/components/layout/footer";
 import { FirebaseClientProvider } from "@/firebase/client-provider";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
-const dancingScript = Dancing_Script({ subsets: ["latin"], variable: "--font-headline" });
+const oswald = Oswald({ subsets: ["latin"], variable: "--font-headline" });
 
 export const metadata: Metadata = {
   title: "ASC Khombole - Site Officiel",
@@ -26,7 +26,7 @@ export default function RootLayout({
         className={cn(
           "min-h-screen bg-background font-sans antialiased",
           inter.variable,
-          dancingScript.variable
+          oswald.variable
         )}
       >
         <FirebaseClientProvider>

@@ -133,14 +133,7 @@ export function Header() {
       )
     }
 
-    return (
-      <Button asChild variant="ghost" size="sm">
-        <Link href="/login">
-          <User className="h-5 w-5 mr-2" />
-          Connexion
-        </Link>
-      </Button>
-    )
+    return null;
   }
 
   return (

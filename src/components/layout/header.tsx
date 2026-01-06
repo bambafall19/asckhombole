@@ -26,15 +26,15 @@ import { doc } from "firebase/firestore";
 
 
 const navLinks = [
-  { href: "/club", label: "Club", icon: Shield },
-  { href: "/equipe", label: "Équipe", icon: Users },
-  { href: "/matchs", label: "Matchs", icon: Trophy },
-  { href: "/actus", label: "Actus", icon: Newspaper },
-  { href: "/galerie", label: "Galerie", icon: ImageIcon },
-  { href: "/partenaires", label: "Partenaires", icon: Handshake },
-  { href: "/boutique", label: "Boutique", icon: Store },
-  { href: "/contact", label: "Contact", icon: Mail },
-  { href: "/webtv", label: "Web TV", icon: Tv },
+  { href: "/club", label: "CLUB", icon: Shield },
+  { href: "/equipe", label: "ÉQUIPE", icon: Users },
+  { href: "/matchs", label: "MATCHS", icon: Trophy },
+  { href: "/actus", label: "ACTUS", icon: Newspaper },
+  { href: "/galerie", label: "GALERIE", icon: ImageIcon },
+  { href: "/partenaires", label: "PARTENAIRES", icon: Handshake },
+  { href: "/boutique", label: "BOUTIQUE", icon: Store },
+  { href: "/contact", label: "CONTACT", icon: Mail },
+  { href: "/webtv", label: "WEB TV", icon: Tv },
 ];
 
 
@@ -173,12 +173,12 @@ export function Header() {
         isScrolled ? "bg-card/95 backdrop-blur-sm" : "bg-card"
       )}
     >
-      <div className="container flex h-24 items-center justify-between">
+      <div className="container flex h-20 items-center justify-between">
         <Link href="/" className="flex items-center gap-2">
           <Logo logoUrl={clubInfo?.logoUrl} />
         </Link>
         <nav className="hidden md:flex items-center gap-6">
-          <NavLink href="/" label="Accueil" />
+          <NavLink href="/" label="ACCUEIL" />
           {navLinks.map((link) => (
             <NavLink key={link.href} {...link} />
           ))}
@@ -207,7 +207,7 @@ export function Header() {
                     </Button>
                 </div>
                 <nav className="flex-grow p-4 space-y-2 overflow-y-auto">
-                    <MobileNavLink href="/" label="Accueil" Icon={Home} />
+                    <MobileNavLink href="/" label="ACCUEIL" Icon={Home} />
                     {navLinks.map((link) => (
                         <MobileNavLink key={link.href} href={link.href} label={link.label} Icon={link.icon} disabled={link.disabled} />
                     ))}

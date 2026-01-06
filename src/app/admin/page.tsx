@@ -125,63 +125,47 @@ function AddArticleForm({ article, onFinish }: { article?: Article, onFinish?: (
     }
     setIsSubmitting(true);
 
-    if (isEditing) {
-      const articleRef = doc(firestore, 'articles', article.id);
-      updateDoc(articleRef, values).then(() => {
-        toast({
-          title: 'Article modifié !',
-          description: 'L\'article a été mis à jour avec succès.',
-        });
+    try {
+        if (isEditing) {
+            const articleRef = doc(firestore, 'articles', article.id);
+            await updateDoc(articleRef, values);
+            toast({
+                title: 'Article modifié !',
+                description: 'L\'article a été mis à jour avec succès.',
+            });
+        } else {
+            const articlesCollection = collection(firestore, 'articles');
+            await addDoc(articlesCollection, {
+                ...values,
+                createdAt: serverTimestamp(),
+            });
+            toast({
+                title: 'Article publié !',
+                description: 'Votre nouvel article a été ajouté avec succès.',
+            });
+            form.reset({
+                ...form.getValues(),
+                title: '',
+                content: '',
+                imageUrl: `https://picsum.photos/seed/${Math.random()}/800/450`,
+            });
+        }
         onFinish?.();
-      }).catch(async (error) => {
-        console.error("Erreur lors de la modification de l'article: ", error);
+    } catch (error) {
+        console.error("Erreur lors de la sauvegarde de l'article: ", error);
         const permissionError = new FirestorePermissionError({
-            path: articleRef.path,
-            operation: 'update',
+            path: isEditing ? `articles/${article.id}` : 'articles',
+            operation: isEditing ? 'update' : 'create',
             requestResourceData: values,
         });
         errorEmitter.emit('permission-error', permissionError);
         toast({
-          variant: 'destructive',
-          title: 'Oh non ! Une erreur est survenue.',
-          description: "Impossible de modifier l'article. Veuillez réessayer.",
-        });
-      }).finally(() => {
-        setIsSubmitting(false);
-      });
-    } else {
-      const articlesCollection = collection(firestore, 'articles');
-      addDoc(articlesCollection, {
-        ...values,
-        createdAt: serverTimestamp(),
-      }).then(() => {
-          toast({
-            title: 'Article publié !',
-            description: 'Votre nouvel article a été ajouté avec succès.',
-          });
-          form.reset({
-            ...form.getValues(),
-            title: '',
-            content: '',
-            imageUrl: `https://picsum.photos/seed/${Math.random()}/800/450`,
-          });
-          onFinish?.();
-      }).catch(async (error) => {
-          console.error("Erreur lors de l'ajout de l'article: ", error);
-          const permissionError = new FirestorePermissionError({
-              path: articlesCollection.path,
-              operation: 'create',
-              requestResourceData: values,
-          });
-          errorEmitter.emit('permission-error', permissionError);
-          toast({
             variant: 'destructive',
             title: 'Oh non ! Une erreur est survenue.',
-            description: "Impossible d'enregistrer l'article. Veuillez réessayer.",
-          });
-      }).finally(() => {
-          setIsSubmitting(false);
-      });
+            description: "Impossible de sauvegarder l'article. Veuillez réessayer.",
+        });
+    } finally {
+        setIsSubmitting(false);
     }
   }
 
@@ -275,7 +259,7 @@ function AddArticleForm({ article, onFinish }: { article?: Article, onFinish?: (
 function ArticlesList() {
     const firestore = useFirestoreHook();
     const { toast } = useToast();
-    const [openDialogs, setOpenDialogs] = useState<Record<string, boolean>>({});
+    const [editingArticle, setEditingArticle] = useState<Article | null>(null);
 
     const articlesQuery = useMemo(() => {
         if (!firestore) return null;
@@ -307,14 +291,6 @@ function ArticlesList() {
         });
     };
     
-    const handleDialogChange = (articleId: string, open: boolean) => {
-      setOpenDialogs(prev => ({ ...prev, [articleId]: open }));
-    };
-
-    const handleFinishEditing = (articleId: string) => {
-      handleDialogChange(articleId, false);
-    };
-
     return (
          <Card>
             <CardHeader>
@@ -347,24 +323,9 @@ function ArticlesList() {
                                     {article.createdAt ? format(article.createdAt.toDate(), 'PPP', { locale: fr }) : ''}
                                 </TableCell>
                                 <TableCell className="text-right">
-                                    <Dialog open={openDialogs[article.id] || false} onOpenChange={(open) => handleDialogChange(article.id, open)}>
-                                      <DialogTrigger asChild>
-                                        <Button variant="ghost" size="icon">
-                                          <Pencil className="h-4 w-4" />
-                                        </Button>
-                                      </DialogTrigger>
-                                      <DialogContent className="sm:max-w-[625px]">
-                                        <DialogHeader>
-                                          <DialogTitle>Modifier l'article</DialogTitle>
-                                          <DialogDescription>
-                                            Apportez des modifications à votre article ici. Cliquez sur Enregistrer lorsque vous avez terminé.
-                                          </DialogDescription>
-                                        </DialogHeader>
-                                        <div className="py-4">
-                                          <AddArticleForm article={article} onFinish={() => handleFinishEditing(article.id)} />
-                                        </div>
-                                      </DialogContent>
-                                    </Dialog>
+                                    <Button variant="ghost" size="icon" onClick={() => setEditingArticle(article)}>
+                                        <Pencil className="h-4 w-4" />
+                                    </Button>
 
                                     <AlertDialog>
                                       <AlertDialogTrigger asChild>
@@ -391,6 +352,25 @@ function ArticlesList() {
                     </TableBody>
                 </Table>
             </CardContent>
+            
+            <Dialog open={!!editingArticle} onOpenChange={(open) => !open && setEditingArticle(null)}>
+              <DialogContent className="sm:max-w-[625px]">
+                <DialogHeader>
+                  <DialogTitle>Modifier l'article</DialogTitle>
+                  <DialogDescription>
+                    Apportez des modifications à votre article ici. Cliquez sur Enregistrer lorsque vous avez terminé.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="py-4">
+                  {editingArticle && (
+                    <AddArticleForm 
+                        article={editingArticle} 
+                        onFinish={() => setEditingArticle(null)} 
+                    />
+                  )}
+                </div>
+              </DialogContent>
+            </Dialog>
         </Card>
     )
 }
@@ -656,10 +636,10 @@ function AddMatchForm() {
                 </div>
                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <FormField control={form.control} name="homeScore" render={({ field }) => (
-                    <FormItem><FormLabel>Score Domicile (si terminé)</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
+                    <FormItem><FormLabel>Score Domicile (si terminé)</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
                     )} />
                     <FormField control={form.control} name="awayScore" render={({ field }) => (
-                    <FormItem><FormLabel>Score Extérieur (si terminé)</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
+                    <FormItem><FormLabel>Score Extérieur (si terminé)</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
                     )} />
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -1213,7 +1193,7 @@ export default function AdminPage() {
                         <CardDescription>Remplissez le formulaire ci-dessous pour publier une nouvelle actualité.</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <AddArticleForm />
+                        <AddArticleForm onFinish={() => {}} />
                     </CardContent>
                 </Card>
               </CollapsibleContent>

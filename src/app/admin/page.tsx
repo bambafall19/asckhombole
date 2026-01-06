@@ -848,9 +848,7 @@ function MatchesList() {
 }
 
 const photoFormSchema = z.object({
-  title: z.string().min(3, { message: 'Le titre doit contenir au moins 3 caractères.' }),
   imageUrl: z.string().url({ message: "Veuillez entrer une URL d'image valide." }),
-  imageHint: z.string().optional(),
 });
 
 function AddPhotoForm() {
@@ -861,25 +859,25 @@ function AddPhotoForm() {
   const form = useForm<z.infer<typeof photoFormSchema>>({
     resolver: zodResolver(photoFormSchema),
     defaultValues: {
-      title: '',
       imageUrl: `https://picsum.photos/seed/${Math.random()}/600/400`,
-      imageHint: 'soccer game',
     },
   });
 
   async function onSubmit(values: z.infer<typeof photoFormSchema>) {
     if (!firestore) return;
     setIsSubmitting(true);
+
+    const title = `Photo du ${format(new Date(), 'PPP à HH:mm', { locale: fr })}`;
     
     const photosCollection = collection(firestore, 'photos');
     addDoc(photosCollection, {
         ...values,
+        title: title,
+        imageHint: "gallery photo",
         createdAt: serverTimestamp(),
     }).then(() => {
         toast({ title: 'Photo ajoutée !', description: 'La nouvelle photo a été ajoutée à la galerie.' });
         form.reset({
-            ...form.getValues(),
-            title: '',
             imageUrl: `https://picsum.photos/seed/${Math.random()}/600/400`,
         });
     }).catch(async (error) => {
@@ -887,7 +885,7 @@ function AddPhotoForm() {
         const permissionError = new FirestorePermissionError({
             path: photosCollection.path,
             operation: 'create',
-            requestResourceData: values,
+            requestResourceData: { ...values, title },
         });
         errorEmitter.emit('permission-error', permissionError);
         toast({ variant: 'destructive', title: 'Erreur', description: "Impossible d'enregistrer la photo." });
@@ -905,22 +903,11 @@ function AddPhotoForm() {
         <CardContent>
             <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                <FormField control={form.control} name="title" render={({ field }) => (
-                <FormItem><FormLabel>Titre / Description</FormLabel><FormControl><Input placeholder="Célébration après le but" {...field} /></FormControl><FormMessage /></FormItem>
-                )} />
                 <FormField control={form.control} name="imageUrl" render={({ field }) => (
                 <FormItem>
                     <FormLabel>URL de la photo</FormLabel>
                     <FormControl><Input placeholder="https://exemple.com/photo.jpg" {...field} /></FormControl>
                     <FormDescription>Lien vers l'image à ajouter.</FormDescription>
-                    <FormMessage />
-                </FormItem>
-                )} />
-                <FormField control={form.control} name="imageHint" render={({ field }) => (
-                <FormItem>
-                    <FormLabel>Indice pour l'image (Optionnel)</FormLabel>
-                    <FormControl><Input placeholder="soccer celebration" {...field} /></FormControl>
-                    <FormDescription>Un ou deux mots en anglais pour l'IA.</FormDescription>
                     <FormMessage />
                 </FormItem>
                 )} />

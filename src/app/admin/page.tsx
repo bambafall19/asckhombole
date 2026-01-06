@@ -502,7 +502,14 @@ function AddMatchForm() {
     if (!firestore) return;
     setIsSubmitting(true);
     try {
-      await addDoc(collection(firestore, 'matches'), { ...values });
+      const matchData: Omit<Match, 'id'> = {
+        ...values,
+        homeScore: values.status === 'Terminé' ? values.homeScore || 0 : null,
+        awayScore: values.status === 'Terminé' ? values.awayScore || 0 : null,
+      };
+
+      await addDoc(collection(firestore, 'matches'), matchData);
+
       toast({ title: 'Match ajouté !', description: `Le match ${values.homeTeam} vs ${values.awayTeam} a été programmé.` });
       form.reset({
         ...values,

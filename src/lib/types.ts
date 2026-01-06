@@ -28,6 +28,7 @@ export interface Match {
   homeScore?: number | null;
   awayScore?: number | null;
   status: 'Terminé' | 'À venir' | 'Reporté';
+  location?: string;
 }
 
 export interface Photo {

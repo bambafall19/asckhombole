@@ -509,6 +509,7 @@ const matchFormSchema = z.object({
   competition: z.string().min(3, { message: 'La compétition doit contenir au moins 3 caractères.' }),
   homeTeam: z.string().min(3, { message: 'Le nom de l\'équipe à domicile est obligatoire.' }),
   awayTeam: z.string().min(3, { message: 'Le nom de l\'équipe à l\'extérieur est obligatoire.' }),
+  location: z.string().optional(),
   homeScore: z.coerce.number().int().optional(),
   awayScore: z.coerce.number().int().optional(),
   status: z.enum(['À venir', 'Terminé', 'Reporté']),
@@ -527,6 +528,7 @@ function AddMatchForm() {
       awayTeam: '',
       status: 'À venir',
       time: { hours: 16, minutes: 0 },
+      location: '',
     },
   });
 
@@ -540,6 +542,7 @@ function AddMatchForm() {
       competition: values.competition,
       homeTeam: values.homeTeam,
       awayTeam: values.awayTeam,
+      location: values.location,
       status: values.status,
       date: Timestamp.fromDate(combinedDate),
       homeScore: values.status === 'Terminé' ? values.homeScore ?? null : null,
@@ -556,6 +559,7 @@ function AddMatchForm() {
             awayTeam: '',
             homeScore: undefined,
             awayScore: undefined,
+            location: '',
         });
     }).catch(async (error) => {
         console.error("Erreur lors de l'ajout du match: ", error);
@@ -588,7 +592,7 @@ function AddMatchForm() {
                     <FormItem><FormLabel>Équipe à l'extérieur</FormLabel><FormControl><Input placeholder="ASC Jaraaf" {...field} /></FormControl><FormMessage /></FormItem>
                 )} />
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <FormField control={form.control} name="homeScore" render={({ field }) => (
                     <FormItem><FormLabel>Score Domicile (si terminé)</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
                     )} />
@@ -596,9 +600,14 @@ function AddMatchForm() {
                     <FormItem><FormLabel>Score Extérieur (si terminé)</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
                     )} />
                 </div>
-                <FormField control={form.control} name="competition" render={({ field }) => (
-                <FormItem><FormLabel>Compétition</FormLabel><FormControl><Input placeholder="Ligue 1" {...field} /></FormControl><FormMessage /></FormItem>
-                )} />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <FormField control={form.control} name="competition" render={({ field }) => (
+                  <FormItem><FormLabel>Compétition</FormLabel><FormControl><Input placeholder="Ligue 1" {...field} /></FormControl><FormMessage /></FormItem>
+                  )} />
+                   <FormField control={form.control} name="location" render={({ field }) => (
+                  <FormItem><FormLabel>Lieu du match</FormLabel><FormControl><Input placeholder="Stade Ibrahima Boye" {...field} /></FormControl><FormMessage /></FormItem>
+                  )} />
+                </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <FormField
                     control={form.control}

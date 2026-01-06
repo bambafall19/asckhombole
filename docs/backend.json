@@ -95,6 +95,10 @@
           "type": "string",
           "enum": ["Terminé", "À venir", "Reporté"],
           "description": "The status of the match."
+        },
+        "location": {
+          "type": "string",
+          "description": "The location or stadium where the match will be played."
         }
       },
       "required": ["date", "competition", "homeTeam", "awayTeam", "status"]

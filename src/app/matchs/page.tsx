@@ -1,7 +1,7 @@
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Trophy, LoaderCircle, Calendar } from "lucide-react";
+import { Trophy, LoaderCircle, Calendar, MapPin } from "lucide-react";
 import { useMemo } from "react";
 import { collection, query, orderBy } from "firebase/firestore";
 import { useCollection, useFirestore } from "@/firebase";
@@ -49,10 +49,16 @@ function MatchCard({ match }: { match: Match }) {
           </div>
         </div>
       </CardContent>
-      <CardFooter className="py-2 text-xs justify-center text-muted-foreground">
-          {match.status === 'À venir' && `Coup d'envoi à ${format(match.date.toDate(), 'HH:mm', { locale: fr })}`}
-          {match.status === 'Terminé' && 'Match terminé'}
-          {match.status === 'Reporté' && 'Match reporté'}
+      <CardFooter className="py-2 text-xs justify-center text-muted-foreground flex-wrap gap-x-4 gap-y-1">
+          {match.status === 'À venir' && <span>Coup d'envoi à {format(match.date.toDate(), 'HH:mm', { locale: fr })}</span>}
+          {match.status === 'Terminé' && <span>Match terminé</span>}
+          {match.status === 'Reporté' && <span>Match reporté</span>}
+          {match.location && (
+            <div className="flex items-center gap-1">
+              <MapPin className="w-3 h-3" />
+              <span>{match.location}</span>
+            </div>
+          )}
       </CardFooter>
     </Card>
   );

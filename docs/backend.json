@@ -83,6 +83,14 @@
           "type": "string",
           "description": "The name of the away team."
         },
+        "homeTeamLogoUrl": {
+          "type": "string",
+          "description": "URL of the home team's logo."
+        },
+        "awayTeamLogoUrl": {
+            "type": "string",
+            "description": "URL of the away team's logo."
+        },
         "homeScore": {
           "type": "number",
           "description": "The final score of the home team."

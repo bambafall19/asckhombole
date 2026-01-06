@@ -25,6 +25,8 @@ export interface Match {
   competition: string;
   homeTeam: string;
   awayTeam:string;
+  homeTeamLogoUrl?: string;
+  awayTeamLogoUrl?: string;
   homeScore?: number | null;
   awayScore?: number | null;
   status: 'Terminé' | 'À venir' | 'Reporté';

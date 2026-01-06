@@ -10,6 +10,7 @@ import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { cn } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
+import Image from "next/image";
 
 function MatchCard({ match }: { match: Match }) {
   const isFinished = match.status === 'Terminé';
@@ -35,18 +36,20 @@ function MatchCard({ match }: { match: Match }) {
         </div>
       </CardHeader>
       <CardContent className="py-4">
-        <div className="flex items-center justify-between">
-          <div className={cn("flex-1 text-center", isHomeTeam(match.homeTeam) ? "order-1" : "order-3")}>
-             <p className={getTeamClasses(match.homeTeam, homeWinner)}>{match.homeTeam}</p>
-          </div>
-          <div className="flex items-center gap-4 font-bold text-2xl order-2">
+        <div className="flex items-center justify-around">
+            <div className="flex flex-col items-center gap-2 w-1/3 text-center">
+                {match.homeTeamLogoUrl && <Image src={match.homeTeamLogoUrl} alt={match.homeTeam} width={40} height={40} className="object-contain" />}
+                <p className={getTeamClasses(match.homeTeam, homeWinner)}>{match.homeTeam}</p>
+            </div>
+          <div className="flex items-center gap-4 font-bold text-2xl">
             <span className={cn(homeWinner && 'text-primary')}>{isFinished ? match.homeScore : '-'}</span>
             <span className="text-muted-foreground text-xl">vs</span>
             <span className={cn(awayWinner && 'text-primary')}>{isFinished ? match.awayScore : '-'}</span>
           </div>
-          <div className={cn("flex-1 text-center", isHomeTeam(match.awayTeam) ? "order-1" : "order-3")}>
-            <p className={getTeamClasses(match.awayTeam, awayWinner)}>{match.awayTeam}</p>
-          </div>
+           <div className="flex flex-col items-center gap-2 w-1/3 text-center">
+                {match.awayTeamLogoUrl && <Image src={match.awayTeamLogoUrl} alt={match.awayTeam} width={40} height={40} className="object-contain" />}
+                <p className={getTeamClasses(match.awayTeam, awayWinner)}>{match.awayTeam}</p>
+            </div>
         </div>
       </CardContent>
       <CardFooter className="py-2 text-xs justify-center text-muted-foreground flex-wrap gap-x-4 gap-y-1">

@@ -128,41 +128,63 @@ function AddArticleForm({ article, onFinish }: { article?: Article, onFinish?: (
     try {
         if (isEditing) {
             const articleRef = doc(firestore, 'articles', article.id);
-            await updateDoc(articleRef, values);
-            toast({
-                title: 'Article modifié !',
-                description: 'L\'article a été mis à jour avec succès.',
+            updateDoc(articleRef, values).catch(async (error) => {
+              console.error("Erreur lors de la modification de l'article: ", error);
+              const permissionError = new FirestorePermissionError({
+                  path: `articles/${article.id}`,
+                  operation: 'update',
+                  requestResourceData: values,
+              });
+              errorEmitter.emit('permission-error', permissionError);
+              toast({
+                  variant: 'destructive',
+                  title: 'Oh non ! Une erreur est survenue.',
+                  description: "Impossible de modifier l'article. Veuillez réessayer.",
+              });
+            }).then(() => {
+                toast({
+                    title: 'Article modifié !',
+                    description: 'L\'article a été mis à jour avec succès.',
+                });
             });
         } else {
             const articlesCollection = collection(firestore, 'articles');
-            await addDoc(articlesCollection, {
+            addDoc(articlesCollection, {
                 ...values,
                 createdAt: serverTimestamp(),
-            });
-            toast({
-                title: 'Article publié !',
-                description: 'Votre nouvel article a été ajouté avec succès.',
-            });
-            form.reset({
-                ...form.getValues(),
-                title: '',
-                content: '',
-                imageUrl: `https://picsum.photos/seed/${Math.random()}/800/450`,
+            }).catch(async (error) => {
+                console.error("Erreur lors de la sauvegarde de l'article: ", error);
+                const permissionError = new FirestorePermissionError({
+                    path: 'articles',
+                    operation: 'create',
+                    requestResourceData: values,
+                });
+                errorEmitter.emit('permission-error', permissionError);
+                toast({
+                    variant: 'destructive',
+                    title: 'Oh non ! Une erreur est survenue.',
+                    description: "Impossible de sauvegarder l'article. Veuillez réessayer.",
+                });
+            }).then(() => {
+                toast({
+                    title: 'Article publié !',
+                    description: 'Votre nouvel article a été ajouté avec succès.',
+                });
+                form.reset({
+                    ...form.getValues(),
+                    title: '',
+                    content: '',
+                    imageUrl: `https://picsum.photos/seed/${Math.random()}/800/450`,
+                });
             });
         }
         onFinish?.();
     } catch (error) {
-        console.error("Erreur lors de la sauvegarde de l'article: ", error);
-        const permissionError = new FirestorePermissionError({
-            path: isEditing ? `articles/${article.id}` : 'articles',
-            operation: isEditing ? 'update' : 'create',
-            requestResourceData: values,
-        });
-        errorEmitter.emit('permission-error', permissionError);
+        console.error("Erreur générale: ", error);
         toast({
             variant: 'destructive',
-            title: 'Oh non ! Une erreur est survenue.',
-            description: "Impossible de sauvegarder l'article. Veuillez réessayer.",
+            title: 'Oh non ! Une erreur inattendue est survenue.',
+            description: "Veuillez réessayer.",
         });
     } finally {
         setIsSubmitting(false);
@@ -323,9 +345,11 @@ function ArticlesList() {
                                     {article.createdAt ? format(article.createdAt.toDate(), 'PPP', { locale: fr }) : ''}
                                 </TableCell>
                                 <TableCell className="text-right">
-                                    <Button variant="ghost" size="icon" onClick={() => setEditingArticle(article)}>
-                                        <Pencil className="h-4 w-4" />
-                                    </Button>
+                                    <DialogTrigger asChild>
+                                        <Button variant="ghost" size="icon" onClick={() => setEditingArticle(article)}>
+                                            <Pencil className="h-4 w-4" />
+                                        </Button>
+                                    </DialogTrigger>
 
                                     <AlertDialog>
                                       <AlertDialogTrigger asChild>
@@ -335,7 +359,7 @@ function ArticlesList() {
                                       </AlertDialogTrigger>
                                       <AlertDialogContent>
                                         <AlertDialogHeader>
-                                          <AlertDialogTitle>Êtes-vous absolument sûr ?</AlertDialogTitle>
+                                          <AlertDialogTitle>Êtes-vous absolutely sûr ?</AlertDialogTitle>
                                           <AlertDialogDescription>
                                             Cette action est irréversible. Elle supprimera définitivement l'article.
                                           </AlertDialogDescription>
@@ -551,6 +575,8 @@ const matchFormSchema = z.object({
   competition: z.string().min(3, { message: 'La compétition doit contenir au moins 3 caractères.' }),
   homeTeam: z.string().min(3, { message: 'Le nom de l\'équipe à domicile est obligatoire.' }),
   awayTeam: z.string().min(3, { message: 'Le nom de l\'équipe à l\'extérieur est obligatoire.' }),
+  homeTeamLogoUrl: z.string().url({ message: "Veuillez entrer une URL de logo valide." }).optional().or(z.literal('')),
+  awayTeamLogoUrl: z.string().url({ message: "Veuillez entrer une URL de logo valide." }).optional().or(z.literal('')),
   location: z.string().optional(),
   homeScore: z.coerce.number().int().optional(),
   awayScore: z.coerce.number().int().optional(),
@@ -571,6 +597,8 @@ function AddMatchForm() {
       status: 'À venir',
       time: { hours: 16, minutes: 0 },
       location: '',
+      homeTeamLogoUrl: '',
+      awayTeamLogoUrl: '',
     },
   });
 
@@ -581,29 +609,16 @@ function AddMatchForm() {
     const combinedDate = setMinutes(setHours(values.date, values.time.hours), values.time.minutes);
 
     const matchData = {
-      competition: values.competition,
-      homeTeam: values.homeTeam,
-      awayTeam: values.awayTeam,
-      location: values.location,
-      status: values.status,
+      ...values,
       date: Timestamp.fromDate(combinedDate),
       homeScore: values.status === 'Terminé' ? values.homeScore ?? null : null,
       awayScore: values.status === 'Terminé' ? values.awayScore ?? null : null,
     };
+    delete (matchData as any).time;
     
     const matchesCollection = collection(firestore, 'matches');
 
-    addDoc(matchesCollection, matchData).then(() => {
-        toast({ title: 'Match ajouté !', description: `Le match ${values.homeTeam} vs ${values.awayTeam} a été programmé.` });
-        form.reset({
-            ...form.getValues(),
-            date: undefined,
-            awayTeam: '',
-            homeScore: undefined,
-            awayScore: undefined,
-            location: '',
-        });
-    }).catch(async (error) => {
+    addDoc(matchesCollection, matchData).catch(async (error) => {
         console.error("Erreur lors de l'ajout du match: ", error);
         const permissionError = new FirestorePermissionError({
             path: matchesCollection.path,
@@ -612,6 +627,18 @@ function AddMatchForm() {
         });
         errorEmitter.emit('permission-error', permissionError);
         toast({ variant: 'destructive', title: 'Erreur', description: "Impossible d'enregistrer le match." });
+    }).then(() => {
+        toast({ title: 'Match ajouté !', description: `Le match ${values.homeTeam} vs ${values.awayTeam} a été programmé.` });
+        form.reset({
+            ...form.getValues(),
+            date: undefined,
+            awayTeam: '',
+            homeScore: undefined,
+            awayScore: undefined,
+            location: '',
+            homeTeamLogoUrl: '',
+            awayTeamLogoUrl: '',
+        });
     }).finally(() => {
         setIsSubmitting(false);
     });
@@ -633,6 +660,14 @@ function AddMatchForm() {
                 <FormField control={form.control} name="awayTeam" render={({ field }) => (
                     <FormItem><FormLabel>Équipe à l'extérieur</FormLabel><FormControl><Input placeholder="ASC Jaraaf" {...field} /></FormControl><FormMessage /></FormItem>
                 )} />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <FormField control={form.control} name="homeTeamLogoUrl" render={({ field }) => (
+                      <FormItem><FormLabel>URL du logo (domicile)</FormLabel><FormControl><Input placeholder="https://exemple.com/logo1.png" {...field} /></FormControl><FormMessage /></FormItem>
+                  )} />
+                  <FormField control={form.control} name="awayTeamLogoUrl" render={({ field }) => (
+                      <FormItem><FormLabel>URL du logo (extérieur)</FormLabel><FormControl><Input placeholder="https://exemple.com/logo2.png" {...field} /></FormControl><FormMessage /></FormItem>
+                  )} />
                 </div>
                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <FormField control={form.control} name="homeScore" render={({ field }) => (
@@ -1154,149 +1189,151 @@ export default function AdminPage() {
   }
 
   return (
-    <main className="container mx-auto py-12 px-4 md:px-6">
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-3xl font-bold font-headline">Panneau d'Administration</h1>
-          <p className="text-muted-foreground">Gérez le contenu de votre site ici.</p>
+    <Dialog>
+      <main className="container mx-auto py-12 px-4 md:px-6">
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-3xl font-bold font-headline">Panneau d'Administration</h1>
+            <p className="text-muted-foreground">Gérez le contenu de votre site ici.</p>
+          </div>
+          <Button variant="outline" onClick={handleLogout}>
+            <LogOut className="w-4 h-4 mr-2" /> Déconnexion
+          </Button>
         </div>
-        <Button variant="outline" onClick={handleLogout}>
-          <LogOut className="w-4 h-4 mr-2" /> Déconnexion
-        </Button>
-      </div>
 
-      <Tabs defaultValue="actus" className="w-full">
-        <TabsList className="overflow-x-auto w-full justify-start md:justify-center bg-background">
-          <TabsTrigger value="actus">Actualités</TabsTrigger>
-          <TabsTrigger value="equipe">Équipe</TabsTrigger>
-          <TabsTrigger value="matchs">Matchs</TabsTrigger>
-          <TabsTrigger value="galerie">Galerie</TabsTrigger>
-          <TabsTrigger value="partenaires">Partenaires</TabsTrigger>
-          <TabsTrigger value="club">Club</TabsTrigger>
-          <TabsTrigger value="boutique" disabled>Boutique</TabsTrigger>
-          <TabsTrigger value="contact">Contact</TabsTrigger>
-          <TabsTrigger value="webtv" disabled>Web TV</TabsTrigger>
-        </TabsList>
+        <Tabs defaultValue="actus" className="w-full">
+          <TabsList className="overflow-x-auto w-full justify-start md:justify-center bg-background">
+            <TabsTrigger value="actus">Actualités</TabsTrigger>
+            <TabsTrigger value="equipe">Équipe</TabsTrigger>
+            <TabsTrigger value="matchs">Matchs</TabsTrigger>
+            <TabsTrigger value="galerie">Galerie</TabsTrigger>
+            <TabsTrigger value="partenaires">Partenaires</TabsTrigger>
+            <TabsTrigger value="club">Club</TabsTrigger>
+            <TabsTrigger value="boutique" disabled>Boutique</TabsTrigger>
+            <TabsTrigger value="contact">Contact</TabsTrigger>
+            <TabsTrigger value="webtv" disabled>Web TV</TabsTrigger>
+          </TabsList>
 
-        <TabsContent value="actus" className="mt-6 space-y-6">
-            <ArticlesList />
-            <Collapsible>
-              <CollapsibleTrigger asChild>
-                <Button>
-                  <PlusCircle className="mr-2 h-4 w-4" /> Ajouter un article
-                </Button>
-              </CollapsibleTrigger>
-              <CollapsibleContent className="mt-4">
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Ajouter un article</CardTitle>
-                        <CardDescription>Remplissez le formulaire ci-dessous pour publier une nouvelle actualité.</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <AddArticleForm onFinish={() => {}} />
-                    </CardContent>
-                </Card>
-              </CollapsibleContent>
-            </Collapsible>
-        </TabsContent>
-        
-        <TabsContent value="equipe" className="mt-6 space-y-6">
-            <PlayersList />
-             <Collapsible>
-              <CollapsibleTrigger asChild>
-                <Button>
-                  <PlusCircle className="mr-2 h-4 w-4" /> Ajouter un joueur
-                </Button>
-              </CollapsibleTrigger>
-              <CollapsibleContent className="mt-4">
-                <AddPlayerForm />
-              </CollapsibleContent>
-            </Collapsible>
-        </TabsContent>
-
-        <TabsContent value="matchs" className="mt-6 space-y-6">
-             <MatchesList />
-             <Collapsible>
-              <CollapsibleTrigger asChild>
-                <Button>
-                  <PlusCircle className="mr-2 h-4 w-4" /> Ajouter un match
-                </Button>
-              </CollapsibleTrigger>
-              <CollapsibleContent className="mt-4">
-                <AddMatchForm />
-              </CollapsibleContent>
-            </Collapsible>
-        </TabsContent>
-
-        <TabsContent value="galerie" className="mt-6 space-y-6">
-             <PhotosList />
-             <Collapsible>
-              <CollapsibleTrigger asChild>
-                <Button>
-                  <PlusCircle className="mr-2 h-4 w-4" /> Ajouter une photo
-                </Button>
-              </CollapsibleTrigger>
-              <CollapsibleContent className="mt-4">
-                <AddPhotoForm />
-              </CollapsibleContent>
-            </Collapsible>
-        </TabsContent>
-
-        <TabsContent value="partenaires" className="mt-6 space-y-6">
-              <PartnersList />
+          <TabsContent value="actus" className="mt-6 space-y-6">
+              <ArticlesList />
               <Collapsible>
-              <CollapsibleTrigger asChild>
-                <Button>
-                  <PlusCircle className="mr-2 h-4 w-4" /> Ajouter un partenaire
-                </Button>
-              </CollapsibleTrigger>
-              <CollapsibleContent className="mt-4">
-                <AddPartnerForm />
-              </CollapsibleContent>
-            </Collapsible>
-        </TabsContent>
-        
-        <TabsContent value="club">
-            <Card>
-                <CardHeader>
-                    <CardTitle>Club</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <p className="text-muted-foreground">La gestion de la page Club sera bientôt disponible.</p>
-                </CardContent>
-            </Card>
-        </TabsContent>
-        <TabsContent value="boutique">
-            <Card>
-                <CardHeader>
-                    <CardTitle>Boutique</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <p className="text-muted-foreground">La gestion de la boutique sera bientôt disponible.</p>
-                </CardContent>
-            </Card>
-        </TabsContent>
-        <TabsContent value="contact">
-            <Card>
-                <CardHeader>
-                    <CardTitle>Contact</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <p className="text-muted-foreground">La gestion des messages de contact sera bientôt disponible.</p>
-                </CardContent>
-            </Card>
-        </TabsContent>
-        <TabsContent value="webtv">
-            <Card>
-                <CardHeader>
-                    <CardTitle>Web TV</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <p className="text-muted-foreground">La gestion de la Web TV sera bientôt disponible.</p>
-                </CardContent>
-            </Card>
-        </TabsContent>
-      </Tabs>
-    </main>
+                <CollapsibleTrigger asChild>
+                  <Button>
+                    <PlusCircle className="mr-2 h-4 w-4" /> Ajouter un article
+                  </Button>
+                </CollapsibleTrigger>
+                <CollapsibleContent className="mt-4">
+                  <Card>
+                      <CardHeader>
+                          <CardTitle>Ajouter un article</CardTitle>
+                          <CardDescription>Remplissez le formulaire ci-dessous pour publier une nouvelle actualité.</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                          <AddArticleForm onFinish={() => {}} />
+                      </CardContent>
+                  </Card>
+                </CollapsibleContent>
+              </Collapsible>
+          </TabsContent>
+          
+          <TabsContent value="equipe" className="mt-6 space-y-6">
+              <PlayersList />
+               <Collapsible>
+                <CollapsibleTrigger asChild>
+                  <Button>
+                    <PlusCircle className="mr-2 h-4 w-4" /> Ajouter un joueur
+                  </Button>
+                </CollapsibleTrigger>
+                <CollapsibleContent className="mt-4">
+                  <AddPlayerForm />
+                </CollapsibleContent>
+              </Collapsible>
+          </TabsContent>
+
+          <TabsContent value="matchs" className="mt-6 space-y-6">
+               <MatchesList />
+               <Collapsible>
+                <CollapsibleTrigger asChild>
+                  <Button>
+                    <PlusCircle className="mr-2 h-4 w-4" /> Ajouter un match
+                  </Button>
+                </CollapsibleTrigger>
+                <CollapsibleContent className="mt-4">
+                  <AddMatchForm />
+                </CollapsibleContent>
+              </Collapsible>
+          </TabsContent>
+
+          <TabsContent value="galerie" className="mt-6 space-y-6">
+               <PhotosList />
+               <Collapsible>
+                <CollapsibleTrigger asChild>
+                  <Button>
+                    <PlusCircle className="mr-2 h-4 w-4" /> Ajouter une photo
+                  </Button>
+                </CollapsibleTrigger>
+                <CollapsibleContent className="mt-4">
+                  <AddPhotoForm />
+                </CollapsibleContent>
+              </Collapsible>
+          </TabsContent>
+
+          <TabsContent value="partenaires" className="mt-6 space-y-6">
+                <PartnersList />
+                <Collapsible>
+                <CollapsibleTrigger asChild>
+                  <Button>
+                    <PlusCircle className="mr-2 h-4 w-4" /> Ajouter un partenaire
+                  </Button>
+                </CollapsibleTrigger>
+                <CollapsibleContent className="mt-4">
+                  <AddPartnerForm />
+                </CollapsibleContent>
+              </Collapsible>
+          </TabsContent>
+          
+          <TabsContent value="club">
+              <Card>
+                  <CardHeader>
+                      <CardTitle>Club</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                      <p className="text-muted-foreground">La gestion de la page Club sera bientôt disponible.</p>
+                  </CardContent>
+              </Card>
+          </TabsContent>
+          <TabsContent value="boutique">
+              <Card>
+                  <CardHeader>
+                      <CardTitle>Boutique</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                      <p className="text-muted-foreground">La gestion de la boutique sera bientôt disponible.</p>
+                  </CardContent>
+              </Card>
+          </TabsContent>
+          <TabsContent value="contact">
+              <Card>
+                  <CardHeader>
+                      <CardTitle>Contact</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                      <p className="text-muted-foreground">La gestion des messages de contact sera bientôt disponible.</p>
+                  </CardContent>
+              </Card>
+          </TabsContent>
+          <TabsContent value="webtv">
+              <Card>
+                  <CardHeader>
+                      <CardTitle>Web TV</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                      <p className="text-muted-foreground">La gestion de la Web TV sera bientôt disponible.</p>
+                  </CardContent>
+              </Card>
+          </TabsContent>
+        </Tabs>
+      </main>
+    </Dialog>
   );
 }

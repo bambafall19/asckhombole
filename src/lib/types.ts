@@ -47,3 +47,10 @@ export interface Partner {
     logoUrl: string;
     website?: string;
 }
+
+export interface ClubInfo {
+    id: string;
+    history: string;
+    presidentWord: string;
+    presidentWishes: string;
+}

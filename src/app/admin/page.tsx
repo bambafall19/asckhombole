@@ -27,6 +27,7 @@ import {
   deleteDoc,
   Timestamp,
   updateDoc,
+  setDoc,
 } from 'firebase/firestore';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useState, useEffect, useMemo } from 'react';
@@ -34,7 +35,7 @@ import { LoaderCircle, LogOut, PlusCircle, Trash2, Pencil, List, Users, Trophy, 
 import { useUser } from '@/firebase/auth/use-user';
 import { useRouter } from 'next/navigation';
 import { signOut } from 'firebase/auth';
-import { useAuth, useCollection, useFirestore as useFirestoreHook } from '@/firebase';
+import { useAuth, useCollection, useDocument, useFirestore as useFirestoreHook } from '@/firebase';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
   Table,
@@ -44,7 +45,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { Article, Player, Match, Photo, Partner } from '@/lib/types';
+import { Article, Player, Match, Photo, Partner, ClubInfo } from '@/lib/types';
 import { format, setHours, setMinutes } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import {
@@ -281,7 +282,7 @@ function AddArticleForm({ article, onFinish }: { article?: Article, onFinish?: (
 function ArticlesList() {
     const firestore = useFirestoreHook();
     const { toast } = useToast();
-    const [editingArticle, setEditingArticle] = useState<Article | null>(null);
+    const [editingArticleId, setEditingArticleId] = useState<string | null>(null);
 
     const articlesQuery = useMemo(() => {
         if (!firestore) return null;
@@ -289,6 +290,11 @@ function ArticlesList() {
     }, [firestore]);
 
     const { data: articles, loading } = useCollection<Article>(articlesQuery);
+    
+    const editingArticle = useMemo(() => {
+        return articles?.find(a => a.id === editingArticleId) || null;
+    }, [articles, editingArticleId]);
+
 
     const handleDelete = async (articleId: string) => {
         if (!firestore) return;
@@ -346,7 +352,7 @@ function ArticlesList() {
                                 </TableCell>
                                 <TableCell className="text-right">
                                     <DialogTrigger asChild>
-                                        <Button variant="ghost" size="icon" onClick={() => setEditingArticle(article)}>
+                                        <Button variant="ghost" size="icon" onClick={() => setEditingArticleId(article.id)}>
                                             <Pencil className="h-4 w-4" />
                                         </Button>
                                     </DialogTrigger>
@@ -377,7 +383,7 @@ function ArticlesList() {
                 </Table>
             </CardContent>
             
-            <Dialog open={!!editingArticle} onOpenChange={(open) => !open && setEditingArticle(null)}>
+            <Dialog open={!!editingArticleId} onOpenChange={(open) => !open && setEditingArticleId(null)}>
               <DialogContent className="sm:max-w-[625px]">
                 <DialogHeader>
                   <DialogTitle>Modifier l'article</DialogTitle>
@@ -389,7 +395,7 @@ function ArticlesList() {
                   {editingArticle && (
                     <AddArticleForm 
                         article={editingArticle} 
-                        onFinish={() => setEditingArticle(null)} 
+                        onFinish={() => setEditingArticleId(null)} 
                     />
                   )}
                 </div>
@@ -1142,7 +1148,7 @@ function PartnersList() {
                                       <AlertDialogTrigger asChild><Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive" /></Button></AlertDialogTrigger>
                                       <AlertDialogContent>
                                         <AlertDialogHeader>
-                                          <AlertDialogTitle>Êtes-vous absolument sûr ?</AlertDialogTitle>
+                                          <AlertDialogTitle>Êtes-vous absolutely sûr ?</AlertDialogTitle>
                                           <AlertDialogDescription>Cette action est irréversible. Le partenaire sera supprimé.</AlertDialogDescription>
                                         </AlertDialogHeader>
                                         <AlertDialogFooter>
@@ -1160,6 +1166,127 @@ function PartnersList() {
         </Card>
     )
 }
+
+const clubInfoFormSchema = z.object({
+  history: z.string().min(10, { message: "L'histoire doit contenir au moins 10 caractères." }),
+  presidentWord: z.string().min(10, { message: 'Le mot du président doit contenir au moins 10 caractères.' }),
+  presidentWishes: z.string().min(10, { message: 'Les vœux doivent contenir au moins 10 caractères.' }),
+});
+
+function ClubInfoForm() {
+  const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const firestore = useFirestoreHook();
+  
+  const clubInfoRef = useMemo(() => {
+    if (!firestore) return null;
+    return doc(firestore, 'clubInfo', 'main');
+  }, [firestore]);
+  
+  const { data: clubInfo, loading } = useDocument<ClubInfo>(clubInfoRef);
+
+  const form = useForm<z.infer<typeof clubInfoFormSchema>>({
+    resolver: zodResolver(clubInfoFormSchema),
+    values: {
+        history: clubInfo?.history || '',
+        presidentWord: clubInfo?.presidentWord || '',
+        presidentWishes: clubInfo?.presidentWishes || '',
+    }
+  });
+
+  useEffect(() => {
+    if (clubInfo) {
+      form.reset({
+        history: clubInfo.history || '',
+        presidentWord: clubInfo.presidentWord || '',
+        presidentWishes: clubInfo.presidentWishes || '',
+      });
+    }
+  }, [clubInfo, form]);
+
+  async function onSubmit(values: z.infer<typeof clubInfoFormSchema>) {
+    if (!firestore) return;
+    setIsSubmitting(true);
+
+    setDoc(clubInfoRef!, values, { merge: true }).then(() => {
+        toast({ title: 'Informations mises à jour !', description: 'Les informations du club ont été enregistrées.' });
+    }).catch(async (error) => {
+        console.error("Erreur lors de la mise à jour des infos du club: ", error);
+        const permissionError = new FirestorePermissionError({
+            path: clubInfoRef!.path,
+            operation: 'update',
+            requestResourceData: values,
+        });
+        errorEmitter.emit('permission-error', permissionError);
+        toast({ variant: 'destructive', title: 'Erreur', description: 'Impossible de sauvegarder les informations.' });
+    }).finally(() => {
+        setIsSubmitting(false);
+    });
+  }
+
+  if (loading) {
+    return <div className="flex items-center justify-center p-8"><LoaderCircle className="h-8 w-8 animate-spin text-primary" /></div>
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Informations du Club</CardTitle>
+        <CardDescription>Gérez le contenu de la page "Club".</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <FormField
+              control={form.control}
+              name="history"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Histoire du club</FormLabel>
+                  <FormControl>
+                    <Textarea placeholder="Racontez l'histoire de l'ASC Khombole..." rows={8} {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="presidentWord"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Mot du président</FormLabel>
+                  <FormControl>
+                    <Textarea placeholder="Le message du président aux supporters et partenaires..." rows={6} {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="presidentWishes"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Vœux et vision du président</FormLabel>
+                  <FormControl>
+                    <Textarea placeholder="Les ambitions et les vœux pour le futur du club..." rows={6} {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
+              {isSubmitting ? 'Enregistrement...' : 'Enregistrer les informations'}
+            </Button>
+          </form>
+        </Form>
+      </CardContent>
+    </Card>
+  );
+}
+
 
 export default function AdminPage() {
   const auth = useAuth();
@@ -1292,15 +1419,8 @@ export default function AdminPage() {
               </Collapsible>
           </TabsContent>
           
-          <TabsContent value="club">
-              <Card>
-                  <CardHeader>
-                      <CardTitle>Club</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                      <p className="text-muted-foreground">La gestion de la page Club sera bientôt disponible.</p>
-                  </CardContent>
-              </Card>
+          <TabsContent value="club" className="mt-6">
+              <ClubInfoForm />
           </TabsContent>
           <TabsContent value="boutique">
               <Card>

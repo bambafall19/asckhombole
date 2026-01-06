@@ -155,6 +155,26 @@
         }
       },
       "required": ["name", "logoUrl"]
+    },
+    "ClubInfo": {
+      "title": "ClubInfo",
+      "description": "Stores general information about the club.",
+      "type": "object",
+      "properties": {
+        "history": {
+          "type": "string",
+          "description": "The history of the club."
+        },
+        "presidentWord": {
+          "type": "string",
+          "description": "A message from the club president."
+        },
+        "presidentWishes": {
+          "type": "string",
+          "description": "The president's wishes for the club."
+        }
+      },
+      "required": []
     }
   },
   "auth": {
@@ -190,6 +210,12 @@
             "$ref": "#/backend/entities/Partner"
         },
         "description": "Stores information about club partners and sponsors."
+    },
+    "/clubInfo/{infoId}": {
+        "schema": {
+            "$ref": "#/backend/entities/ClubInfo"
+        },
+        "description": "Stores general club information like history. Typically a single document."
     }
   }
 }

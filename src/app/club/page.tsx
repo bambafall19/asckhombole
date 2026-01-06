@@ -1,7 +1,29 @@
+'use client';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Shield, Target, Users } from "lucide-react";
+import { Shield, Target, User, LoaderCircle } from "lucide-react";
+import { useMemo } from "react";
+import { doc } from 'firebase/firestore';
+import { useDocument, useFirestore } from "@/firebase";
+import { ClubInfo } from "@/lib/types";
 
 export default function ClubPage() {
+  const firestore = useFirestore();
+
+  const clubInfoRef = useMemo(() => {
+    if (!firestore) return null;
+    return doc(firestore, 'clubInfo', 'main');
+  }, [firestore]);
+
+  const { data: clubInfo, loading } = useDocument<ClubInfo>(clubInfoRef);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-[60vh]">
+        <LoaderCircle className="w-16 h-16 animate-spin text-primary" />
+      </div>
+    );
+  }
+
   return (
     <div className="bg-background">
       <div className="container mx-auto px-4 py-12 md:py-20">
@@ -12,7 +34,7 @@ export default function ClubPage() {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="space-y-12 max-w-4xl mx-auto">
           <Card className="hover:shadow-lg transition-shadow">
             <CardHeader>
               <CardTitle className="flex items-center gap-3">
@@ -21,8 +43,22 @@ export default function ClubPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-muted-foreground">
-                Fondé avec passion, l'ASC Khombole a une riche histoire de triomphes et de défis. Page en construction.
+              <p className="text-muted-foreground whitespace-pre-wrap">
+                {clubInfo?.history || "L'histoire du club n'a pas encore été renseignée."}
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:shadow-lg transition-shadow">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-3">
+                <User className="w-8 h-8 text-accent" />
+                <span className="font-headline">Mot du Président</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground whitespace-pre-wrap">
+                {clubInfo?.presidentWord || "Le mot du président n'a pas encore été renseigné."}
               </p>
             </CardContent>
           </Card>
@@ -31,26 +67,12 @@ export default function ClubPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-3">
                 <Target className="w-8 h-8 text-accent" />
-                <span className="font-headline">Vision & Mission</span>
+                <span className="font-headline">Vœux & Vision</span>
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-muted-foreground">
-                Nous visons l'excellence sportive tout en ayant un impact positif sur notre communauté. Page en construction.
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="hover:shadow-lg transition-shadow">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-3">
-                <Users className="w-8 h-8 text-accent" />
-                <span className="font-headline">Staff Dirigeant</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">
-                Rencontrez l'équipe dévouée qui travaille en coulisses pour le succès du club. Page en construction.
+              <p className="text-muted-foreground whitespace-pre-wrap">
+                {clubInfo?.presidentWishes || "La vision et les vœux n'ont pas encore été renseignés."}
               </p>
             </CardContent>
           </Card>

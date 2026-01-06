@@ -210,7 +210,7 @@ export default function Home() {
                         alt={photo.image.description}
                         width={400}
                         height={250}
-                        className="object-cover w-full h-48 transition-transform duration-300 group-hover:scale-105"
+                        className="object-cover w-full h-40 transition-transform duration-300 group-hover:scale-105"
                         data-ai-hint={photo.image.imageHint}
                       />
                     )}

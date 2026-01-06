@@ -9,31 +9,31 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 const featuredNews = {
   main: {
     id: 1,
-    title: "Injuries helped redefine Tormo's relationship with tennis - report",
-    category: "Tennis",
+    title: "L'ASC Khombole dévoile son nouveau maillot pour la saison à venir",
+    category: "Club",
     time: "39 minutes",
     image: PlaceHolderImages.find(img => img.id === 'news-hero-main'),
   },
   side: [
     {
       id: 2,
-      title: "Eddie Jones's Wallabies plot Rugby World Cup 'smash and...",
-      category: "Rugby",
+      title: "Le coach analyse la dernière victoire en championnat",
+      category: "Interview",
       time: "20 min",
       image: PlaceHolderImages.find(img => img.id === 'news-side-1'),
     },
     {
       id: 3,
-      title: "Ronaldo urges more big names to make Saudi move",
-      category: "Football",
+      title: "Recrue surprise : un nouvel attaquant rejoint l'équipe !",
+      category: "Mercato",
       time: "45 min",
       image: PlaceHolderImages.find(img => img.id === 'news-side-2'),
       highlight: true,
     },
     {
       id: 4,
-      title: "Haaland holds no fear for Man Utd, says Varane...",
-      category: "Football",
+      title: "Résumé du match : une victoire écrasante à domicile",
+      category: "Match",
       time: "1 hr",
       image: PlaceHolderImages.find(img => img.id === 'news-side-3'),
     }
@@ -43,20 +43,20 @@ const featuredNews = {
 const trendyNews = [
   {
     id: 1,
-    title: "German soccer mourns teenager's death after youth...",
-    category: "Football",
+    title: "Le jeune prodige du centre de formation signe son premier contrat pro",
+    category: "Formation",
     image: PlaceHolderImages.find(img => img.id === 'news-trendy-1'),
   },
   {
     id: 2,
-    title: "Golf Suites entertainment venue coming to Opelika",
-    category: "Golf",
+    title: "Les supporters préparent un tifo géant pour le prochain derby",
+    category: "Supporters",
     image: PlaceHolderImages.find(img => img.id === 'news-trendy-2'),
   },
   {
     id: 3,
-    title: "Tennis: Djokovic blasts 'disrespectful' French Open...",
-    category: "Tennis",
+    title: "Le capitaine optimiste avant le match crucial de ce week-end",
+    category: "Interview",
     image: PlaceHolderImages.find(img => img.id === 'news-trendy-3'),
   },
 ];
@@ -79,21 +79,21 @@ const photoAlbum = [
 const liveMatches = [
   {
     id: 1,
-    sport: "Cricket",
-    league: "1st T20 • 2nd Innings • Lords",
+    sport: "Football",
+    league: "Ligue 1 • 78m",
     teams: [
-      { name: "Eng", score: "134/6" },
-      { name: "Aus", score: "149/3" }
+      { name: "ASC Khombole", score: "2" },
+      { name: "ASC Jaraaf", score: "1" }
     ],
-    flags: ["/icons/flags/eng.svg", "/icons/flags/aus.svg"]
+    logos: ["/icons/teams/fcb.svg", "/icons/teams/rma.svg"]
   },
   {
     id: 2,
     sport: "Football",
-    league: "La Liga • No Comp • 34m",
+    league: "Coupe du Sénégal • Mi-temps",
     teams: [
-      { name: "FCB", score: "01" },
-      { name: "RMA", score: "03" }
+      { name: "ASC Khombole", score: "1" },
+      { name: "Génération Foot", score: "0" }
     ],
     logos: ["/icons/teams/fcb.svg", "/icons/teams/rma.svg"]
   },
@@ -102,23 +102,23 @@ const liveMatches = [
 const todaysSpotlight = [
   {
     id: 1,
-    title: "Ronaldinho Gaúcho Fitness Line Revealed Article",
-    category: "Football",
-    time: "3 days",
+    title: "Focus sur le parcours de notre gardien, le mur infranchissable",
+    category: "Portrait",
+    time: "3 jours",
     image: PlaceHolderImages.find(img => img.id === 'spotlight-1')
   },
   {
     id: 2,
-    title: "'No stone is left unturned' in the Wallabies' pursuit of...",
-    category: "Rugby",
-    time: "4 days",
+    title: "Les infrastructures du club se modernisent avec un nouveau terrain",
+    category: "Club",
+    time: "4 jours",
     image: PlaceHolderImages.find(img => img.id === 'spotlight-2')
   },
   {
     id: 3,
-    title: "French Open 2023: Novak Djokovic 'shock' at Rafael...",
-    category: "Tennis",
-    time: "6 days",
+    title: "L'équipe U17 remporte le tournoi régional",
+    category: "Jeunes",
+    time: "6 jours",
     image: PlaceHolderImages.find(img => img.id === 'spotlight-3')
   }
 ];
@@ -266,7 +266,7 @@ export default function Home() {
                         <div key={team.name} className="flex justify-between items-center">
                           <div className="flex items-center gap-2">
                              <Avatar className="w-5 h-5">
-                              <AvatarImage src={match.logos?.[index] || match.flags?.[index]} />
+                              <AvatarImage src={match.logos?.[index]} />
                               <AvatarFallback>{team.name.substring(0, 1)}</AvatarFallback>
                             </Avatar>
                             <span>{team.name}</span>

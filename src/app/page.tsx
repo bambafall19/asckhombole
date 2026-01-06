@@ -61,6 +61,21 @@ const trendyNews = [
   },
 ];
 
+const photoAlbum = [
+  {
+    id: 1,
+    image: PlaceHolderImages.find(img => img.id === 'album-1'),
+  },
+  {
+    id: 2,
+    image: PlaceHolderImages.find(img => img.id === 'album-2'),
+  },
+  {
+    id: 3,
+    image: PlaceHolderImages.find(img => img.id === 'album-3'),
+  },
+]
+
 const liveMatches = [
   {
     id: 1,
@@ -174,6 +189,32 @@ export default function Home() {
                       <h3 className="text-sm font-bold mt-1 line-clamp-2">{article.title}</h3>
                     </CardContent>
                   </Card>
+                ))}
+              </div>
+            </section>
+
+            {/* Photo Album */}
+            <section>
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-2xl font-bold font-headline text-primary">Album Photo</h2>
+                <Button variant="link" asChild>
+                  <Link href="/galerie">Voir plus <ArrowRight className="ml-2 h-4 w-4" /></Link>
+                </Button>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                {photoAlbum.map((photo) => (
+                  <Link key={photo.id} href="/galerie" className="overflow-hidden rounded-lg group">
+                     {photo.image && (
+                      <Image
+                        src={photo.image.imageUrl}
+                        alt={photo.image.description}
+                        width={400}
+                        height={250}
+                        className="object-cover w-full h-48 transition-transform duration-300 group-hover:scale-105"
+                        data-ai-hint={photo.image.imageHint}
+                      />
+                    )}
+                  </Link>
                 ))}
               </div>
             </section>

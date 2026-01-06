@@ -38,13 +38,13 @@
     },
     {
       "id": "news-trendy-3",
-      "description": "Novak Djokovic with a frustrated expression on the tennis court.",
+      "description": "Tennis: Djokovic blasts 'disrespectful' French Open...",
       "imageUrl": "https://images.unsplash.com/photo-1600588698948-2661550b555e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxkam9rb3ZpY3xlbnwwfHx8fDE3MTcwOTk3ODd8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "tennis angry"
     },
     {
       "id": "spotlight-1",
-      "description": "Portrait of Ronaldinho smiling",
+      "description": "Ronaldinho Gaúcho Fitness Line Revealed Article",
       "imageUrl": "https://images.unsplash.com/photo-1618886369080-8439a3f5509e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxyb25hbGRpbmhvJTIwZ2F1Y2hvfGVufDB8fHx8MTcxNzA5OTkyNnww&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "soccer legend"
     },
@@ -59,6 +59,24 @@
       "description": "Tennis player serving the ball.",
       "imageUrl": "https://images.unsplash.com/photo-1554060197-e2c7c093c04a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHx0ZW5uaXMlMjBzZXJ2ZXxlbnwwfHx8fDE3MTcxMDAwMTR8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "tennis serve"
+    },
+    {
+      "id": "album-1",
+      "description": "Soccer players celebrating a victory on the field",
+      "imageUrl": "https://images.unsplash.com/photo-1544189652-b7a393a25e7e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxzb2NjZXIlMjBjZWxlYnJhdGlvbnxlbnwwfHx8fDE3Njc3MDc5MzZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "soccer celebration"
+    },
+    {
+      "id": "album-2",
+      "description": "Goalkeeper making a save",
+      "imageUrl": "https://images.unsplash.com/photo-1629977009792-9ea41c019ea2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxnb2Fsa2VlcGVyJTIwc2F2ZXxlbnwwfHx8fDE3Njc3MDc5MzZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "goalkeeper save"
+    },
+    {
+      "id": "album-3",
+      "description": "Team huddle before a match",
+      "imageUrl": "https://images.unsplash.com/photo-1582586302869-715be816f60b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHx0ZWFtJTIwaHVkZGxlfGVufDB8fHx8MTc2NzcwNzkzNnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "team huddle"
     }
   ]
 }

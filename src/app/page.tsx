@@ -96,8 +96,19 @@ export default function Home() {
                   </Card>
                 )}
                 {!loading && !mainArticle && (
-                  <Card className="flex items-center justify-center w-full aspect-video">
-                    <p className="text-muted-foreground">Aucune actualité à afficher.</p>
+                  <Card className="overflow-hidden group relative w-full aspect-video">
+                    <Image
+                      src="https://images.unsplash.com/photo-1544189652-b7a393a25e7e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxzb2NjZXIlMjBjZWxlYnJhdGlvbnxlbnwwfHx8fDE3Njc3MDc5MzZ8MA&ixlib=rb-4.1.0&q=80&w=1080"
+                      alt="Bienvenue à l'ASC Khombole"
+                      fill
+                      className="object-cover"
+                      data-ai-hint="soccer celebration"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+                    <CardContent className="absolute bottom-0 left-0 p-6">
+                        <h2 className="text-3xl font-extrabold text-white font-headline">Bienvenue sur le site de l'ASC Khombole</h2>
+                        <p className="text-white/90 mt-2">Toute l'actualité du club, les matchs et plus encore.</p>
+                    </CardContent>
                   </Card>
                 )}
                 </div>

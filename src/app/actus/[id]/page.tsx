@@ -45,7 +45,7 @@ const renderContent = (content: string) => {
 
 export default function ArticlePage() {
   const params = useParams();
-  const { id } = params;
+  const id = params.id;
   
   const firestore = getFirestore();
 

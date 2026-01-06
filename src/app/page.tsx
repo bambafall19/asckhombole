@@ -17,7 +17,7 @@ import { useMemo, useRef } from "react";
 import { Article, ClubInfo, Photo } from "@/lib/types";
 import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
 
 
@@ -149,8 +149,6 @@ export default function Home() {
                           </CarouselItem>
                         )}
                       </CarouselContent>
-                      <CarouselPrevious className="left-4"/>
-                      <CarouselNext className="right-4"/>
                     </Carousel>
                 )}
                 </div>
@@ -225,8 +223,6 @@ export default function Home() {
                     </CarouselItem>
                   ))}
                 </CarouselContent>
-                <CarouselPrevious />
-                <CarouselNext />
               </Carousel>
             </section>
             )}

@@ -16,9 +16,9 @@ export default function GaleriePage() {
         </CardHeader>
         <CardContent className="flex flex-col items-center justify-center text-center py-20">
           <ImageIcon className="w-24 h-24 text-muted-foreground mb-4" />
-          <h3 className="text-xl font-semibold">Page en construction</h3>
+          <h3 className="text-xl font-semibold">Bientôt disponible</h3>
           <p className="text-muted-foreground mt-2">
-            Les albums photos et vidéos de nos matchs et événements seront bientôt ici.
+            Les albums photos et vidéos seront bientôt disponibles depuis la base de données.
           </p>
         </CardContent>
       </Card>

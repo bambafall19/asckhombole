@@ -16,9 +16,9 @@ export default function EquipePage() {
         </CardHeader>
         <CardContent className="flex flex-col items-center justify-center text-center py-20">
           <Users className="w-24 h-24 text-muted-foreground mb-4" />
-          <h3 className="text-xl font-semibold">Page en construction</h3>
+          <h3 className="text-xl font-semibold">Bientôt disponible</h3>
           <p className="text-muted-foreground mt-2">
-            La grille des joueurs avec photos et statistiques sera bientôt disponible ici.
+            La liste des joueurs sera bientôt récupérée depuis la base de données.
           </p>
         </CardContent>
       </Card>

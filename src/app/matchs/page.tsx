@@ -16,9 +16,9 @@ export default function MatchsPage() {
         </CardHeader>
         <CardContent className="flex flex-col items-center justify-center text-center py-20">
           <Trophy className="w-24 h-24 text-muted-foreground mb-4" />
-          <h3 className="text-xl font-semibold">Page en construction</h3>
+          <h3 className="text-xl font-semibold">Bientôt disponible</h3>
           <p className="text-muted-foreground mt-2">
-            Le calendrier des matchs et les fiches détaillées seront bientôt disponibles.
+            Le calendrier des matchs sera bientôt récupéré depuis la base de données.
           </p>
         </CardContent>
       </Card>

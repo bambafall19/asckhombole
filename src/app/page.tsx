@@ -2,10 +2,8 @@
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { PlaceHolderImages } from "@/lib/placeholder-images";
 import Link from "next/link";
 import { ArrowRight, Clock, LoaderCircle } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useCollection, useDocument, useFirestore } from "@/firebase";
 import {
   getFirestore,
@@ -16,25 +14,10 @@ import {
   doc,
 } from 'firebase/firestore';
 import { useMemo } from "react";
-import { Article, ClubInfo } from "@/lib/types";
+import { Article, ClubInfo, Photo } from "@/lib/types";
 import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
-
-const photoAlbum = [
-  {
-    id: 1,
-    image: PlaceHolderImages.find(img => img.id === 'album-1'),
-  },
-  {
-    id: 2,
-    image: PlaceHolderImages.find(img => img.id === 'album-2'),
-  },
-  {
-    id: 3,
-    image: PlaceHolderImages.find(img => img.id === 'album-3'),
-  },
-]
 
 
 export default function Home() {
@@ -45,19 +28,25 @@ export default function Home() {
     return query(collection(firestore, 'articles'), orderBy('createdAt', 'desc'), limit(7));
   }, [firestore]);
 
+  const photosQuery = useMemo(() => {
+    if (!firestore) return null;
+    return query(collection(firestore, 'photos'), orderBy('createdAt', 'desc'), limit(3));
+  }, [firestore]);
+
   const clubInfoRef = useMemo(() => {
     if (!firestore) return null;
     return doc(firestore, 'clubInfo', 'main');
   }, [firestore]);
 
   const { data: articles, loading: articlesLoading } = useCollection<Article>(articlesQuery);
+  const { data: photos, loading: photosLoading } = useCollection<Photo>(photosQuery);
   const { data: clubInfo, loading: clubInfoLoading } = useDocument<ClubInfo>(clubInfoRef);
 
   const mainArticle = articles?.[0];
   const sideArticles = articles?.slice(1, 4) || [];
   const trendyArticles = articles?.slice(4, 7) || [];
 
-  const loading = articlesLoading || clubInfoLoading;
+  const loading = articlesLoading || clubInfoLoading || photosLoading;
 
   const formatTime = (date: Date) => {
     return formatDistanceToNow(date, { addSuffix: true, locale: fr });
@@ -162,6 +151,7 @@ export default function Home() {
             </section>
 
             {/* Photo Album */}
+            {photos && photos.length > 0 && (
             <section>
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-2xl font-bold font-headline text-primary">Album Photo</h2>
@@ -177,19 +167,17 @@ export default function Home() {
                 className="w-full"
               >
                 <CarouselContent>
-                  {photoAlbum.map((photo) => (
+                  {photos.map((photo) => (
                     <CarouselItem key={photo.id} className="md:basis-1/2 lg:basis-1/3">
                       <Link href="/galerie" className="overflow-hidden rounded-lg group block">
-                        {photo.image && (
                           <Image
-                            src={photo.image.imageUrl}
-                            alt={photo.image.description}
+                            src={photo.imageUrl}
+                            alt={photo.title}
                             width={400}
                             height={250}
                             className="object-cover w-full aspect-video transition-transform duration-300 group-hover:scale-105"
-                            data-ai-hint={photo.image.imageHint}
+                            data-ai-hint={photo.imageHint || 'gallery photo'}
                           />
-                        )}
                       </Link>
                     </CarouselItem>
                   ))}
@@ -198,6 +186,7 @@ export default function Home() {
                 <CarouselNext />
               </Carousel>
             </section>
+            )}
           </div>
 
           {/* Sidebar */}

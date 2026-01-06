@@ -19,6 +19,7 @@ import { useMemo } from "react";
 import { Article, ClubInfo } from "@/lib/types";
 import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 
 const photoAlbum = [
   {
@@ -106,20 +107,20 @@ export default function Home() {
                   </Card>
                 )}
                 {!loading && !mainArticle && (
-                  <Card className="overflow-hidden group relative w-full aspect-video">
-                    <Image
-                      src={clubInfo?.welcomeImageUrl || "https://images.unsplash.com/photo-1544189652-b7a393a25e7e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxzb2NjZXIlMjBjZWxlYnJhdGlvbnxlbnwwfHx8fDE3Njc3MDc5MzZ8MA&ixlib=rb-4.1.0&q=80&w=1080"}
-                      alt={clubInfo?.welcomeTitle || "Bienvenue à l'ASC Khombole"}
-                      fill
-                      className="object-cover"
-                      data-ai-hint={clubInfo?.welcomeImageHint || "soccer celebration"}
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-                    <CardContent className="absolute bottom-0 left-0 p-6">
-                        <h2 className="text-3xl font-extrabold text-white font-headline">{clubInfo?.welcomeTitle || "Bienvenue sur le site de l'ASC Khombole"}</h2>
-                        <p className="text-white/90 mt-2">{clubInfo?.welcomeSubtitle || "Toute l'actualité du club, les matchs et plus encore."}</p>
-                    </CardContent>
-                  </Card>
+                   <Card className="overflow-hidden group relative w-full aspect-video">
+                     <Image
+                       src={clubInfo?.welcomeImageUrl || "https://images.unsplash.com/photo-1544189652-b7a393a25e7e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxzb2NjZXIlMjBjZWxlYnJhdGlvbnxlbnwwfHx8fDE3Njc3MDc5MzZ8MA&ixlib=rb-4.1.0&q=80&w=1080"}
+                       alt={clubInfo?.welcomeTitle || "Bienvenue à l'ASC Khombole"}
+                       fill
+                       className="object-cover"
+                       data-ai-hint={clubInfo?.welcomeImageHint || "soccer celebration"}
+                     />
+                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+                     <CardContent className="absolute bottom-0 left-0 p-6">
+                         <h2 className="text-3xl font-extrabold text-white font-headline">{clubInfo?.welcomeTitle || "Bienvenue sur le site de l'ASC Khombole"}</h2>
+                         <p className="text-white/90 mt-2">{clubInfo?.welcomeSubtitle || "Toute l'actualité du club, les matchs et plus encore."}</p>
+                     </CardContent>
+                   </Card>
                 )}
                 </div>
               </div>
@@ -168,22 +169,34 @@ export default function Home() {
                   <Link href="/galerie">Voir plus <ArrowRight className="ml-2 h-4 w-4" /></Link>
                 </Button>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                {photoAlbum.map((photo) => (
-                  <Link key={photo.id} href="/galerie" className="overflow-hidden rounded-lg group">
-                     {photo.image && (
-                      <Image
-                        src={photo.image.imageUrl}
-                        alt={photo.image.description}
-                        width={400}
-                        height={250}
-                        className="object-cover w-full h-32 transition-transform duration-300 group-hover:scale-105"
-                        data-ai-hint={photo.image.imageHint}
-                      />
-                    )}
-                  </Link>
-                ))}
-              </div>
+               <Carousel
+                opts={{
+                  align: "start",
+                  loop: true,
+                }}
+                className="w-full"
+              >
+                <CarouselContent>
+                  {photoAlbum.map((photo) => (
+                    <CarouselItem key={photo.id} className="md:basis-1/2 lg:basis-1/3">
+                      <Link href="/galerie" className="overflow-hidden rounded-lg group block">
+                        {photo.image && (
+                          <Image
+                            src={photo.image.imageUrl}
+                            alt={photo.image.description}
+                            width={400}
+                            height={250}
+                            className="object-cover w-full aspect-video transition-transform duration-300 group-hover:scale-105"
+                            data-ai-hint={photo.image.imageHint}
+                          />
+                        )}
+                      </Link>
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                <CarouselPrevious />
+                <CarouselNext />
+              </Carousel>
             </section>
           </div>
 

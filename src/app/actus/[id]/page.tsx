@@ -3,7 +3,7 @@
 import { useMemo } from 'react';
 import { useParams } from 'next/navigation';
 import { doc, getFirestore } from 'firebase/firestore';
-import { useDocument } from '@/firebase/firestore/use-doc'; // This will need to be created
+import { useDocument } from '@/firebase/firestore/use-doc';
 import { Article } from '@/lib/types';
 import Image from 'next/image';
 import { LoaderCircle, Calendar, Tag } from 'lucide-react';
@@ -13,6 +13,9 @@ import { fr } from 'date-fns/locale';
 export default function ArticlePage() {
   const params = useParams();
   const { id } = params;
+  
+  // Note: getFirestore() can be called here because we are in a 'use client' component
+  // that is a child of FirebaseClientProvider.
   const firestore = getFirestore();
 
   const articleRef = useMemo(() => {
@@ -68,8 +71,8 @@ export default function ArticlePage() {
           <Image
             src={article.imageUrl}
             alt={article.title}
-            layout="fill"
-            objectFit="cover"
+            fill
+            className="object-cover"
             data-ai-hint={article.imageHint || 'article image'}
           />
         </div>

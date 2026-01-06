@@ -28,7 +28,7 @@ import {
 } from 'firebase/firestore';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useState, useEffect, useMemo } from 'react';
-import { LoaderCircle, LogOut, PlusCircle, Trash2, Pencil, Newspaper, List } from 'lucide-react';
+import { LoaderCircle, LogOut, PlusCircle, Trash2, Pencil, Newspaper, List, Users } from 'lucide-react';
 import { useUser } from '@/firebase/auth/use-user';
 import { useRouter } from 'next/navigation';
 import { signOut } from 'firebase/auth';
@@ -42,7 +42,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { Article } from '@/lib/types';
+import { Article, Player } from '@/lib/types';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import {
@@ -58,7 +58,7 @@ import {
 } from "@/components/ui/alert-dialog"
 
 
-const formSchema = z.object({
+const articleFormSchema = z.object({
   title: z.string().min(10, {
     message: 'Le titre doit contenir au moins 10 caractères.',
   }),
@@ -77,8 +77,8 @@ function AddArticleForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const firestore = useFirestoreHook();
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof articleFormSchema>>({
+    resolver: zodResolver(articleFormSchema),
     defaultValues: {
       title: '',
       content: '',
@@ -88,7 +88,7 @@ function AddArticleForm() {
     },
   });
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof articleFormSchema>) {
     if (!firestore) {
       toast({
         variant: 'destructive',
@@ -302,6 +302,153 @@ function ArticlesList() {
     )
 }
 
+const playerFormSchema = z.object({
+  name: z.string().min(2, { message: 'Le nom doit contenir au moins 2 caractères.' }),
+  position: z.string().min(2, { message: 'Le poste doit contenir au moins 2 caractères.' }),
+  number: z.coerce.number().int().positive({ message: 'Le numéro doit être un nombre positif.' }),
+  imageUrl: z.string().url({ message: "Veuillez entrer une URL d'image valide." }),
+  imageHint: z.string().optional(),
+});
+
+function AddPlayerForm() {
+  const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const firestore = useFirestoreHook();
+
+  const form = useForm<z.infer<typeof playerFormSchema>>({
+    resolver: zodResolver(playerFormSchema),
+    defaultValues: {
+      name: '',
+      position: 'Attaquant',
+      number: 10,
+      imageUrl: `https://picsum.photos/seed/${Math.random()}/400/400`,
+      imageHint: 'soccer player',
+    },
+  });
+
+  async function onSubmit(values: z.infer<typeof playerFormSchema>) {
+    if (!firestore) return;
+    setIsSubmitting(true);
+    try {
+      await addDoc(collection(firestore, 'players'), { ...values });
+      toast({ title: 'Joueur ajouté !', description: `${values.name} a été ajouté à l'effectif.` });
+      form.reset({
+        ...form.getValues(),
+        name: '',
+        imageUrl: `https://picsum.photos/seed/${Math.random()}/400/400`,
+      });
+    } catch (error) {
+      console.error("Erreur lors de l'ajout du joueur: ", error);
+      toast({ variant: 'destructive', title: 'Erreur', description: "Impossible d'enregistrer le joueur." });
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        <FormField control={form.control} name="name" render={({ field }) => (
+          <FormItem><FormLabel>Nom du joueur</FormLabel><FormControl><Input placeholder="John Doe" {...field} /></FormControl><FormMessage /></FormItem>
+        )} />
+        <FormField control={form.control} name="position" render={({ field }) => (
+          <FormItem><FormLabel>Poste</FormLabel><FormControl><Input placeholder="Défenseur, Milieu, etc." {...field} /></FormControl><FormMessage /></FormItem>
+        )} />
+        <FormField control={form.control} name="number" render={({ field }) => (
+          <FormItem><FormLabel>Numéro</FormLabel><FormControl><Input type="number" placeholder="10" {...field} /></FormControl><FormMessage /></FormItem>
+        )} />
+        <FormField control={form.control} name="imageUrl" render={({ field }) => (
+          <FormItem>
+            <FormLabel>URL de la photo</FormLabel>
+            <FormControl><Input placeholder="https://exemple.com/photo.jpg" {...field} /></FormControl>
+            <FormDescription>Utilisez une image au format portrait (carré ou vertical).</FormDescription>
+            <FormMessage />
+          </FormItem>
+        )} />
+        <FormField control={form.control} name="imageHint" render={({ field }) => (
+          <FormItem>
+            <FormLabel>Indice pour l'image (Optionnel)</FormLabel>
+            <FormControl><Input placeholder="soccer player portrait" {...field} /></FormControl>
+            <FormDescription>Un ou deux mots en anglais pour l'IA.</FormDescription>
+            <FormMessage />
+          </FormItem>
+        )} />
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
+          {isSubmitting ? 'Ajout...' : 'Ajouter le joueur'}
+        </Button>
+      </form>
+    </Form>
+  )
+}
+
+function PlayersList() {
+    const firestore = useFirestoreHook();
+    const { toast } = useToast();
+    const playersQuery = useMemo(() => {
+        if (!firestore) return null;
+        return query(collection(firestore, 'players'), orderBy('name', 'asc'));
+    }, [firestore]);
+
+    const { data: players, loading } = useCollection<Player>(playersQuery);
+
+    const handleDelete = async (playerId: string) => {
+        if (!firestore) return;
+        try {
+            await deleteDoc(doc(firestore, 'players', playerId));
+            toast({ title: 'Joueur supprimé', description: 'Le joueur a été retiré de l\'effectif.' });
+        } catch (error) {
+            toast({ variant: 'destructive', title: 'Erreur', description: 'Impossible de supprimer le joueur.' });
+        }
+    };
+
+    return (
+         <Card>
+            <CardHeader><CardTitle>Effectif actuel</CardTitle><CardDescription>Gérez les joueurs de votre équipe.</CardDescription></CardHeader>
+            <CardContent>
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Nom</TableHead>
+                            <TableHead className="hidden md:table-cell">Poste</TableHead>
+                            <TableHead className="hidden lg:table-cell">Numéro</TableHead>
+                            <TableHead className="text-right">Actions</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {loading && (
+                            <TableRow><TableCell colSpan={4} className="text-center"><LoaderCircle className="mx-auto h-8 w-8 animate-spin text-primary" /></TableCell></TableRow>
+                        )}
+                        {!loading && players?.map((player) => (
+                            <TableRow key={player.id}>
+                                <TableCell className="font-medium">{player.name}</TableCell>
+                                <TableCell className="hidden md:table-cell">{player.position}</TableCell>
+                                <TableCell className="hidden lg:table-cell">{player.number}</TableCell>
+                                <TableCell className="text-right">
+                                    <Button variant="ghost" size="icon" disabled><Pencil className="h-4 w-4" /></Button>
+                                    <AlertDialog>
+                                      <AlertDialogTrigger asChild><Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive" /></Button></AlertDialogTrigger>
+                                      <AlertDialogContent>
+                                        <AlertDialogHeader>
+                                          <AlertDialogTitle>Êtes-vous absolument sûr ?</AlertDialogTitle>
+                                          <AlertDialogDescription>Cette action est irréversible. Le joueur sera supprimé.</AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                          <AlertDialogCancel>Annuler</AlertDialogCancel>
+                                          <AlertDialogAction onClick={() => handleDelete(player.id)} className="bg-destructive hover:bg-destructive/90">Supprimer</AlertDialogAction>
+                                        </AlertDialogFooter>
+                                      </AlertDialogContent>
+                                    </AlertDialog>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </CardContent>
+        </Card>
+    )
+}
+
 
 export default function AdminPage() {
   const auth = useAuth();
@@ -345,7 +492,7 @@ export default function AdminPage() {
       <Tabs defaultValue="actus">
         <TabsList className="grid w-full grid-cols-3 md:grid-cols-4 lg:grid-cols-9 mb-4">
           <TabsTrigger value="actus">Actualités</TabsTrigger>
-          <TabsTrigger value="equipe" disabled>Équipe</TabsTrigger>
+          <TabsTrigger value="equipe">Équipe</TabsTrigger>
           <TabsTrigger value="matchs" disabled>Matchs</TabsTrigger>
           <TabsTrigger value="galerie" disabled>Galerie</TabsTrigger>
           <TabsTrigger value="partenaires" disabled>Partenaires</TabsTrigger>
@@ -375,8 +522,30 @@ export default function AdminPage() {
                 </TabsContent>
             </Tabs>
         </TabsContent>
-        {/* Placeholder for other tabs */}
-        <TabsContent value="equipe">Bientôt disponible.</TabsContent>
+        
+        <TabsContent value="equipe">
+            <Tabs defaultValue="list">
+                <TabsList>
+                    <TabsTrigger value="list"><List className="w-4 h-4 mr-2" />Voir l'effectif</TabsTrigger>
+                    <TabsTrigger value="add"><PlusCircle className="w-4 h-4 mr-2" />Ajouter un joueur</TabsTrigger>
+                </TabsList>
+                <TabsContent value="list" className="pt-6">
+                    <PlayersList />
+                </TabsContent>
+                <TabsContent value="add" className="pt-6">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Ajouter un nouveau joueur</CardTitle>
+                            <CardDescription>Remplissez le formulaire pour ajouter un joueur à l'effectif.</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <AddPlayerForm />
+                        </CardContent>
+                    </Card>
+                </TabsContent>
+            </Tabs>
+        </TabsContent>
+
         <TabsContent value="matchs">Bientôt disponible.</TabsContent>
         <TabsContent value="galerie">Bientôt disponible.</TabsContent>
         <TabsContent value="partenaires">Bientôt disponible.</TabsContent>

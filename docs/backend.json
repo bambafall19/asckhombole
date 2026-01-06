@@ -32,6 +32,34 @@
         }
       },
       "required": ["title", "content", "category", "createdAt"]
+    },
+    "Player": {
+      "title": "Player",
+      "description": "Represents a player in the team.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The full name of the player."
+        },
+        "position": {
+          "type": "string",
+          "description": "The player's position (e.g., 'Goalkeeper', 'Midfielder')."
+        },
+        "number": {
+          "type": "number",
+          "description": "The player's jersey number."
+        },
+        "imageUrl": {
+          "type": "string",
+          "description": "URL of the player's portrait photo."
+        },
+        "imageHint": {
+          "type": "string",
+          "description": "A hint for AI to find a relevant image."
+        }
+      },
+      "required": ["name", "position", "number", "imageUrl"]
     }
   },
   "auth": {
@@ -43,6 +71,12 @@
         "$ref": "#/backend/entities/Article"
       },
       "description": "Stores individual news articles for the club."
+    },
+    "/players/{playerId}": {
+      "schema": {
+        "$ref": "#/backend/entities/Player"
+      },
+      "description": "Stores individual player profiles for the team."
     }
   }
 }

@@ -9,3 +9,12 @@ export interface Article {
   category: string;
   createdAt: Timestamp;
 }
+
+export interface Player {
+  id: string;
+  name: string;
+  position: string;
+  number: number;
+  imageUrl: string;
+  imageHint?: string;
+}

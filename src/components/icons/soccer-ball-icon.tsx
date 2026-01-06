@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 
 export function SoccerBallIcon({ className }: { className?: string }) {
   return (
-    <div className={cn("h-8 w-8 text-primary", className)}>
+    <div className={cn(className)}>
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="100%"

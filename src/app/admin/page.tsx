@@ -1023,7 +1023,9 @@ export default function AdminPage() {
           <TabsTrigger value="matchs">Matchs</TabsTrigger>
           <TabsTrigger value="galerie">Galerie</TabsTrigger>
           <TabsTrigger value="partenaires">Partenaires</TabsTrigger>
+          <TabsTrigger value="club" disabled>Club</TabsTrigger>
           <TabsTrigger value="boutique" disabled>Boutique</TabsTrigger>
+          <TabsTrigger value="contact" disabled>Contact</TabsTrigger>
           <TabsTrigger value="webtv" disabled>Web TV</TabsTrigger>
         </TabsList>
 
@@ -1096,7 +1098,17 @@ export default function AdminPage() {
               </CollapsibleContent>
             </Collapsible>
         </TabsContent>
-
+        
+        <TabsContent value="club">
+            <Card>
+                <CardHeader>
+                    <CardTitle>Club</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <p className="text-muted-foreground">La gestion de la page Club sera bientôt disponible.</p>
+                </CardContent>
+            </Card>
+        </TabsContent>
         <TabsContent value="boutique">
             <Card>
                 <CardHeader>
@@ -1104,6 +1116,16 @@ export default function AdminPage() {
                 </CardHeader>
                 <CardContent>
                     <p className="text-muted-foreground">La gestion de la boutique sera bientôt disponible.</p>
+                </CardContent>
+            </Card>
+        </TabsContent>
+        <TabsContent value="contact">
+            <Card>
+                <CardHeader>
+                    <CardTitle>Contact</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <p className="text-muted-foreground">La gestion des messages de contact sera bientôt disponible.</p>
                 </CardContent>
             </Card>
         </TabsContent>

@@ -1169,7 +1169,11 @@ function PartnersList() {
 
 const clubInfoFormSchema = z.object({
   history: z.string().min(10, { message: "L'histoire doit contenir au moins 10 caractères." }),
+  historyImageUrl: z.string().url({ message: "Veuillez entrer une URL d'image valide." }).optional().or(z.literal('')),
+  historyImageHint: z.string().optional(),
   presidentWord: z.string().min(10, { message: 'Le mot du président doit contenir au moins 10 caractères.' }),
+  presidentWordImageUrl: z.string().url({ message: "Veuillez entrer une URL d'image valide." }).optional().or(z.literal('')),
+  presidentWordImageHint: z.string().optional(),
   presidentWishes: z.string().min(10, { message: 'Les vœux doivent contenir au moins 10 caractères.' }),
 });
 
@@ -1189,7 +1193,11 @@ function ClubInfoForm() {
     resolver: zodResolver(clubInfoFormSchema),
     values: {
         history: clubInfo?.history || '',
+        historyImageUrl: clubInfo?.historyImageUrl || '',
+        historyImageHint: clubInfo?.historyImageHint || '',
         presidentWord: clubInfo?.presidentWord || '',
+        presidentWordImageUrl: clubInfo?.presidentWordImageUrl || '',
+        presidentWordImageHint: clubInfo?.presidentWordImageHint || '',
         presidentWishes: clubInfo?.presidentWishes || '',
     }
   });
@@ -1198,7 +1206,11 @@ function ClubInfoForm() {
     if (clubInfo) {
       form.reset({
         history: clubInfo.history || '',
+        historyImageUrl: clubInfo.historyImageUrl || '',
+        historyImageHint: clubInfo.historyImageHint || '',
         presidentWord: clubInfo.presidentWord || '',
+        presidentWordImageUrl: clubInfo.presidentWordImageUrl || '',
+        presidentWordImageHint: clubInfo.presidentWordImageHint || '',
         presidentWishes: clubInfo.presidentWishes || '',
       });
     }
@@ -1252,6 +1264,28 @@ function ClubInfoForm() {
             />
             <FormField
               control={form.control}
+              name="historyImageUrl"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>URL de l'image (Histoire)</FormLabel>
+                  <FormControl><Input placeholder="https://exemple.com/image.jpg" {...field} /></FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="historyImageHint"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Indice pour l'image (Histoire)</FormLabel>
+                  <FormControl><Input placeholder="soccer history" {...field} /></FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
               name="presidentWord"
               render={({ field }) => (
                 <FormItem>
@@ -1259,6 +1293,28 @@ function ClubInfoForm() {
                   <FormControl>
                     <Textarea placeholder="Le message du président aux supporters et partenaires..." rows={6} {...field} />
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+             <FormField
+              control={form.control}
+              name="presidentWordImageUrl"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>URL de l'image (Mot du président)</FormLabel>
+                  <FormControl><Input placeholder="https://exemple.com/president.jpg" {...field} /></FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="presidentWordImageHint"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Indice pour l'image (Mot du président)</FormLabel>
+                  <FormControl><Input placeholder="club president" {...field} /></FormControl>
                   <FormMessage />
                 </FormItem>
               )}

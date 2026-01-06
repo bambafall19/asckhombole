@@ -165,9 +165,25 @@
           "type": "string",
           "description": "The history of the club."
         },
+        "historyImageUrl": {
+          "type": "string",
+          "description": "URL of an image for the history section."
+        },
+        "historyImageHint": {
+          "type": "string",
+          "description": "A hint for AI to find a relevant image for the history section."
+        },
         "presidentWord": {
           "type": "string",
           "description": "A message from the club president."
+        },
+        "presidentWordImageUrl": {
+          "type": "string",
+          "description": "URL of an image for the president's word section."
+        },
+        "presidentWordImageHint": {
+            "type": "string",
+            "description": "A hint for AI to find a relevant image for the president's word section."
         },
         "presidentWishes": {
           "type": "string",

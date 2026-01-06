@@ -5,6 +5,7 @@ import { useMemo } from "react";
 import { doc } from 'firebase/firestore';
 import { useDocument, useFirestore } from "@/firebase";
 import { ClubInfo } from "@/lib/types";
+import Image from 'next/image';
 
 export default function ClubPage() {
   const firestore = useFirestore();
@@ -35,35 +36,65 @@ export default function ClubPage() {
         </div>
 
         <div className="space-y-12 max-w-4xl mx-auto">
-          <Card className="hover:shadow-lg transition-shadow">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-3">
-                <Shield className="w-8 h-8 text-accent" />
-                <span className="font-headline">Historique</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground whitespace-pre-wrap">
-                {clubInfo?.history || "L'histoire du club n'a pas encore été renseignée."}
-              </p>
-            </CardContent>
+          <Card className="overflow-hidden">
+            <div className="grid md:grid-cols-2">
+              <div className="p-6 flex flex-col justify-center">
+                <CardHeader className="p-0 mb-4">
+                  <CardTitle className="flex items-center gap-3">
+                    <Shield className="w-8 h-8 text-accent" />
+                    <span className="font-headline">Historique</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-0">
+                  <p className="text-muted-foreground whitespace-pre-wrap">
+                    {clubInfo?.history || "L'histoire du club n'a pas encore été renseignée."}
+                  </p>
+                </CardContent>
+              </div>
+              {clubInfo?.historyImageUrl && (
+                <div className="relative aspect-video md:aspect-auto">
+                    <Image 
+                        src={clubInfo.historyImageUrl}
+                        alt="Histoire du club"
+                        fill
+                        className="object-cover"
+                        data-ai-hint={clubInfo.historyImageHint || 'club history'}
+                    />
+                </div>
+              )}
+            </div>
           </Card>
 
-          <Card className="hover:shadow-lg transition-shadow">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-3">
-                <User className="w-8 h-8 text-accent" />
-                <span className="font-headline">Mot du Président</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground whitespace-pre-wrap">
-                {clubInfo?.presidentWord || "Le mot du président n'a pas encore été renseigné."}
-              </p>
-            </CardContent>
+          <Card className="overflow-hidden">
+             <div className="grid md:grid-cols-2">
+              {clubInfo?.presidentWordImageUrl && (
+                    <div className="relative aspect-video md:aspect-auto order-last md:order-first">
+                        <Image 
+                            src={clubInfo.presidentWordImageUrl}
+                            alt="Mot du président"
+                            fill
+                            className="object-cover"
+                            data-ai-hint={clubInfo.presidentWordImageHint || 'club president'}
+                        />
+                    </div>
+                )}
+              <div className="p-6 flex flex-col justify-center">
+                <CardHeader className="p-0 mb-4">
+                  <CardTitle className="flex items-center gap-3">
+                    <User className="w-8 h-8 text-accent" />
+                    <span className="font-headline">Mot du Président</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-0">
+                  <p className="text-muted-foreground whitespace-pre-wrap">
+                    {clubInfo?.presidentWord || "Le mot du président n'a pas encore été renseigné."}
+                  </p>
+                </CardContent>
+              </div>
+            </div>
           </Card>
 
-          <Card className="hover:shadow-lg transition-shadow">
+          <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-3">
                 <Target className="w-8 h-8 text-accent" />

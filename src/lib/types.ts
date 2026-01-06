@@ -51,6 +51,10 @@ export interface Partner {
 export interface ClubInfo {
     id: string;
     history: string;
+    historyImageUrl?: string;
+    historyImageHint?: string;
     presidentWord: string;
+    presidentWordImageUrl?: string;
+    presidentWordImageHint?: string;
     presidentWishes: string;
 }

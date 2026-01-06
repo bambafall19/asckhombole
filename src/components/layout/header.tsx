@@ -5,18 +5,20 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, X, User, Tv, Store, Newspaper, Shield, Trophy, Image as ImageIcon, Users, Handshake, Mail, Home } from "lucide-react";
+import { Menu, X, User, Search, Tv, Store, Newspaper, Shield, Trophy, Image as ImageIcon, Users, Handshake, Mail, Home } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Logo } from "@/components/logo";
 
-const navLinks = [
-  { href: "/", label: "Accueil", icon: Home },
+const mainNavLinks = [
   { href: "/club", label: "Club", icon: Shield },
   { href: "/equipe", label: "Équipe", icon: Users },
   { href: "/matchs", label: "Matchs", icon: Trophy },
   { href: "/actus", label: "Actus", icon: Newspaper },
   { href: "/galerie", label: "Galerie", icon: ImageIcon },
   { href: "/partenaires", label: "Partenaires", icon: Handshake },
+];
+
+const secondaryNavLinks = [
   { href: "/boutique", label: "Boutique", icon: Store },
   { href: "/webtv", label: "Web TV", icon: Tv },
   { href: "/contact", label: "Contact", icon: Mail },
@@ -35,14 +37,15 @@ export function Header() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const NavLink = ({ href, label }: { href: string; label: string }) => {
+  const NavLink = ({ href, label, className }: { href: string; label: string; className?: string }) => {
     const isActive = pathname === href;
     return (
       <Link
         href={href}
         className={cn(
           "text-sm font-medium transition-colors hover:text-primary",
-          isActive ? "text-primary font-semibold" : "text-foreground/80"
+          isActive ? "text-primary font-semibold" : "text-foreground/80",
+          className
         )}
         onClick={() => setIsMobileMenuOpen(false)}
       >
@@ -58,7 +61,7 @@ export function Header() {
           href={href}
           className={cn(
             "flex items-center p-3 rounded-lg transition-colors",
-            isActive ? "bg-primary text-primary-foreground" : "hover:bg-accent/10"
+            isActive ? "bg-accent text-accent-foreground" : "hover:bg-accent/50"
           )}
           onClick={() => setIsMobileMenuOpen(false)}
         >
@@ -71,8 +74,8 @@ export function Header() {
   return (
     <header
       className={cn(
-        "sticky top-0 z-50 w-full transition-all duration-300",
-        isScrolled ? "bg-card/95 backdrop-blur-sm shadow-md" : "bg-transparent"
+        "sticky top-0 z-50 w-full transition-all duration-300 border-b",
+        isScrolled ? "bg-card/95 backdrop-blur-sm" : "bg-card"
       )}
     >
       <div className="container flex h-20 items-center justify-between">
@@ -80,16 +83,18 @@ export function Header() {
           <Logo />
         </Link>
         <nav className="hidden md:flex items-center gap-6">
-          {navLinks.slice(0, 7).map((link) => (
+          <NavLink href="/" label="Accueil" />
+          {mainNavLinks.map((link) => (
             <NavLink key={link.href} {...link} />
           ))}
         </nav>
         <div className="hidden md:flex items-center gap-2">
-           <Button variant="ghost" size="icon" asChild>
-            <Link href="/webtv"><Tv className="h-5 w-5" /></Link>
-          </Button>
-          <Button variant="ghost" size="icon" asChild>
-            <Link href="/boutique"><Store className="h-5 w-5" /></Link>
+          {secondaryNavLinks.map((link) => (
+             <NavLink key={link.href} {...link} className="text-foreground/60"/>
+          ))}
+          <div className="w-px h-6 bg-border mx-2"></div>
+          <Button variant="ghost" size="icon">
+            <Search className="h-5 w-5" />
           </Button>
           <Button variant="ghost" size="icon">
             <User className="h-5 w-5" />
@@ -111,8 +116,9 @@ export function Header() {
                         <X className="h-6 w-6" />
                     </Button>
                 </div>
-                <nav className="flex-grow p-4 space-y-2">
-                    {navLinks.map((link) => (
+                <nav className="flex-grow p-4 space-y-2 overflow-y-auto">
+                    <MobileNavLink href="/" label="Accueil" Icon={Home} />
+                    {[...mainNavLinks, ...secondaryNavLinks].map((link) => (
                         <MobileNavLink key={link.href} href={link.href} label={link.label} Icon={link.icon} />
                     ))}
                 </nav>

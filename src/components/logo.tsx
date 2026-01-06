@@ -6,10 +6,12 @@ interface LogoProps {
   className?: string;
 }
 
-export function Logo({ width = 120, height = 40, className }: LogoProps) {
+export function Logo({ className }: LogoProps) {
   return (
     <div className={`flex items-center gap-2 ${className}`}>
-      <SoccerBallIcon className="text-primary h-8 w-8" />
+       <div className="w-8 h-8 bg-accent rounded-sm flex items-center justify-center">
+        <SoccerBallIcon className="text-accent-foreground h-6 w-6" />
+      </div>
       <span className="font-bold text-xl text-foreground font-headline">
         ASC Khombole
       </span>

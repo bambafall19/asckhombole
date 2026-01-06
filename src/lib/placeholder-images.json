@@ -1,34 +1,64 @@
 {
   "placeholderImages": [
     {
-      "id": "hero-1",
-      "description": "Soccer players celebrating a goal in a packed stadium.",
-      "imageUrl": "https://images.unsplash.com/photo-1561917423-2ce508445fe4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxzb2NjZXIlMjBjZWxlYnJhdGlvbnxlbnwwfHx8fDE3Njc2MTUwMTV8MA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "soccer celebration"
+      "id": "news-hero-main",
+      "description": "Female tennis player focused during a match",
+      "imageUrl": "https://images.unsplash.com/photo-1552318965-6e6be7484ada?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHx0ZW5uaXMlMjBwbGF5ZXJ8ZW58MHx8fHwxNzE3MTA0MDI3fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "tennis player"
     },
     {
-      "id": "news-1",
-      "description": "A soccer player kicking a ball with force.",
-      "imageUrl": "https://images.unsplash.com/photo-1652190416150-d501a60291b3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxzb2NjZXIlMjBraWNrfGVufDB8fHx8MTc2NzcwNzA1NXww&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "soccer kick"
+      "id": "news-side-1",
+      "description": "Rugby players in a scrum",
+      "imageUrl": "https://images.unsplash.com/photo-1593539922956-25345d36b8DE?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxydWdieXxlbnwwfHx8fDE3MTcwOTkzODR8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "rugby match"
     },
     {
-      "id": "news-2",
-      "description": "Two people shaking hands on a business deal.",
-      "imageUrl": "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxidXNpbmVzcyUyMGhhbmRzaGFrZXxlbnwwfHx8fDE3Njc2MDE4Njh8MA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "business handshake"
+      "id": "news-side-2",
+      "description": "Cristiano Ronaldo celebrating a goal",
+      "imageUrl": "https://images.unsplash.com/photo-1688582824765-4a42b15a3159?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxjcmlzdGlhbm8lMjByb25hbGRvfGVufDB8fHx8MTcxNzA5OTU2MXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "soccer player"
     },
     {
-      "id": "news-3",
-      "description": "Young soccer players training on a field.",
-      "imageUrl": "https://images.unsplash.com/photo-1629977007371-0ba395424741?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHx5b3V0aCUyMHNvY2NlcnxlbnwwfHx8fDE3Njc3MDcwNTV8MA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "youth soccer"
+      "id": "news-side-3",
+      "description": "Erling Haaland in action for Manchester City",
+      "imageUrl": "https://images.unsplash.com/photo-1663947716124-67258387289e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxoYWFsYW5kfGVufDB8fHx8MTcxNzA5OTYxM3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "football player"
     },
     {
-      "id": "news-4",
-      "description": "Soccer team in a huddle during training.",
-      "imageUrl": "https://images.unsplash.com/photo-1624295059100-0ca889087b54?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxzb2NjZXIlMjB0ZWFtfGVufDB8fHx8MTc2NzYxNTAxNXww&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "soccer team"
+      "id": "news-trendy-1",
+      "description": "A soccer player looking down, disappointed.",
+      "imageUrl": "https://images.unsplash.com/photo-1518933396842-3fe33521a1d3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxzb2NjZXIlMjBzYWR8ZW58MHx8fHwxNzE3MDk5NzQ4fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "sad soccer"
+    },
+    {
+      "id": "news-trendy-2",
+      "description": "A golfer swinging a club on a course.",
+      "imageUrl": "https://images.unsplash.com/photo-1594294624162-83a519b5d359?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxnb2xmfGVufDB8fHx8MTcxNzA5OTY5MHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "golf swing"
+    },
+    {
+      "id": "news-trendy-3",
+      "description": "Novak Djokovic with a frustrated expression on the tennis court.",
+      "imageUrl": "https://images.unsplash.com/photo-1600588698948-2661550b555e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxkam9rb3ZpY3xlbnwwfHx8fDE3MTcwOTk3ODd8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "tennis angry"
+    },
+    {
+      "id": "spotlight-1",
+      "description": "Portrait of Ronaldinho smiling",
+      "imageUrl": "https://images.unsplash.com/photo-1618886369080-8439a3f5509e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxyb25hbGRpbmhvJTIwZ2F1Y2hvfGVufDB8fHx8MTcxNzA5OTkyNnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "soccer legend"
+    },
+    {
+      "id": "spotlight-2",
+      "description": "American football player running with the ball.",
+      "imageUrl": "https://images.unsplash.com/photo-1543353243-c62f741b0b5e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxhbWVyaWNhbiUyMGZvb3RiYWxsfGVufDB8fHx8MTcxNzA5OTk3N3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "american football"
+    },
+    {
+      "id": "spotlight-3",
+      "description": "Tennis player serving the ball.",
+      "imageUrl": "https://images.unsplash.com/photo-1554060197-e2c7c093c04a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHx0ZW5uaXMlMjBzZXJ2ZXxlbnwwfHx8fDE3MTcxMDAwMTR8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "tennis serve"
     }
   ]
 }

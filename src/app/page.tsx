@@ -13,15 +13,17 @@ import {
   limit,
   doc,
 } from 'firebase/firestore';
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
 import { Article, ClubInfo, Photo } from "@/lib/types";
 import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import Autoplay from "embla-carousel-autoplay";
 
 
 export default function Home() {
   const firestore = useFirestore();
+  const autoplay = useRef(Autoplay({ delay: 5000, stopOnInteraction: false, stopOnMouseEnter: true }));
   
   const articlesQuery = useMemo(() => {
     if (!firestore) return null;
@@ -105,7 +107,11 @@ export default function Home() {
                   </Card>
                 )}
                 {!loading && !mainArticle && (
-                   <Carousel className="w-full" opts={{ loop: true }}>
+                   <Carousel 
+                      className="w-full" 
+                      opts={{ loop: true }}
+                      plugins={[autoplay.current]}
+                    >
                       <CarouselContent>
                         {welcomeImages.length > 0 ? welcomeImages.map((img, index) => (
                           <CarouselItem key={index}>

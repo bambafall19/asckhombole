@@ -17,6 +17,8 @@ import {
 } from 'firebase/firestore';
 import { createContext, useContext, useMemo } from 'react';
 import { firebaseConfig } from './config';
+import { FirebaseErrorListener } from '@/components/firebase-error-listener';
+
 
 // The following 2 lines assumes you have a `firebase.json` file at the root of your project
 // with the following content:
@@ -84,6 +86,7 @@ export function FirebaseProvider({
       }}
     >
       {children}
+      <FirebaseErrorListener />
     </FirebaseContext.Provider>
   );
 }

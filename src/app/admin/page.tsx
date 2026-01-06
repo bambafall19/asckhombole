@@ -63,6 +63,8 @@ import { CalendarIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Calendar } from '@/components/ui/calendar';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
 
 
 const articleFormSchema = z.object({
@@ -105,31 +107,38 @@ function AddArticleForm() {
       return;
     }
     setIsSubmitting(true);
-    try {
-      await addDoc(collection(firestore, 'articles'), {
-        ...values,
-        createdAt: serverTimestamp(),
-      });
-      toast({
-        title: 'Article publié !',
-        description: 'Votre nouvel article a été ajouté avec succès.',
-      });
-      form.reset({
-        ...form.getValues(),
-        title: '',
-        content: '',
-        imageUrl: `https://picsum.photos/seed/${Math.random()}/800/450`,
-      });
-    } catch (error) {
-      console.error("Erreur lors de l'ajout de l'article: ", error);
-      toast({
-        variant: 'destructive',
-        title: 'Oh non ! Une erreur est survenue.',
-        description: "Impossible d'enregistrer l'article. Veuillez réessayer.",
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
+    
+    const articlesCollection = collection(firestore, 'articles');
+    addDoc(articlesCollection, {
+      ...values,
+      createdAt: serverTimestamp(),
+    }).then(() => {
+        toast({
+          title: 'Article publié !',
+          description: 'Votre nouvel article a été ajouté avec succès.',
+        });
+        form.reset({
+          ...form.getValues(),
+          title: '',
+          content: '',
+          imageUrl: `https://picsum.photos/seed/${Math.random()}/800/450`,
+        });
+    }).catch(async (error) => {
+        console.error("Erreur lors de l'ajout de l'article: ", error);
+        const permissionError = new FirestorePermissionError({
+            path: articlesCollection.path,
+            operation: 'create',
+            requestResourceData: values,
+        });
+        errorEmitter.emit('permission-error', permissionError);
+        toast({
+          variant: 'destructive',
+          title: 'Oh non ! Une erreur est survenue.',
+          description: "Impossible d'enregistrer l'article. Veuillez réessayer.",
+        });
+    }).finally(() => {
+        setIsSubmitting(false);
+    });
   }
 
   return (
@@ -239,20 +248,25 @@ function ArticlesList() {
 
     const handleDelete = async (articleId: string) => {
         if (!firestore) return;
-        try {
-            await deleteDoc(doc(firestore, 'articles', articleId));
-            toast({
+        const articleRef = doc(firestore, 'articles', articleId);
+        deleteDoc(articleRef).then(() => {
+             toast({
                 title: 'Article supprimé',
                 description: 'L\'article a été supprimé avec succès.',
             });
-        } catch (error) {
+        }).catch(async (error) => {
             console.error('Error deleting article: ', error);
+            const permissionError = new FirestorePermissionError({
+                path: articleRef.path,
+                operation: 'delete',
+            });
+            errorEmitter.emit('permission-error', permissionError);
             toast({
                 variant: 'destructive',
                 title: 'Erreur',
                 description: 'Impossible de supprimer l\'article.',
             });
-        }
+        });
     };
 
     return (
@@ -346,20 +360,27 @@ function AddPlayerForm() {
   async function onSubmit(values: z.infer<typeof playerFormSchema>) {
     if (!firestore) return;
     setIsSubmitting(true);
-    try {
-      await addDoc(collection(firestore, 'players'), { ...values });
-      toast({ title: 'Joueur ajouté !', description: `${values.name} a été ajouté à l'effectif.` });
-      form.reset({
-        ...form.getValues(),
-        name: '',
-        imageUrl: `https://picsum.photos/seed/${Math.random()}/400/400`,
-      });
-    } catch (error) {
-      console.error("Erreur lors de l'ajout du joueur: ", error);
-      toast({ variant: 'destructive', title: 'Erreur', description: "Impossible d'enregistrer le joueur." });
-    } finally {
-      setIsSubmitting(false);
-    }
+    
+    const playersCollection = collection(firestore, 'players');
+    addDoc(playersCollection, { ...values }).then(() => {
+        toast({ title: 'Joueur ajouté !', description: `${values.name} a été ajouté à l'effectif.` });
+        form.reset({
+            ...form.getValues(),
+            name: '',
+            imageUrl: `https://picsum.photos/seed/${Math.random()}/400/400`,
+        });
+    }).catch(async (error) => {
+        console.error("Erreur lors de l'ajout du joueur: ", error);
+        const permissionError = new FirestorePermissionError({
+            path: playersCollection.path,
+            operation: 'create',
+            requestResourceData: values,
+        });
+        errorEmitter.emit('permission-error', permissionError);
+        toast({ variant: 'destructive', title: 'Erreur', description: "Impossible d'enregistrer le joueur." });
+    }).finally(() => {
+        setIsSubmitting(false);
+    });
   }
 
   return (
@@ -419,12 +440,17 @@ function PlayersList() {
 
     const handleDelete = async (playerId: string) => {
         if (!firestore) return;
-        try {
-            await deleteDoc(doc(firestore, 'players', playerId));
+        const playerRef = doc(firestore, 'players', playerId);
+        deleteDoc(playerRef).then(() => {
             toast({ title: 'Joueur supprimé', description: 'Le joueur a été retiré de l\'effectif.' });
-        } catch (error) {
+        }).catch(async (error) => {
+            const permissionError = new FirestorePermissionError({
+                path: playerRef.path,
+                operation: 'delete',
+            });
+            errorEmitter.emit('permission-error', permissionError);
             toast({ variant: 'destructive', title: 'Erreur', description: 'Impossible de supprimer le joueur.' });
-        }
+        });
     };
 
     return (
@@ -502,30 +528,37 @@ function AddMatchForm() {
   async function onSubmit(values: z.infer<typeof matchFormSchema>) {
     if (!firestore) return;
     setIsSubmitting(true);
-    try {
-      const matchData = {
-        ...values,
-        date: Timestamp.fromDate(values.date),
-        homeScore: values.status === 'Terminé' ? values.homeScore || 0 : null,
-        awayScore: values.status === 'Terminé' ? values.awayScore || 0 : null,
-      };
 
-      await addDoc(collection(firestore, 'matches'), matchData);
+    const matchData = {
+      ...values,
+      date: Timestamp.fromDate(values.date),
+      homeScore: values.status === 'Terminé' ? values.homeScore || 0 : null,
+      awayScore: values.status === 'Terminé' ? values.awayScore || 0 : null,
+    };
+    
+    const matchesCollection = collection(firestore, 'matches');
 
-      toast({ title: 'Match ajouté !', description: `Le match ${values.homeTeam} vs ${values.awayTeam} a été programmé.` });
-      form.reset({
-        ...form.getValues(),
-        date: undefined,
-        awayTeam: '',
-        homeScore: undefined,
-        awayScore: undefined,
-      });
-    } catch (error) {
-      console.error("Erreur lors de l'ajout du match: ", error);
-      toast({ variant: 'destructive', title: 'Erreur', description: "Impossible d'enregistrer le match." });
-    } finally {
-      setIsSubmitting(false);
-    }
+    addDoc(matchesCollection, matchData).then(() => {
+        toast({ title: 'Match ajouté !', description: `Le match ${values.homeTeam} vs ${values.awayTeam} a été programmé.` });
+        form.reset({
+            ...form.getValues(),
+            date: undefined,
+            awayTeam: '',
+            homeScore: undefined,
+            awayScore: undefined,
+        });
+    }).catch(async (error) => {
+        console.error("Erreur lors de l'ajout du match: ", error);
+        const permissionError = new FirestorePermissionError({
+            path: matchesCollection.path,
+            operation: 'create',
+            requestResourceData: matchData,
+        });
+        errorEmitter.emit('permission-error', permissionError);
+        toast({ variant: 'destructive', title: 'Erreur', description: "Impossible d'enregistrer le match." });
+    }).finally(() => {
+        setIsSubmitting(false);
+    });
   }
   
   return (
@@ -632,12 +665,17 @@ function MatchesList() {
 
     const handleDelete = async (matchId: string) => {
         if (!firestore) return;
-        try {
-            await deleteDoc(doc(firestore, 'matches', matchId));
+        const matchRef = doc(firestore, 'matches', matchId);
+        deleteDoc(matchRef).then(() => {
             toast({ title: 'Match supprimé', description: 'Le match a été supprimé avec succès.' });
-        } catch (error) {
+        }).catch(async (error) => {
+            const permissionError = new FirestorePermissionError({
+                path: matchRef.path,
+                operation: 'delete',
+            });
+            errorEmitter.emit('permission-error', permissionError);
             toast({ variant: 'destructive', title: 'Erreur', description: 'Impossible de supprimer le match.' });
-        }
+        });
     };
 
     return (
@@ -714,23 +752,30 @@ function AddPhotoForm() {
   async function onSubmit(values: z.infer<typeof photoFormSchema>) {
     if (!firestore) return;
     setIsSubmitting(true);
-    try {
-      await addDoc(collection(firestore, 'photos'), {
+    
+    const photosCollection = collection(firestore, 'photos');
+    addDoc(photosCollection, {
         ...values,
         createdAt: serverTimestamp(),
-      });
-      toast({ title: 'Photo ajoutée !', description: 'La nouvelle photo a été ajoutée à la galerie.' });
-      form.reset({
-        ...form.getValues(),
-        title: '',
-        imageUrl: `https://picsum.photos/seed/${Math.random()}/600/400`,
-      });
-    } catch (error) {
-      console.error("Erreur lors de l'ajout de la photo: ", error);
-      toast({ variant: 'destructive', title: 'Erreur', description: "Impossible d'enregistrer la photo." });
-    } finally {
-      setIsSubmitting(false);
-    }
+    }).then(() => {
+        toast({ title: 'Photo ajoutée !', description: 'La nouvelle photo a été ajoutée à la galerie.' });
+        form.reset({
+            ...form.getValues(),
+            title: '',
+            imageUrl: `https://picsum.photos/seed/${Math.random()}/600/400`,
+        });
+    }).catch(async (error) => {
+        console.error("Erreur lors de l'ajout de la photo: ", error);
+        const permissionError = new FirestorePermissionError({
+            path: photosCollection.path,
+            operation: 'create',
+            requestResourceData: values,
+        });
+        errorEmitter.emit('permission-error', permissionError);
+        toast({ variant: 'destructive', title: 'Erreur', description: "Impossible d'enregistrer la photo." });
+    }).finally(() => {
+        setIsSubmitting(false);
+    });
   }
 
   return (
@@ -784,12 +829,17 @@ function PhotosList() {
 
     const handleDelete = async (photoId: string) => {
         if (!firestore) return;
-        try {
-            await deleteDoc(doc(firestore, 'photos', photoId));
+        const photoRef = doc(firestore, 'photos', photoId);
+        deleteDoc(photoRef).then(() => {
             toast({ title: 'Photo supprimée', description: 'La photo a été retirée de la galerie.' });
-        } catch (error) {
+        }).catch(async (error) => {
+            const permissionError = new FirestorePermissionError({
+                path: photoRef.path,
+                operation: 'delete',
+            });
+            errorEmitter.emit('permission-error', permissionError);
             toast({ variant: 'destructive', title: 'Erreur', description: 'Impossible de supprimer la photo.' });
-        }
+        });
     };
 
     return (
@@ -866,16 +916,23 @@ function AddPartnerForm() {
   async function onSubmit(values: z.infer<typeof partnerFormSchema>) {
     if (!firestore) return;
     setIsSubmitting(true);
-    try {
-      await addDoc(collection(firestore, 'partners'), { ...values });
-      toast({ title: 'Partenaire ajouté !', description: `Le partenaire ${values.name} a été ajouté.` });
-      form.reset();
-    } catch (error) {
-      console.error("Erreur lors de l'ajout du partenaire: ", error);
-      toast({ variant: 'destructive', title: 'Erreur', description: "Impossible d'enregistrer le partenaire." });
-    } finally {
-      setIsSubmitting(false);
-    }
+
+    const partnersCollection = collection(firestore, 'partners');
+    addDoc(partnersCollection, { ...values }).then(() => {
+        toast({ title: 'Partenaire ajouté !', description: `Le partenaire ${values.name} a été ajouté.` });
+        form.reset();
+    }).catch(async (error) => {
+        console.error("Erreur lors de l'ajout du partenaire: ", error);
+        const permissionError = new FirestorePermissionError({
+            path: partnersCollection.path,
+            operation: 'create',
+            requestResourceData: values,
+        });
+        errorEmitter.emit('permission-error', permissionError);
+        toast({ variant: 'destructive', title: 'Erreur', description: "Impossible d'enregistrer le partenaire." });
+    }).finally(() => {
+        setIsSubmitting(false);
+    });
   }
 
   return (
@@ -928,12 +985,17 @@ function PartnersList() {
 
     const handleDelete = async (partnerId: string) => {
         if (!firestore) return;
-        try {
-            await deleteDoc(doc(firestore, 'partners', partnerId));
+        const partnerRef = doc(firestore, 'partners', partnerId);
+        deleteDoc(partnerRef).then(() => {
             toast({ title: 'Partenaire supprimé', description: 'Le partenaire a été supprimé.' });
-        } catch (error) {
+        }).catch(async (error) => {
+            const permissionError = new FirestorePermissionError({
+                path: partnerRef.path,
+                operation: 'delete',
+            });
+            errorEmitter.emit('permission-error', permissionError);
             toast({ variant: 'destructive', title: 'Erreur', description: 'Impossible de supprimer le partenaire.' });
-        }
+        });
     };
 
     return (

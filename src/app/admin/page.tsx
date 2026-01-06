@@ -23,8 +23,12 @@ import {
   serverTimestamp,
 } from 'firebase/firestore';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useState } from 'react';
-import { LoaderCircle } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { LoaderCircle, LogOut } from 'lucide-react';
+import { useUser } from '@/firebase/auth/use-user';
+import { useRouter } from 'next/navigation';
+import { signOut } from 'firebase/auth';
+import { useAuth } from '@/firebase';
 
 const formSchema = z.object({
   title: z.string().min(10, {
@@ -44,6 +48,16 @@ export default function AdminPage() {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const firestore = getFirestore();
+  const auth = useAuth();
+  const { user, loading } = useUser();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/login');
+    }
+  }, [user, loading, router]);
+
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -88,12 +102,30 @@ export default function AdminPage() {
     }
   }
 
+  const handleLogout = async () => {
+    if (auth) {
+      await signOut(auth);
+      router.push('/login');
+    }
+  };
+
+  if (loading || !user) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <LoaderCircle className="w-16 h-16 animate-spin text-primary" />
+      </div>
+    );
+  }
+
   return (
     <main className="container mx-auto py-12 px-4 md:px-6">
       <div className="max-w-3xl mx-auto">
         <Card>
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>Panneau d'Administration</CardTitle>
+            <Button variant="ghost" size="icon" onClick={handleLogout}>
+              <LogOut className="w-5 h-5" />
+            </Button>
           </CardHeader>
           <CardContent>
             <Form {...form}>

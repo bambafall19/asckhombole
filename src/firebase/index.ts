@@ -12,6 +12,8 @@ export {
   useAuth,
 } from './provider';
 export { useCollection } from './firestore/use-collection';
+export { useUser } from './auth/use-user';
+export { FirebaseClientProvider } from './client-provider';
 
 let firebaseApp: FirebaseApp;
 let auth: Auth;

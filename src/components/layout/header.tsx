@@ -5,9 +5,22 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, X, User, Search, Tv, Store, Newspaper, Shield, Trophy, Image as ImageIcon, Users, Handshake, Mail, Home } from "lucide-react";
+import { Menu, X, User, Search, Tv, Store, Newspaper, Shield, Trophy, Image as ImageIcon, Users, Handshake, Mail, Home, LogOut, LogIn } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Logo } from "@/components/logo";
+import { useUser } from "@/firebase/auth/use-user";
+import { signOut } from "firebase/auth";
+import { useAuth } from "@/firebase";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+
 
 const navLinks = [
   { href: "/club", label: "Club", icon: Shield },
@@ -26,6 +39,8 @@ export function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const pathname = usePathname();
+  const auth = useAuth();
+  const { user, loading } = useUser();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -34,6 +49,13 @@ export function Header() {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  const handleLogout = async () => {
+    if (auth) {
+      await signOut(auth);
+      setIsMobileMenuOpen(false);
+    }
+  };
 
   const NavLink = ({ href, label, className }: { href: string; label: string; className?: string }) => {
     const isActive = pathname === href;
@@ -69,6 +91,58 @@ export function Header() {
     );
   };
 
+  const UserButton = () => {
+    if (loading) {
+      return <div className="w-8 h-8 rounded-full bg-muted animate-pulse" />
+    }
+
+    if (user) {
+      return (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+              <Avatar className="h-8 w-8">
+                <AvatarImage src={user.photoURL || undefined} alt={user.email || 'User'} />
+                <AvatarFallback>{user.email?.[0].toUpperCase()}</AvatarFallback>
+              </Avatar>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-56" align="end" forceMount>
+            <DropdownMenuLabel className="font-normal">
+              <div className="flex flex-col space-y-1">
+                <p className="text-sm font-medium leading-none">Mon Compte</p>
+                <p className="text-xs leading-none text-muted-foreground">
+                  {user.email}
+                </p>
+              </div>
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+               <Link href="/admin">
+                <Shield className="mr-2 h-4 w-4" />
+                <span>Admin</span>
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={handleLogout}>
+              <LogOut className="mr-2 h-4 w-4" />
+              <span>Déconnexion</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )
+    }
+
+    return (
+      <Button asChild variant="ghost" size="sm">
+        <Link href="/login">
+          <User className="h-5 w-5 mr-2" />
+          Connexion
+        </Link>
+      </Button>
+    )
+  }
+
   return (
     <header
       className={cn(
@@ -91,9 +165,7 @@ export function Header() {
           <Button variant="ghost" size="icon">
             <Search className="h-5 w-5" />
           </Button>
-          <Button variant="ghost" size="icon">
-            <User className="h-5 w-5" />
-          </Button>
+          <UserButton />
         </div>
         <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
           <SheetTrigger asChild className="md:hidden">
@@ -118,9 +190,17 @@ export function Header() {
                     ))}
                 </nav>
                 <div className="p-4 border-t">
-                    <Button className="w-full" size="lg">
-                        <User className="w-5 h-5 mr-2" /> Espace Membre
-                    </Button>
+                    {user ? (
+                      <Button className="w-full" size="lg" onClick={handleLogout}>
+                        <LogOut className="w-5 h-5 mr-2" /> Déconnexion
+                      </Button>
+                    ) : (
+                      <Button className="w-full" size="lg" asChild>
+                        <Link href="/login" onClick={() => setIsMobileMenuOpen(false)}>
+                          <LogIn className="w-5 h-5 mr-2" /> Espace Membre
+                        </Link>
+                      </Button>
+                    )}
                 </div>
             </div>
           </SheetContent>

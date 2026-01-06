@@ -26,6 +26,7 @@ import {
   doc,
   deleteDoc,
   Timestamp,
+  updateDoc,
 } from 'firebase/firestore';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useState, useEffect, useMemo } from 'react';
@@ -65,6 +66,15 @@ import { Calendar } from '@/components/ui/calendar';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogClose,
+} from '@/components/ui/dialog';
 
 
 const articleFormSchema = z.object({
@@ -81,14 +91,21 @@ const articleFormSchema = z.object({
   imageHint: z.string().optional(),
 });
 
-function AddArticleForm() {
+function AddArticleForm({ article, onFinish }: { article?: Article, onFinish?: () => void }) {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const firestore = useFirestoreHook();
+  const isEditing = !!article;
 
   const form = useForm<z.infer<typeof articleFormSchema>>({
     resolver: zodResolver(articleFormSchema),
-    defaultValues: {
+    defaultValues: isEditing ? {
+      title: article.title,
+      content: article.content,
+      category: article.category,
+      imageUrl: article.imageUrl,
+      imageHint: article.imageHint || '',
+    } : {
       title: '',
       content: '',
       category: 'Club',
@@ -107,47 +124,68 @@ function AddArticleForm() {
       return;
     }
     setIsSubmitting(true);
-    
-    const articlesCollection = collection(firestore, 'articles');
-    addDoc(articlesCollection, {
-      ...values,
-      createdAt: serverTimestamp(),
-    }).then(() => {
+
+    if (isEditing) {
+      const articleRef = doc(firestore, 'articles', article.id);
+      updateDoc(articleRef, values).then(() => {
         toast({
-          title: 'Article publié !',
-          description: 'Votre nouvel article a été ajouté avec succès.',
+          title: 'Article modifié !',
+          description: 'L\'article a été mis à jour avec succès.',
         });
-        form.reset({
-          ...form.getValues(),
-          title: '',
-          content: '',
-          imageUrl: `https://picsum.photos/seed/${Math.random()}/800/450`,
-        });
-    }).catch(async (error) => {
-        console.error("Erreur lors de l'ajout de l'article: ", error);
+        onFinish?.();
+      }).catch(async (error) => {
+        console.error("Erreur lors de la modification de l'article: ", error);
         const permissionError = new FirestorePermissionError({
-            path: articlesCollection.path,
-            operation: 'create',
+            path: articleRef.path,
+            operation: 'update',
             requestResourceData: values,
         });
         errorEmitter.emit('permission-error', permissionError);
         toast({
           variant: 'destructive',
           title: 'Oh non ! Une erreur est survenue.',
-          description: "Impossible d'enregistrer l'article. Veuillez réessayer.",
+          description: "Impossible de modifier l'article. Veuillez réessayer.",
         });
-    }).finally(() => {
+      }).finally(() => {
         setIsSubmitting(false);
-    });
+      });
+    } else {
+      const articlesCollection = collection(firestore, 'articles');
+      addDoc(articlesCollection, {
+        ...values,
+        createdAt: serverTimestamp(),
+      }).then(() => {
+          toast({
+            title: 'Article publié !',
+            description: 'Votre nouvel article a été ajouté avec succès.',
+          });
+          form.reset({
+            ...form.getValues(),
+            title: '',
+            content: '',
+            imageUrl: `https://picsum.photos/seed/${Math.random()}/800/450`,
+          });
+          onFinish?.();
+      }).catch(async (error) => {
+          console.error("Erreur lors de l'ajout de l'article: ", error);
+          const permissionError = new FirestorePermissionError({
+              path: articlesCollection.path,
+              operation: 'create',
+              requestResourceData: values,
+          });
+          errorEmitter.emit('permission-error', permissionError);
+          toast({
+            variant: 'destructive',
+            title: 'Oh non ! Une erreur est survenue.',
+            description: "Impossible d'enregistrer l'article. Veuillez réessayer.",
+          });
+      }).finally(() => {
+          setIsSubmitting(false);
+      });
+    }
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Ajouter un article</CardTitle>
-        <CardDescription>Remplissez le formulaire ci-dessous pour publier une nouvelle actualité.</CardDescription>
-      </CardHeader>
-      <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <FormField
@@ -227,18 +265,18 @@ function AddArticleForm() {
             />
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
-              {isSubmitting ? 'Publication...' : 'Publier l\'article'}
+              {isSubmitting ? (isEditing ? 'Modification...' : 'Publication...') : (isEditing ? 'Modifier l\'article' : 'Publier l\'article')}
             </Button>
           </form>
         </Form>
-      </CardContent>
-    </Card>
   )
 }
 
 function ArticlesList() {
     const firestore = useFirestoreHook();
     const { toast } = useToast();
+    const [openDialogs, setOpenDialogs] = useState<Record<string, boolean>>({});
+
     const articlesQuery = useMemo(() => {
         if (!firestore) return null;
         return query(collection(firestore, 'articles'), orderBy('createdAt', 'desc'));
@@ -267,6 +305,14 @@ function ArticlesList() {
                 description: 'Impossible de supprimer l\'article.',
             });
         });
+    };
+    
+    const handleDialogChange = (articleId: string, open: boolean) => {
+      setOpenDialogs(prev => ({ ...prev, [articleId]: open }));
+    };
+
+    const handleFinishEditing = (articleId: string) => {
+      handleDialogChange(articleId, false);
     };
 
     return (
@@ -301,9 +347,25 @@ function ArticlesList() {
                                     {article.createdAt ? format(article.createdAt.toDate(), 'PPP', { locale: fr }) : ''}
                                 </TableCell>
                                 <TableCell className="text-right">
-                                    <Button variant="ghost" size="icon" disabled>
-                                        <Pencil className="h-4 w-4" />
-                                    </Button>
+                                    <Dialog open={openDialogs[article.id] || false} onOpenChange={(open) => handleDialogChange(article.id, open)}>
+                                      <DialogTrigger asChild>
+                                        <Button variant="ghost" size="icon">
+                                          <Pencil className="h-4 w-4" />
+                                        </Button>
+                                      </DialogTrigger>
+                                      <DialogContent className="sm:max-w-[625px]">
+                                        <DialogHeader>
+                                          <DialogTitle>Modifier l'article</DialogTitle>
+                                          <DialogDescription>
+                                            Apportez des modifications à votre article ici. Cliquez sur Enregistrer lorsque vous avez terminé.
+                                          </DialogDescription>
+                                        </DialogHeader>
+                                        <div className="py-4">
+                                          <AddArticleForm article={article} onFinish={() => handleFinishEditing(article.id)} />
+                                        </div>
+                                      </DialogContent>
+                                    </Dialog>
+
                                     <AlertDialog>
                                       <AlertDialogTrigger asChild>
                                         <Button variant="ghost" size="icon">
@@ -1145,7 +1207,15 @@ export default function AdminPage() {
                 </Button>
               </CollapsibleTrigger>
               <CollapsibleContent className="mt-4">
-                <AddArticleForm />
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Ajouter un article</CardTitle>
+                        <CardDescription>Remplissez le formulaire ci-dessous pour publier une nouvelle actualité.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <AddArticleForm />
+                    </CardContent>
+                </Card>
               </CollapsibleContent>
             </Collapsible>
         </TabsContent>
@@ -1250,5 +1320,3 @@ export default function AdminPage() {
     </main>
   );
 }
-
-    

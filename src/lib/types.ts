@@ -61,4 +61,8 @@ export interface ClubInfo {
     welcomeSubtitle?: string;
     welcomeImageUrl?: string;
     welcomeImageHint?: string;
+    welcomeImageUrl2?: string;
+    welcomeImageHint2?: string;
+    welcomeImageUrl3?: string;
+    welcomeImageHint3?: string;
 }

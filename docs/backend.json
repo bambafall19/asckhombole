@@ -204,6 +204,22 @@
         "welcomeImageHint": {
             "type": "string",
             "description": "A hint for AI to find a relevant image for the welcome section."
+        },
+        "welcomeImageUrl2": {
+            "type": "string",
+            "description": "URL of the second image for the homepage welcome slider."
+        },
+        "welcomeImageHint2": {
+            "type": "string",
+            "description": "A hint for the second welcome image."
+        },
+        "welcomeImageUrl3": {
+            "type": "string",
+            "description": "URL of the third image for the homepage welcome slider."
+        },
+        "welcomeImageHint3": {
+            "type": "string",
+            "description": "A hint for the third welcome image."
         }
       },
       "required": []

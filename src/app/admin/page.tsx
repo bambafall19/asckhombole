@@ -1179,6 +1179,10 @@ const clubInfoFormSchema = z.object({
   welcomeSubtitle: z.string().optional(),
   welcomeImageUrl: z.string().url({ message: "Veuillez entrer une URL d'image valide." }).optional().or(z.literal('')),
   welcomeImageHint: z.string().optional(),
+  welcomeImageUrl2: z.string().url({ message: "Veuillez entrer une URL d'image valide." }).optional().or(z.literal('')),
+  welcomeImageHint2: z.string().optional(),
+  welcomeImageUrl3: z.string().url({ message: "Veuillez entrer une URL d'image valide." }).optional().or(z.literal('')),
+  welcomeImageHint3: z.string().optional(),
 });
 
 function ClubInfoForm() {
@@ -1207,6 +1211,10 @@ function ClubInfoForm() {
         welcomeSubtitle: clubInfo?.welcomeSubtitle || '',
         welcomeImageUrl: clubInfo?.welcomeImageUrl || '',
         welcomeImageHint: clubInfo?.welcomeImageHint || '',
+        welcomeImageUrl2: clubInfo?.welcomeImageUrl2 || '',
+        welcomeImageHint2: clubInfo?.welcomeImageHint2 || '',
+        welcomeImageUrl3: clubInfo?.welcomeImageUrl3 || '',
+        welcomeImageHint3: clubInfo?.welcomeImageHint3 || '',
     }
   });
 
@@ -1224,6 +1232,10 @@ function ClubInfoForm() {
         welcomeSubtitle: clubInfo.welcomeSubtitle || '',
         welcomeImageUrl: clubInfo.welcomeImageUrl || '',
         welcomeImageHint: clubInfo.welcomeImageHint || '',
+        welcomeImageUrl2: clubInfo.welcomeImageUrl2 || '',
+        welcomeImageHint2: clubInfo.welcomeImageHint2 || '',
+        welcomeImageUrl3: clubInfo.welcomeImageUrl3 || '',
+        welcomeImageHint3: clubInfo.welcomeImageHint3 || '',
       });
     }
   }, [clubInfo, form]);
@@ -1263,8 +1275,8 @@ function ClubInfoForm() {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             
             <Collapsible defaultOpen>
-                <CollapsibleTrigger className='text-xl font-headline text-primary'>Page d'Accueil</CollapsibleTrigger>
-                <CollapsibleContent className='space-y-4 pt-4'>
+                <CollapsibleTrigger className='text-xl font-headline text-primary'>Page d'Accueil (Diaporama)</CollapsibleTrigger>
+                <CollapsibleContent className='space-y-6 pt-4 border-l pl-4 ml-2'>
                     <FormField
                       control={form.control}
                       name="welcomeTitle"
@@ -1272,7 +1284,7 @@ function ClubInfoForm() {
                         <FormItem>
                           <FormLabel>Titre de Bienvenue</FormLabel>
                           <FormControl><Input placeholder="Bienvenue sur le site de l'ASC Khombole" {...field} /></FormControl>
-                          <FormDescription>S'affiche sur la page d'accueil quand il n'y a pas d'articles.</FormDescription>
+                          <FormDescription>S'affiche sur le diaporama de la page d'accueil.</FormDescription>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -1288,34 +1300,90 @@ function ClubInfoForm() {
                         </FormItem>
                       )}
                     />
-                    <FormField
-                      control={form.control}
-                      name="welcomeImageUrl"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>URL de l'image de Bienvenue</FormLabel>
-                          <FormControl><Input placeholder="https://exemple.com/image.jpg" {...field} /></FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="welcomeImageHint"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Indice pour l'image de Bienvenue</FormLabel>
-                          <FormControl><Input placeholder="soccer celebration" {...field} /></FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                    
+                    <div className="space-y-2 p-4 border rounded-md">
+                        <h4 className="font-medium">Image 1</h4>
+                        <FormField
+                          control={form.control}
+                          name="welcomeImageUrl"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>URL de l'image de Bienvenue 1</FormLabel>
+                              <FormControl><Input placeholder="https://exemple.com/image1.jpg" {...field} /></FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="welcomeImageHint"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Indice pour l'image 1</FormLabel>
+                              <FormControl><Input placeholder="soccer celebration" {...field} /></FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                    </div>
+
+                    <div className="space-y-2 p-4 border rounded-md">
+                        <h4 className="font-medium">Image 2</h4>
+                        <FormField
+                          control={form.control}
+                          name="welcomeImageUrl2"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>URL de l'image de Bienvenue 2</FormLabel>
+                              <FormControl><Input placeholder="https://exemple.com/image2.jpg" {...field} /></FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="welcomeImageHint2"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Indice pour l'image 2</FormLabel>
+                              <FormControl><Input placeholder="stadium view" {...field} /></FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                    </div>
+
+                    <div className="space-y-2 p-4 border rounded-md">
+                        <h4 className="font-medium">Image 3</h4>
+                        <FormField
+                          control={form.control}
+                          name="welcomeImageUrl3"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>URL de l'image de Bienvenue 3</FormLabel>
+                              <FormControl><Input placeholder="https://exemple.com/image3.jpg" {...field} /></FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="welcomeImageHint3"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Indice pour l'image 3</FormLabel>
+                              <FormControl><Input placeholder="fans cheering" {...field} /></FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                    </div>
                 </CollapsibleContent>
             </Collapsible>
             
             <Collapsible>
                 <CollapsibleTrigger className='text-xl font-headline text-primary'>Page Club</CollapsibleTrigger>
-                <CollapsibleContent className='space-y-4 pt-4'>
+                <CollapsibleContent className='space-y-4 pt-4 border-l pl-4 ml-2'>
                     <FormField
                       control={form.control}
                       name="history"

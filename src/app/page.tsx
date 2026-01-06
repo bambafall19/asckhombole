@@ -48,6 +48,15 @@ export default function Home() {
 
   const loading = articlesLoading || clubInfoLoading || photosLoading;
 
+  const welcomeImages = useMemo(() => {
+    if (!clubInfo) return [];
+    const images = [];
+    if (clubInfo.welcomeImageUrl) images.push({ url: clubInfo.welcomeImageUrl, hint: clubInfo.welcomeImageHint });
+    if (clubInfo.welcomeImageUrl2) images.push({ url: clubInfo.welcomeImageUrl2, hint: clubInfo.welcomeImageHint2 });
+    if (clubInfo.welcomeImageUrl3) images.push({ url: clubInfo.welcomeImageUrl3, hint: clubInfo.welcomeImageHint3 });
+    return images;
+  }, [clubInfo]);
+
   const formatTime = (date: Date) => {
     return formatDistanceToNow(date, { addSuffix: true, locale: fr });
   }
@@ -96,20 +105,47 @@ export default function Home() {
                   </Card>
                 )}
                 {!loading && !mainArticle && (
-                   <Card className="overflow-hidden group relative w-full aspect-video">
-                     <Image
-                       src={clubInfo?.welcomeImageUrl || "https://images.unsplash.com/photo-1544189652-b7a393a25e7e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxzb2NjZXIlMjBjZWxlYnJhdGlvbnxlbnwwfHx8fDE3Njc3MDc5MzZ8MA&ixlib=rb-4.1.0&q=80&w=1080"}
-                       alt={clubInfo?.welcomeTitle || "Bienvenue à l'ASC Khombole"}
-                       fill
-                       className="object-cover"
-                       data-ai-hint={clubInfo?.welcomeImageHint || "soccer celebration"}
-                     />
-                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-                     <CardContent className="absolute bottom-0 left-0 p-6">
-                         <h2 className="text-3xl font-extrabold text-white font-headline">{clubInfo?.welcomeTitle || "Bienvenue sur le site de l'ASC Khombole"}</h2>
-                         <p className="text-white/90 mt-2">{clubInfo?.welcomeSubtitle || "Toute l'actualité du club, les matchs et plus encore."}</p>
-                     </CardContent>
-                   </Card>
+                   <Carousel className="w-full" opts={{ loop: true }}>
+                      <CarouselContent>
+                        {welcomeImages.length > 0 ? welcomeImages.map((img, index) => (
+                          <CarouselItem key={index}>
+                            <Card className="overflow-hidden group relative w-full aspect-video">
+                              <Image
+                                src={img.url}
+                                alt={clubInfo?.welcomeTitle || "Bienvenue à l'ASC Khombole"}
+                                fill
+                                className="object-cover"
+                                data-ai-hint={img.hint || "soccer celebration"}
+                              />
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+                              <CardContent className="absolute bottom-0 left-0 p-6">
+                                <h2 className="text-3xl font-extrabold text-white font-headline">{clubInfo?.welcomeTitle || "Bienvenue sur le site de l'ASC Khombole"}</h2>
+                                <p className="text-white/90 mt-2">{clubInfo?.welcomeSubtitle || "Toute l'actualité du club, les matchs et plus encore."}</p>
+                              </CardContent>
+                            </Card>
+                          </CarouselItem>
+                        )) : (
+                          <CarouselItem>
+                             <Card className="overflow-hidden group relative w-full aspect-video">
+                               <Image
+                                 src={"https://images.unsplash.com/photo-1544189652-b7a393a25e7e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxzb2NjZXIlMjBjZWxlYnJhdGlvbnxlbnwwfHx8fDE3Njc3MDc5MzZ8MA&ixlib=rb-4.1.0&q=80&w=1080"}
+                                 alt={clubInfo?.welcomeTitle || "Bienvenue à l'ASC Khombole"}
+                                 fill
+                                 className="object-cover"
+                                 data-ai-hint={clubInfo?.welcomeImageHint || "soccer celebration"}
+                               />
+                               <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+                               <CardContent className="absolute bottom-0 left-0 p-6">
+                                   <h2 className="text-3xl font-extrabold text-white font-headline">{clubInfo?.welcomeTitle || "Bienvenue sur le site de l'ASC Khombole"}</h2>
+                                   <p className="text-white/90 mt-2">{clubInfo?.welcomeSubtitle || "Toute l'actualité du club, les matchs et plus encore."}</p>
+                               </CardContent>
+                             </Card>
+                          </CarouselItem>
+                        )}
+                      </CarouselContent>
+                      <CarouselPrevious className="left-4"/>
+                      <CarouselNext className="right-4"/>
+                    </Carousel>
                 )}
                 </div>
               </div>

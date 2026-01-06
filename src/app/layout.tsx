@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { FirebaseClientProvider } from "@/firebase/client-provider";
+import { BottomNav } from "@/components/layout/bottom-nav";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 const ptSans = PT_Sans({ subsets: ["latin"], weight: ['400', '700'], variable: "--font-headline" });
@@ -30,9 +31,12 @@ export default function RootLayout({
         )}
       >
         <FirebaseClientProvider>
-          <Header />
-          <main>{children}</main>
-          <Footer />
+          <div className="md:flex md:flex-col min-h-screen">
+            <Header />
+            <main className="flex-grow pb-20 md:pb-0">{children}</main>
+            <Footer />
+          </div>
+          <BottomNav />
           <Toaster />
         </FirebaseClientProvider>
       </body>

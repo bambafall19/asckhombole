@@ -32,9 +32,9 @@ const navLinks = [
   { href: "/actus", label: "ACTUS", icon: Newspaper },
   { href: "/galerie", label: "GALERIE", icon: ImageIcon },
   { href: "/partenaires", label: "PARTENAIRES", icon: Handshake },
-  { href: "/boutique", label: "BOUTIQUE", icon: Store },
+  { href: "/boutique", label: "BOUTIQUE", icon: Store, disabled: true },
   { href: "/contact", label: "CONTACT", icon: Mail },
-  { href: "/webtv", label: "WEB TV", icon: Tv },
+  { href: "/webtv", label: "WEB TV", icon: Tv, disabled: true },
 ];
 
 
@@ -170,7 +170,8 @@ export function Header() {
     <header
       className={cn(
         "sticky top-0 z-50 w-full transition-all duration-300 border-b",
-        isScrolled ? "bg-card/95 backdrop-blur-sm" : "bg-card"
+        isScrolled ? "bg-card/95 backdrop-blur-sm" : "bg-card",
+        "hidden md:block" // Hides header on mobile
       )}
     >
       <div className="container flex h-20 items-center justify-between">
@@ -190,48 +191,96 @@ export function Header() {
           </Button>
           <UserButton />
         </div>
-        <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
-          <SheetTrigger asChild className="md:hidden">
-            <Button variant="ghost" size="icon">
-              <Menu className="h-6 w-6" />
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="right" className="w-full sm:w-[320px] bg-card p-0">
-            <SheetHeader className="p-4 border-b">
-                <SheetTitle className="sr-only">Menu Principal</SheetTitle>
-                <div className="flex items-center justify-between">
-                    <Link href="/" onClick={() => setIsMobileMenuOpen(false)}>
-                        <Logo logoUrl={clubInfo?.logoUrl} />
-                    </Link>
-                    <Button variant="ghost" size="icon" onClick={() => setIsMobileMenuOpen(false)}>
-                        <X className="h-6 w-6" />
-                    </Button>
-                </div>
-            </SheetHeader>
-            <div className="flex flex-col h-[calc(100%-4.5rem)]">
-                <nav className="flex-grow p-4 space-y-2 overflow-y-auto">
-                    <MobileNavLink href="/" label="ACCUEIL" Icon={Home} />
-                    {navLinks.map((link) => (
-                        <MobileNavLink key={link.href} href={link.href} label={link.label} Icon={link.icon} disabled={link.disabled} />
-                    ))}
-                </nav>
-                <div className="p-4 border-t">
-                    {user ? (
-                      <Button className="w-full" size="lg" onClick={handleLogout}>
-                        <LogOut className="w-5 h-5 mr-2" /> Déconnexion
-                      </Button>
-                    ) : (
-                      <Button className="w-full" size="lg" asChild>
-                        <Link href="/login" onClick={() => setIsMobileMenuOpen(false)}>
-                          <LogIn className="w-5 h-5 mr-2" /> Espace Membre
-                        </Link>
-                      </Button>
-                    )}
-                </div>
-            </div>
-          </SheetContent>
-        </Sheet>
       </div>
     </header>
+  );
+}
+
+// Keep the Sheet component logic for the bottom nav menu
+export function MobileMenuSheet({ children, open, onOpenChange }: { children: React.ReactNode, open: boolean, onOpenChange: (open: boolean) => void }) {
+  const auth = useAuth();
+  const { user } = useUser();
+  const firestore = useFirestore();
+
+  const clubInfoRef = useMemo(() => {
+    if (!firestore) return null;
+    return doc(firestore, 'clubInfo', 'main');
+  }, [firestore]);
+  const { data: clubInfo } = useDocument<ClubInfo>(clubInfoRef);
+
+  const handleLogout = async () => {
+    if (auth) {
+      await signOut(auth);
+      onOpenChange(false);
+    }
+  };
+
+  const MobileNavLink = ({ href, label, Icon, disabled }: { href: string; label: string, Icon: React.ElementType, disabled?: boolean }) => {
+    const pathname = usePathname();
+    const isActive = pathname === href;
+    const linkClasses = cn(
+        "flex items-center p-3 rounded-lg transition-colors",
+        isActive ? "bg-accent text-accent-foreground" : "hover:bg-accent/50",
+        disabled && "text-muted-foreground cursor-not-allowed hover:bg-transparent"
+      );
+
+    if (disabled) {
+        return (
+            <div className={linkClasses}>
+                <Icon className="w-5 h-5 mr-3" />
+                <span className="text-base font-medium">{label.toUpperCase()}</span>
+            </div>
+        )
+    }
+
+    return (
+        <Link
+          href={href}
+          className={linkClasses}
+          onClick={() => onOpenChange(false)}
+        >
+          <Icon className="w-5 h-5 mr-3" />
+          <span className="text-base font-medium">{label.toUpperCase()}</span>
+        </Link>
+    );
+  };
+
+  return (
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent side="right" className="w-full sm:w-[320px] bg-card p-0">
+        <SheetHeader className="p-4 border-b">
+          <SheetTitle>Menu Principal</SheetTitle>
+          <div className="flex items-center justify-between">
+            <Link href="/" onClick={() => onOpenChange(false)}>
+              <Logo logoUrl={clubInfo?.logoUrl} />
+            </Link>
+            <Button variant="ghost" size="icon" onClick={() => onOpenChange(false)}>
+              <X className="h-6 w-6" />
+            </Button>
+          </div>
+        </SheetHeader>
+        <div className="flex flex-col h-[calc(100%-4.5rem)]">
+          <nav className="flex-grow p-4 space-y-2 overflow-y-auto">
+            {children}
+            {navLinks.filter(l => !['/actus', '/matchs', '/equipe'].includes(l.href)).map((link) => (
+                <MobileNavLink key={link.href} href={link.href} label={link.label} Icon={link.icon} disabled={link.disabled} />
+            ))}
+          </nav>
+          <div className="p-4 border-t">
+            {user ? (
+              <Button className="w-full" size="lg" onClick={handleLogout}>
+                <LogOut className="w-5 h-5 mr-2" /> Déconnexion
+              </Button>
+            ) : (
+              <Button className="w-full" size="lg" asChild>
+                <Link href="/login" onClick={() => onOpenChange(false)}>
+                  <LogIn className="w-5 h-5 mr-2" /> Espace Membre
+                </Link>
+              </Button>
+            )}
+          </div>
+        </div>
+      </SheetContent>
+    </Sheet>
   );
 }

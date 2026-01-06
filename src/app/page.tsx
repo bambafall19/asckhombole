@@ -23,7 +23,7 @@ import Autoplay from "embla-carousel-autoplay";
 
 export default function Home() {
   const firestore = useFirestore();
-  const autoplay = useRef(Autoplay({ delay: 5000, stopOnInteraction: false, stopOnMouseEnter: true }));
+  const autoplayPlugin = useMemo(() => Autoplay({ delay: 5000, stopOnInteraction: false, stopOnMouseEnter: true }), []);
   
   const articlesQuery = useMemo(() => {
     if (!firestore) return null;
@@ -110,7 +110,7 @@ export default function Home() {
                    <Carousel 
                       className="w-full" 
                       opts={{ loop: true }}
-                      plugins={[autoplay.current]}
+                      plugins={[autoplayPlugin]}
                     >
                       <CarouselContent>
                         {welcomeImages.length > 0 ? welcomeImages.map((img, index) => (
@@ -206,6 +206,7 @@ export default function Home() {
                   align: "start",
                   loop: true,
                 }}
+                plugins={[autoplayPlugin]}
                 className="w-full"
               >
                 <CarouselContent>

@@ -12,6 +12,7 @@ export {
   useAuth,
 } from './provider';
 export { useCollection } from './firestore/use-collection';
+export { useDocument } from './firestore/use-doc';
 export { useUser } from './auth/use-user';
 export { FirebaseClientProvider } from './client-provider';
 

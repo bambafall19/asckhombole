@@ -1,3 +1,34 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "hero-1",
+      "description": "Soccer players celebrating a goal in a packed stadium.",
+      "imageUrl": "https://images.unsplash.com/photo-1561917423-2ce508445fe4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxzb2NjZXIlMjBjZWxlYnJhdGlvbnxlbnwwfHx8fDE3Njc2MTUwMTV8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "soccer celebration"
+    },
+    {
+      "id": "news-1",
+      "description": "A soccer player kicking a ball with force.",
+      "imageUrl": "https://images.unsplash.com/photo-1652190416150-d501a60291b3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxzb2NjZXIlMjBraWNrfGVufDB8fHx8MTc2NzcwNzA1NXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "soccer kick"
+    },
+    {
+      "id": "news-2",
+      "description": "Two people shaking hands on a business deal.",
+      "imageUrl": "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxidXNpbmVzcyUyMGhhbmRzaGFrZXxlbnwwfHx8fDE3Njc2MDE4Njh8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "business handshake"
+    },
+    {
+      "id": "news-3",
+      "description": "Young soccer players training on a field.",
+      "imageUrl": "https://images.unsplash.com/photo-1629977007371-0ba395424741?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHx5b3V0aCUyMHNvY2NlcnxlbnwwfHx8fDE3Njc3MDcwNTV8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "youth soccer"
+    },
+    {
+      "id": "news-4",
+      "description": "Soccer team in a huddle during training.",
+      "imageUrl": "https://images.unsplash.com/photo-1624295059100-0ca889087b54?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxzb2NjZXIlMjB0ZWFtfGVufDB8fHx8MTc2NzYxNTAxNXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "soccer team"
+    }
+  ]
 }

@@ -12,7 +12,7 @@ export default function EquipePage() {
       </div>
       <Card>
         <CardHeader>
-          <h2 className="text-2xl font-bold">Effectif 2024-2025</h2>
+          <h2 className="text-2xl font-bold">Effectif 2025-2026</h2>
         </CardHeader>
         <CardContent className="flex flex-col items-center justify-center text-center py-20">
           <Users className="w-24 h-24 text-muted-foreground mb-4" />

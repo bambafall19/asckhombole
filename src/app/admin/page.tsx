@@ -25,10 +25,11 @@ import {
   orderBy,
   doc,
   deleteDoc,
+  Timestamp,
 } from 'firebase/firestore';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useState, useEffect, useMemo } from 'react';
-import { LoaderCircle, LogOut, PlusCircle, Trash2, Pencil, List, Users, Trophy, Image as ImageIcon, Handshake } from 'lucide-react';
+import { LoaderCircle, LogOut, PlusCircle, Trash2, Pencil, List, Users, Trophy, Image as ImageIcon, Handshake, Mail, Shield } from 'lucide-react';
 import { useUser } from '@/firebase/auth/use-user';
 import { useRouter } from 'next/navigation';
 import { signOut } from 'firebase/auth';
@@ -502,8 +503,9 @@ function AddMatchForm() {
     if (!firestore) return;
     setIsSubmitting(true);
     try {
-      const matchData: Omit<Match, 'id'> = {
+      const matchData = {
         ...values,
+        date: Timestamp.fromDate(values.date),
         homeScore: values.status === 'Terminé' ? values.homeScore || 0 : null,
         awayScore: values.status === 'Terminé' ? values.awayScore || 0 : null,
       };
@@ -512,7 +514,8 @@ function AddMatchForm() {
 
       toast({ title: 'Match ajouté !', description: `Le match ${values.homeTeam} vs ${values.awayTeam} a été programmé.` });
       form.reset({
-        ...values,
+        ...form.getValues(),
+        date: undefined,
         awayTeam: '',
         homeScore: undefined,
         awayScore: undefined,
@@ -1030,9 +1033,9 @@ export default function AdminPage() {
           <TabsTrigger value="matchs">Matchs</TabsTrigger>
           <TabsTrigger value="galerie">Galerie</TabsTrigger>
           <TabsTrigger value="partenaires">Partenaires</TabsTrigger>
-          <TabsTrigger value="club" disabled>Club</TabsTrigger>
+          <TabsTrigger value="club">Club</TabsTrigger>
           <TabsTrigger value="boutique" disabled>Boutique</TabsTrigger>
-          <TabsTrigger value="contact" disabled>Contact</TabsTrigger>
+          <TabsTrigger value="contact">Contact</TabsTrigger>
           <TabsTrigger value="webtv" disabled>Web TV</TabsTrigger>
         </TabsList>
 

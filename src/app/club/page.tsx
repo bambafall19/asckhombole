@@ -37,18 +37,43 @@ export default function ClubPage() {
 
         <div className="space-y-16 md:space-y-24">
           
+          {/* President's Word Section */}
+          <section className="bg-muted/50 rounded-lg p-8 md:p-12">
+            <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center">
+              {clubInfo?.presidentWordImageUrl && (
+                <div className="relative aspect-square md:aspect-[4/5] h-full w-full rounded-lg overflow-hidden shadow-md group">
+                  <Image
+                    src={clubInfo.presidentWordImageUrl}
+                    alt="Mot du président"
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform"
+                    data-ai-hint={clubInfo.presidentWordImageHint || 'club president'}
+                  />
+                </div>
+              )}
+              <div className="prose prose-lg max-w-none">
+                <h2 className="flex items-center gap-3 text-3xl font-headline text-primary not-prose">
+                    <User className="w-8 h-8 text-accent" />
+                    Mot du Président
+                </h2>
+                <div className="text-muted-foreground text-justify">
+                   {clubInfo?.presidentWord ? clubInfo.presidentWord.split('\n').map((p, i) => <p key={i}>{p}</p>) : <p>Le mot du président n'a pas encore été renseigné.</p>}
+                </div>
+              </div>
+            </div>
+          </section>
+
           {/* History Section */}
-          <section className="relative overflow-hidden rounded-lg shadow-lg">
+          <section className="relative overflow-hidden rounded-lg shadow-lg bg-black">
             {clubInfo?.historyImageUrl && (
                 <div className="absolute inset-0">
                   <Image
                     src={clubInfo.historyImageUrl}
                     alt="Histoire du club"
                     fill
-                    className="object-cover"
+                    className="object-cover opacity-30"
                     data-ai-hint={clubInfo.historyImageHint || 'club history'}
                   />
-                  <div className="absolute inset-0 bg-black/60"></div>
                 </div>
               )}
               <div className="relative container mx-auto px-4 py-16 md:py-24 text-white">
@@ -62,32 +87,6 @@ export default function ClubPage() {
                     </p>
                 </div>
               </div>
-          </section>
-
-          {/* President's Word Section */}
-          <section className="bg-muted/50 rounded-lg p-8 md:p-12">
-            <div className="grid md:grid-cols-3 gap-8 md:gap-12 items-center">
-               {clubInfo?.presidentWordImageUrl && (
-                <div className="relative aspect-square md:aspect-auto h-full w-full rounded-lg overflow-hidden shadow-md">
-                  <Image
-                    src={clubInfo.presidentWordImageUrl}
-                    alt="Mot du président"
-                    fill
-                    className="object-cover"
-                    data-ai-hint={clubInfo.presidentWordImageHint || 'club president'}
-                  />
-                </div>
-              )}
-              <div className="md:col-span-2">
-                <div className="flex items-center gap-3 mb-4">
-                    <User className="w-8 h-8 text-accent" />
-                    <h2 className="text-3xl font-headline text-primary">Mot du Président</h2>
-                </div>
-                <div className="prose prose-lg max-w-none text-muted-foreground text-justify">
-                   {clubInfo?.presidentWord ? clubInfo.presidentWord.split('\n').map((p, i) => <p key={i}>{p}</p>) : <p>Le mot du président n'a pas encore été renseigné.</p>}
-                </div>
-              </div>
-            </div>
           </section>
           
           {/* Vision Section */}

@@ -12,8 +12,9 @@ import {
   orderBy,
   limit,
   doc,
+  where,
 } from 'firebase/firestore';
-import { useMemo, useRef } from "react";
+import { useMemo, useState } from "react";
 import { Article, ClubInfo, Photo } from "@/lib/types";
 import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -24,10 +25,27 @@ import Autoplay from "embla-carousel-autoplay";
 export default function Home() {
   const firestore = useFirestore();
   const autoplayPlugin = useMemo(() => Autoplay({ delay: 5000, stopOnInteraction: false, stopOnMouseEnter: true }), []);
-  
-  const articlesQuery = useMemo(() => {
+  const [sidebarTab, setSidebarTab] = useState<'latest' | 'top'>('latest');
+
+  // Queries for different article sections
+  const featuredQuery = useMemo(() => {
     if (!firestore) return null;
-    return query(collection(firestore, 'articles'), orderBy('createdAt', 'desc'), limit(7));
+    return query(collection(firestore, 'articles'), where('tags', 'array-contains', 'featured'), orderBy('createdAt', 'desc'), limit(1));
+  }, [firestore]);
+  
+  const trendyQuery = useMemo(() => {
+    if (!firestore) return null;
+    return query(collection(firestore, 'articles'), where('tags', 'array-contains', 'trendy'), orderBy('createdAt', 'desc'), limit(3));
+  }, [firestore]);
+
+  const latestQuery = useMemo(() => {
+    if (!firestore) return null;
+    return query(collection(firestore, 'articles'), orderBy('createdAt', 'desc'), limit(4));
+  }, [firestore]);
+
+  const topQuery = useMemo(() => {
+    if (!firestore) return null;
+    return query(collection(firestore, 'articles'), where('tags', 'array-contains', 'top'), orderBy('createdAt', 'desc'), limit(4));
   }, [firestore]);
 
   const photosQuery = useMemo(() => {
@@ -40,15 +58,17 @@ export default function Home() {
     return doc(firestore, 'clubInfo', 'main');
   }, [firestore]);
 
-  const { data: articles, loading: articlesLoading } = useCollection<Article>(articlesQuery);
+  const { data: featuredArticles, loading: featuredLoading } = useCollection<Article>(featuredQuery);
+  const { data: trendyArticles, loading: trendyLoading } = useCollection<Article>(trendyQuery);
+  const { data: latestArticles, loading: latestLoading } = useCollection<Article>(latestQuery);
+  const { data: topArticles, loading: topLoading } = useCollection<Article>(topQuery);
   const { data: photos, loading: photosLoading } = useCollection<Photo>(photosQuery);
   const { data: clubInfo, loading: clubInfoLoading } = useDocument<ClubInfo>(clubInfoRef);
 
-  const mainArticle = articles?.[0];
-  const sideArticles = articles?.slice(1, 4) || [];
-  const trendyArticles = articles?.slice(4, 7) || [];
-
-  const loading = articlesLoading || clubInfoLoading || photosLoading;
+  const mainArticle = featuredArticles?.[0] || latestArticles?.[0];
+  const sideArticles = sidebarTab === 'latest' ? latestArticles?.slice(1,4) : topArticles;
+  
+  const loading = featuredLoading || trendyLoading || latestLoading || topLoading || photosLoading || clubInfoLoading;
 
   const welcomeImages = useMemo(() => {
     if (!clubInfo) return [];
@@ -156,39 +176,42 @@ export default function Home() {
             </section>
 
              {/* Trendy News */}
-            <section>
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-2xl font-bold font-headline text-primary">Actualités tendances</h2>
-                <Button variant="link" asChild>
-                  <Link href="/actus">Voir plus <ArrowRight className="ml-2 h-4 w-4" /></Link>
-                </Button>
-              </div>
-              {loading && <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                  <Card className="h-44 flex items-center justify-center"><LoaderCircle className="w-8 h-8 animate-spin text-primary"/></Card>
-                  <Card className="h-44 flex items-center justify-center"><LoaderCircle className="w-8 h-8 animate-spin text-primary"/></Card>
-                  <Card className="h-44 flex items-center justify-center"><LoaderCircle className="w-8 h-8 animate-spin text-primary"/></Card>
-              </div>}
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                {trendyArticles.map((article) => (
-                  <Link href={`/actus/${article.id}`} key={article.id}>
-                    <Card className="overflow-hidden group">
-                      <Image
-                          src={article.imageUrl}
-                          alt={article.title}
-                          width={400}
-                          height={250}
-                          className="object-cover w-full h-32"
-                          data-ai-hint={article.imageHint || 'trendy news'}
-                        />
-                      <CardContent className="p-4">
-                        <span className="text-xs text-muted-foreground">{article.category}</span>
-                        <h3 className="text-sm font-bold mt-1 line-clamp-2">{article.title}</h3>
-                      </CardContent>
-                    </Card>
-                  </Link>
-                ))}
-              </div>
-            </section>
+             {trendyArticles && trendyArticles.length > 0 && (
+                <section>
+                <div className="flex justify-between items-center mb-4">
+                    <h2 className="text-2xl font-bold font-headline text-primary">Actualités tendances</h2>
+                    <Button variant="link" asChild>
+                    <Link href="/actus">Voir plus <ArrowRight className="ml-2 h-4 w-4" /></Link>
+                    </Button>
+                </div>
+                {trendyLoading && <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                    <Card className="h-44 flex items-center justify-center"><LoaderCircle className="w-8 h-8 animate-spin text-primary"/></Card>
+                    <Card className="h-44 flex items-center justify-center"><LoaderCircle className="w-8 h-8 animate-spin text-primary"/></Card>
+                    <Card className="h-44 flex items-center justify-center"><LoaderCircle className="w-8 h-8 animate-spin text-primary"/></Card>
+                </div>}
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                    {trendyArticles.map((article) => (
+                    <Link href={`/actus/${article.id}`} key={article.id}>
+                        <Card className="overflow-hidden group">
+                        <Image
+                            src={article.imageUrl}
+                            alt={article.title}
+                            width={400}
+                            height={250}
+                            className="object-cover w-full h-32"
+                            data-ai-hint={article.imageHint || 'trendy news'}
+                            />
+                        <CardContent className="p-4">
+                            <span className="text-xs text-muted-foreground">{article.category}</span>
+                            <h3 className="text-sm font-bold mt-1 line-clamp-2">{article.title}</h3>
+                        </CardContent>
+                        </Card>
+                    </Link>
+                    ))}
+                </div>
+                </section>
+             )}
+
 
             {/* Photo Album */}
             {photos && photos.length > 0 && (
@@ -232,10 +255,10 @@ export default function Home() {
           <aside className="space-y-8">
             <div className="bg-card p-4 rounded-lg shadow-sm">
                 <div role="tablist" className="flex justify-between border-b mb-4">
-                    <button role="tab" className="text-sm font-semibold pb-2 border-b-2 border-primary">Dernières infos</button>
-                    <button role="tab" className="text-sm text-muted-foreground pb-2">Top nouvelles</button>
+                    <button role="tab" aria-selected={sidebarTab === 'latest'} onClick={() => setSidebarTab('latest')} className={`text-sm font-semibold pb-2 border-b-2 ${sidebarTab === 'latest' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground'}`}>Dernières infos</button>
+                    <button role="tab" aria-selected={sidebarTab === 'top'} onClick={() => setSidebarTab('top')} className={`text-sm font-semibold pb-2 border-b-2 ${sidebarTab === 'top' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground'}`}>Top nouvelles</button>
                 </div>
-                {loading && <div className="space-y-4">
+                {(loading) && <div className="space-y-4">
                     {[...Array(3)].map((_, i) => (
                       <div key={i} className="flex items-start gap-4 p-2 rounded-lg">
                         <div className="w-24 h-16 rounded-md bg-muted animate-pulse"></div>
@@ -247,7 +270,7 @@ export default function Home() {
                     ))}
                 </div>}
                 <div className="space-y-4">
-                    {sideArticles.map((item) => (
+                    {sideArticles && sideArticles.map((item) => (
                     <Link href={`/actus/${item.id}`} key={item.id} className={`flex items-start gap-4 p-2 rounded-lg hover:bg-gray-100`}>
                         <Image
                           src={item.imageUrl}
@@ -282,7 +305,7 @@ export default function Home() {
                     ))}
                 </div>}
                 <div className="space-y-4">
-                    {sideArticles.map((item) => (
+                    {latestArticles && latestArticles.slice(1,4).map((item) => (
                       <Link href={`/actus/${item.id}`} key={item.id} className="flex items-center gap-4 hover:bg-gray-100 p-2 rounded-lg">
                         <Image 
                           src={item.imageUrl}

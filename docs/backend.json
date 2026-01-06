@@ -29,6 +29,14 @@
           "type": "string",
           "format": "date-time",
           "description": "The timestamp when the article was created."
+        },
+        "tags": {
+          "type": "array",
+          "description": "Tags to control article placement on the homepage.",
+          "items": {
+            "type": "string",
+            "enum": ["featured", "trendy", "top"]
+          }
         }
       },
       "required": ["title", "content", "category", "createdAt"]

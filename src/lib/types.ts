@@ -8,6 +8,7 @@ export interface Article {
   imageHint?: string;
   category: string;
   createdAt: Timestamp;
+  tags?: ('featured' | 'trendy' | 'top')[];
 }
 
 export interface Player {

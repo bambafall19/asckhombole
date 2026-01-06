@@ -76,7 +76,14 @@ import {
   DialogTrigger,
   DialogClose,
 } from '@/components/ui/dialog';
+import { Checkbox } from '@/components/ui/checkbox';
 
+
+const tagsItems = [
+    { id: 'featured', label: 'À la une (principal)' },
+    { id: 'trendy', label: 'Tendance' },
+    { id: 'top', label: 'Top nouvelle (sidebar)' },
+] as const;
 
 const articleFormSchema = z.object({
   title: z.string().min(10, {
@@ -90,6 +97,7 @@ const articleFormSchema = z.object({
   }),
   imageUrl: z.string().url({ message: "Veuillez entrer une URL d'image valide." }),
   imageHint: z.string().optional(),
+  tags: z.array(z.string()).optional(),
 });
 
 function AddArticleForm({ article, onFinish }: { article?: Article, onFinish?: () => void }) {
@@ -106,6 +114,7 @@ function AddArticleForm({ article, onFinish }: { article?: Article, onFinish?: (
       category: article.category,
       imageUrl: article.imageUrl,
       imageHint: article.imageHint || '',
+      tags: article.tags || [],
     } : {
       title: 'ASC Khombole en lice pour le Championnat Régional de Thiès',
       content: `## ASC Khombole en lice pour le Championnat Régional de Thiès
@@ -131,6 +140,7 @@ Après des saisons de travail et de reconstruction, l’ASC Khombole affiche une
       category: 'Club',
       imageUrl: `https://picsum.photos/seed/${Math.random()}/800/450`,
       imageHint: 'soccer match',
+      tags: [],
     },
   });
 
@@ -195,12 +205,13 @@ Après des saisons de travail et de reconstruction, l’ASC Khombole affiche une
                     title: '',
                     content: '',
                     imageUrl: `https://picsum.photos/seed/${Math.random()}/800/450`,
+                    tags: [],
                 });
             });
         }
         onFinish?.();
     } catch (error) {
-        console.error("Erreur générale: ", error);
+        console.error("Général error: ", error);
         toast({
             variant: 'destructive',
             title: 'Oh non ! Une erreur inattendue est survenue.',
@@ -223,6 +234,54 @@ Après des saisons de travail et de reconstruction, l’ASC Khombole affiche une
                   <FormControl>
                     <Input placeholder="L'ASC Khombole gagne le championnat..." {...field} />
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+             <FormField
+              control={form.control}
+              name="tags"
+              render={() => (
+                <FormItem>
+                  <div className="mb-4">
+                    <FormLabel className="text-base">Mise en page</FormLabel>
+                    <FormDescription>
+                      Sélectionnez où cet article doit apparaître sur la page d'accueil.
+                    </FormDescription>
+                  </div>
+                  {tagsItems.map((item) => (
+                    <FormField
+                      key={item.id}
+                      control={form.control}
+                      name="tags"
+                      render={({ field }) => {
+                        return (
+                          <FormItem
+                            key={item.id}
+                            className="flex flex-row items-start space-x-3 space-y-0"
+                          >
+                            <FormControl>
+                              <Checkbox
+                                checked={field.value?.includes(item.id)}
+                                onCheckedChange={(checked) => {
+                                  return checked
+                                    ? field.onChange([...(field.value || []), item.id])
+                                    : field.onChange(
+                                        field.value?.filter(
+                                          (value) => value !== item.id
+                                        )
+                                      )
+                                }}
+                              />
+                            </FormControl>
+                            <FormLabel className="font-normal">
+                              {item.label}
+                            </FormLabel>
+                          </FormItem>
+                        )
+                      }}
+                    />
+                  ))}
                   <FormMessage />
                 </FormItem>
               )}

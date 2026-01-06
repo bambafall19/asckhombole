@@ -38,19 +38,8 @@ export default function ClubPage() {
         <div className="space-y-16 md:space-y-24">
           
           {/* President's Word Section */}
-          <section className="bg-muted/50 rounded-lg p-8 md:p-12">
+          <section className="rounded-lg p-8 md:p-12">
             <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center">
-              {clubInfo?.presidentWordImageUrl && (
-                <div className="relative aspect-square md:aspect-[4/5] h-full w-full rounded-lg overflow-hidden shadow-md group order-first md:order-last">
-                  <Image
-                    src={clubInfo.presidentWordImageUrl}
-                    alt="Mot du président"
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform"
-                    data-ai-hint={clubInfo.presidentWordImageHint || 'club president'}
-                  />
-                </div>
-              )}
               <div className="prose prose-lg max-w-none">
                 <h2 className="flex items-center gap-3 text-3xl font-headline text-primary not-prose">
                     <User className="w-8 h-8 text-accent" />
@@ -60,6 +49,17 @@ export default function ClubPage() {
                    {clubInfo?.presidentWord ? clubInfo.presidentWord.split('\n').map((p, i) => <p key={i}>{p}</p>) : <p>Le mot du président n'a pas encore été renseigné.</p>}
                 </div>
               </div>
+              {clubInfo?.presidentWordImageUrl && (
+                <div className="relative aspect-square md:aspect-[4/5] h-full w-full rounded-lg overflow-hidden shadow-md group">
+                  <Image
+                    src={clubInfo.presidentWordImageUrl}
+                    alt="Mot du président"
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform"
+                    data-ai-hint={clubInfo.presidentWordImageHint || 'club president'}
+                  />
+                </div>
+              )}
             </div>
           </section>
 

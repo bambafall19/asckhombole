@@ -15,8 +15,8 @@ export function Logo({ logoUrl, className }: LogoProps) {
       ) : (
           <SoccerBallIcon className="h-10 w-10 text-primary" />
       )}
-      <span className="font-bold text-xl text-foreground font-headline">
-        ASC Khombole
+      <span className="font-bold text-2xl text-foreground font-headline">
+        Asc Khombole
       </span>
     </div>
   );

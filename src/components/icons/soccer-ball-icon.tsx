@@ -1,4 +1,3 @@
-import { cn } from "@/lib/utils";
 
 export function SoccerBallIcon({ className }: { className?: string }) {
   return (
@@ -12,7 +11,7 @@ export function SoccerBallIcon({ className }: { className?: string }) {
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
-      className={cn("text-primary h-10 w-10", className)}
+      className={className}
     >
       <circle cx="12" cy="12" r="10" />
       <path d="m16.23 7.77-1.15 4.23-4.23 1.15-4.23-1.15 1.15-4.23 4.23-1.15Z" />

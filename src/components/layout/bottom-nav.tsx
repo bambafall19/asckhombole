@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -62,7 +63,7 @@ export function BottomNav() {
             <MenuButton onClick={() => setIsMenuOpen(true)} />
         </nav>
       </div>
-      <MobileMenuSheet open={isMenuOpen} onOpenChange={setIsMenuOpen} />
+      <MobileMenuSheet open={isMenuOpen} onOpenChange={setIsMenuOpen} bottomNavLinks={navItems} />
     </>
   );
 }

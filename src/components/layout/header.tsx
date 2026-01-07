@@ -25,7 +25,8 @@ import { ClubInfo } from "@/lib/types";
 import { doc } from "firebase/firestore";
 
 
-const navLinks = [
+export const navLinks = [
+  { href: "/", label: "ACCUEIL", icon: Home },
   { href: "/club", label: "CLUB", icon: Shield },
   { href: "/equipe", label: "ÉQUIPE", icon: Users },
   { href: "/matchs", label: "MATCHS", icon: Trophy },
@@ -147,7 +148,6 @@ export function Header() {
           <Logo logoUrl={clubInfo?.logoUrl} />
         </Link>
         <nav className="hidden md:flex items-center gap-6">
-          <NavLink href="/" label="ACCUEIL" />
           {navLinks.map((link) => (
             <NavLink key={link.href} {...link} />
           ))}
@@ -164,7 +164,7 @@ export function Header() {
   );
 }
 
-export function MobileMenuSheet({ open, onOpenChange }: { open: boolean, onOpenChange: (open: boolean) => void }) {
+export function MobileMenuSheet({ open, onOpenChange, bottomNavLinks }: { open: boolean, onOpenChange: (open: boolean) => void, bottomNavLinks: { href: string; label: string; icon: React.ElementType }[] }) {
   const auth = useAuth();
   const { user } = useUser();
   const firestore = useFirestore();
@@ -212,6 +212,10 @@ export function MobileMenuSheet({ open, onOpenChange }: { open: boolean, onOpenC
     );
   };
 
+  const bottomNavHrefs = useMemo(() => new Set(bottomNavLinks.map(l => l.href)), [bottomNavLinks]);
+  const menuLinks = useMemo(() => navLinks.filter(l => !bottomNavHrefs.has(l.href)), [bottomNavHrefs]);
+
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="right" className="w-full sm:w-[320px] bg-card p-0 flex flex-col">
@@ -244,7 +248,7 @@ export function MobileMenuSheet({ open, onOpenChange }: { open: boolean, onOpenC
         </SheetHeader>
         
         <nav className="flex-grow p-4 space-y-2 overflow-y-auto">
-            {navLinks.filter(l => !['/actus', '/matchs', '/equipe'].includes(l.href)).map((link) => (
+            {menuLinks.map((link) => (
                 <MobileNavLink key={link.href} href={link.href} label={link.label} Icon={link.icon} disabled={link.disabled} />
             ))}
         </nav>
@@ -256,7 +260,7 @@ export function MobileMenuSheet({ open, onOpenChange }: { open: boolean, onOpenC
                         <Shield className="w-5 h-5 mr-2" /> Admin
                     </Link>
                 </Button>
-            ) : null}
+            ) : null }
         </div>
       </SheetContent>
     </Sheet>

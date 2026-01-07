@@ -3,7 +3,7 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
-import { ArrowRight, Clock, LoaderCircle, Calendar, Trophy, Handshake } from "lucide-react";
+import { ArrowRight, Clock, LoaderCircle, Calendar, Trophy, Handshake, BookOpen, User } from "lucide-react";
 import { useCollection, useDocument, useFirestore } from "@/firebase";
 import {
   getFirestore,
@@ -273,6 +273,44 @@ export default function Home() {
                 </div>
                 </section>
              )}
+
+            {/* Club Info Section */}
+            {!clubInfoLoading && clubInfo && (
+              <section className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <Card className="hover:shadow-lg transition-shadow">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-3 font-headline">
+                      <BookOpen className="w-6 h-6 text-accent" />
+                      Notre Histoire
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <p className="text-muted-foreground text-sm line-clamp-4">
+                      {clubInfo.history}
+                    </p>
+                    <Button variant="outline" asChild>
+                      <Link href="/club">Découvrir le club</Link>
+                    </Button>
+                  </CardContent>
+                </Card>
+                <Card className="hover:shadow-lg transition-shadow">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-3 font-headline">
+                      <User className="w-6 h-6 text-accent" />
+                      Mot du Président
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <blockquote className="text-muted-foreground text-sm line-clamp-4 border-l-2 border-accent pl-4 italic">
+                      {clubInfo.presidentWord}
+                    </blockquote>
+                    <Button variant="outline" asChild>
+                      <Link href="/club">Lire la suite</Link>
+                    </Button>
+                  </CardContent>
+                </Card>
+              </section>
+            )}
             
             {/* Last Result */}
             {lastResult && (
@@ -423,3 +461,5 @@ export default function Home() {
     </div>
   );
 }
+
+    

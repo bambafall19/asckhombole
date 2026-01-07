@@ -1,15 +1,13 @@
 'use client';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Newspaper, LoaderCircle } from "lucide-react";
-import { useCollection } from "@/firebase";
+import { useCollection, useFirestore } from "@/firebase";
 import Image from "next/image";
 import Link from "next/link";
 import {
-  getFirestore,
   collection,
   query,
   orderBy,
-  limit,
 } from 'firebase/firestore';
 import { useMemo } from "react";
 import { Article } from "@/lib/types";
@@ -52,7 +50,7 @@ function ArticleCardSkeleton() {
 
 
 export default function ActusPage() {
-  const firestore = getFirestore();
+  const firestore = useFirestore();
   const articlesQuery = useMemo(() => {
     if (!firestore) return null;
     return query(collection(firestore, 'articles'), orderBy('createdAt', 'desc'));

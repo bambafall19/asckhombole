@@ -63,7 +63,7 @@ export function BottomNav() {
             <MenuButton onClick={() => setIsMenuOpen(true)} />
         </nav>
       </div>
-      <MobileMenuSheet open={isMenuOpen} onOpenChange={setIsMenuOpen} bottomNavLinks={navItems} />
+      <MobileMenuSheet open={isMenuOpen} onOpenChange={setIsMenuOpen} />
     </>
   );
 }

@@ -38,6 +38,15 @@ export const navLinks = [
   { href: "/webtv", label: "WEB TV", icon: Tv, disabled: true },
 ];
 
+const mobileMenuLinks = [
+    { href: "/club", label: "CLUB", icon: Shield },
+    { href: "/galerie", label: "GALERIE", icon: ImageIcon },
+    { href: "/partenaires", label: "PARTENAIRES", icon: Handshake },
+    { href: "/boutique", label: "BOUTIQUE", icon: Store, disabled: true },
+    { href: "/contact", label: "CONTACT", icon: Mail },
+    { href: "/webtv", label: "WEB TV", icon: Tv, disabled: true },
+]
+
 
 export function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -164,7 +173,7 @@ export function Header() {
   );
 }
 
-export function MobileMenuSheet({ open, onOpenChange, bottomNavLinks }: { open: boolean, onOpenChange: (open: boolean) => void, bottomNavLinks: { href: string; label: string; icon: React.ElementType }[] }) {
+export function MobileMenuSheet({ open, onOpenChange }: { open: boolean, onOpenChange: (open: boolean) => void }) {
   const auth = useAuth();
   const { user } = useUser();
   const firestore = useFirestore();
@@ -212,10 +221,6 @@ export function MobileMenuSheet({ open, onOpenChange, bottomNavLinks }: { open: 
     );
   };
 
-  const bottomNavHrefs = useMemo(() => new Set(bottomNavLinks.map(l => l.href)), [bottomNavLinks]);
-  const menuLinks = useMemo(() => navLinks.filter(l => !bottomNavHrefs.has(l.href)), [bottomNavHrefs]);
-
-
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="right" className="w-full sm:w-[320px] bg-card p-0 flex flex-col">
@@ -248,7 +253,7 @@ export function MobileMenuSheet({ open, onOpenChange, bottomNavLinks }: { open: 
         </SheetHeader>
         
         <nav className="flex-grow p-4 space-y-2 overflow-y-auto">
-            {menuLinks.map((link) => (
+            {mobileMenuLinks.map((link) => (
                 <MobileNavLink key={link.href} href={link.href} label={link.label} Icon={link.icon} disabled={link.disabled} />
             ))}
         </nav>

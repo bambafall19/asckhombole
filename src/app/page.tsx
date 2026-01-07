@@ -114,12 +114,18 @@ export default function Home() {
 
   const nextMatchQuery = useMemo(() => {
     if (!firestore) return null;
-    return query(collection(firestore, 'matches'), where('status', '==', 'À venir'));
+    return query(
+      collection(firestore, 'matches'),
+      where('status', '==', 'À venir')
+    );
   }, [firestore]);
 
   const lastResultQuery = useMemo(() => {
     if (!firestore) return null;
-    return query(collection(firestore, 'matches'), where('status', '==', 'Terminé'), orderBy('date', 'desc'), limit(1));
+    return query(
+        collection(firestore, 'matches'), 
+        where('status', '==', 'Terminé')
+    );
   }, [firestore]);
 
   const { data: featuredArticlesData, loading: featuredLoading } = useCollection<Article>(featuredQuery);
@@ -130,30 +136,38 @@ export default function Home() {
   const { data: partners, loading: partnersLoading } = useCollection<Partner>(partnersQuery);
   const { data: clubInfo, loading: clubInfoLoading } = useDocument<ClubInfo>(clubInfoRef);
   const { data: allUpcomingMatches, loading: nextMatchLoading } = useCollection<Match>(nextMatchQuery);
-  const { data: lastResultData, loading: lastResultLoading } = useCollection<Match>(lastResultQuery);
+  const { data: allFinishedMatches, loading: lastResultLoading } = useCollection<Match>(lastResultQuery);
   
   const featuredArticles = useMemo(() => {
-    return featuredArticlesData?.sort((a,b) => b.createdAt.toMillis() - a.createdAt.toMillis())
+    if (!featuredArticlesData) return [];
+    return [...featuredArticlesData].sort((a,b) => b.createdAt.toMillis() - a.createdAt.toMillis())
   }, [featuredArticlesData]);
 
   const trendyArticles = useMemo(() => {
-    return trendyArticlesData?.sort((a,b) => b.createdAt.toMillis() - a.createdAt.toMillis())
+    if (!trendyArticlesData) return [];
+    return [...trendyArticlesData].sort((a,b) => b.createdAt.toMillis() - a.createdAt.toMillis())
   }, [trendyArticlesData]);
 
   const topArticles = useMemo(() => {
-    return topArticlesData?.sort((a,b) => b.createdAt.toMillis() - a.createdAt.toMillis())
+    if (!topArticlesData) return [];
+    return [...topArticlesData].sort((a,b) => b.createdAt.toMillis() - a.createdAt.toMillis())
   }, [topArticlesData]);
   
   const nextMatch = useMemo(() => {
     if (!allUpcomingMatches) return null;
     const now = new Date();
-    const sortedUpcoming = allUpcomingMatches
+    const sortedUpcoming = [...allUpcomingMatches]
       .filter(match => match.date.toDate() > now)
       .sort((a, b) => a.date.toMillis() - b.date.toMillis());
     return sortedUpcoming[0] || null;
   }, [allUpcomingMatches]);
 
-  const lastResult = useMemo(() => lastResultData?.[0], [lastResultData]);
+  const lastResult = useMemo(() => {
+    if (!allFinishedMatches) return null;
+    const sorted = [...allFinishedMatches].sort((a,b) => b.date.toMillis() - a.date.toMillis());
+    return sorted[0] || null;
+  }, [allFinishedMatches]);
+
   const mainArticle = featuredArticles?.[0] || latestArticles?.[0];
   const sideArticles = sidebarTab === 'latest' ? latestArticles?.slice(1,4) : topArticles;
   

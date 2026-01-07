@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -28,8 +28,6 @@ import {
   LogOut,
   LogIn,
   ChevronDown,
-  History,
-  Info,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Logo } from "@/components/logo";
@@ -48,11 +46,39 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { ClubInfo } from "@/lib/types";
 import { doc } from "firebase/firestore";
-import { Separator } from "../ui/separator";
 import { Input } from "../ui/input";
-import { SidebarTrigger } from "../ui/sidebar";
+
+const navLinks = [
+  { href: "/", label: "Accueil" },
+  { href: "/actus", label: "Actualités" },
+  {
+    label: "Le Club",
+    children: [
+      { href: "/club", label: "Histoire & Vision" },
+      { href: "/equipe", label: "Équipe" },
+      { href: "/contact", label: "Contact" },
+    ],
+  },
+  {
+    label: "Compétition",
+    children: [
+      { href: "/matchs", label: "Matchs & Résultats" },
+    ],
+  },
+  {
+    label: "Médias",
+    children: [
+        { href: "/galerie", label: "Galerie" },
+        { href: "/webtv", label: "Web TV", disabled: true },
+    ]
+  },
+  { href: "/boutique", label: "Boutique" },
+];
 
 const mobileMenuLinks = [
+  { href: "/actus", label: "Actualités", icon: Newspaper },
+  { href: "/matchs", label: "Matchs", icon: Trophy },
+  { href: "/equipe", label: "Équipe", icon: Users },
   { href: "/club", label: "Club", icon: Shield },
   { href: "/galerie", label: "Galerie", icon: ImageIcon },
   { href: "/partenaires", label: "Partenaires", icon: Handshake },
@@ -63,6 +89,7 @@ const mobileMenuMoreLinks = [
   { href: "/contact", label: "Contact", icon: Mail },
   { href: "/webtv", label: "Web TV", icon: Tv, disabled: true },
 ];
+
 
 export function Header() {
   const pathname = usePathname();
@@ -133,25 +160,83 @@ export function Header() {
     return null;
   };
 
+  const NavLink = ({
+    href,
+    children,
+  }: {
+    href: string;
+    children: React.ReactNode;
+  }) => {
+    const isActive = pathname === href;
+    return (
+      <Link
+        href={href}
+        className={cn(
+          "text-sm font-medium transition-colors hover:text-primary",
+          isActive ? "text-primary" : "text-muted-foreground"
+        )}
+      >
+        {children}
+      </Link>
+    );
+  };
+  
+  const NavMenu = ({
+    label,
+    children,
+  }: {
+    label: string;
+    children: { href: string; label: string; disabled?: boolean }[];
+  }) => {
+    const isParentActive = children.some(child => pathname.startsWith(child.href));
+    return (
+       <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className={cn(
+                "text-sm font-medium transition-colors hover:text-primary",
+                isParentActive ? "text-primary" : "text-muted-foreground"
+            )}>
+              {label} <ChevronDown className="w-4 h-4 ml-1" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+             {children.map((child, index) => (
+                <DropdownMenuItem key={index} asChild disabled={child.disabled}>
+                  <Link href={child.href}>{child.label}</Link>
+                </DropdownMenuItem>
+              ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+    );
+  };
+
   return (
     <header
       className={cn(
-        "sticky top-0 z-40 w-full p-2.5",
-        "hidden md:block"
+        "fixed top-0 left-0 right-0 z-40 p-2.5",
+        "md:block"
       )}
     >
-      <div className="container flex h-14 items-center justify-between rounded-xl">
-        <div className="flex items-center gap-2">
-          <SidebarTrigger />
-          <Separator orientation="vertical" className="h-6" />
-          <h1 className="text-lg font-semibold">
-            {
-              [...mobileMenuLinks, ...mobileMenuMoreLinks, { href: '/', label: 'Accueil' }, { href: '/actus', label: 'Actualités'}, { href: '/matchs', label: 'Matchs'}, { href: '/equipe', label: 'Équipe'}].find(
-                (link) => pathname === link.href
-              )?.label
-            }
-          </h1>
+      <div className="container flex h-16 items-center justify-between bg-card/90 backdrop-blur-sm border rounded-xl shadow-sm">
+        <div className="flex items-center gap-6">
+            <Link href="/" className="items-center space-x-2 md:flex">
+              <Logo logoUrl={clubInfo?.logoUrl} />
+            </Link>
         </div>
+
+        <nav className="hidden md:flex items-center justify-center gap-2">
+            {navLinks.map((link, index) =>
+              link.href ? (
+                <NavLink key={index} href={link.href}>
+                  {link.label}
+                </NavLink>
+              ) : (
+                <NavMenu key={index} label={link.label}>
+                  {link.children!}
+                </NavMenu>
+              )
+            )}
+        </nav>
 
         <div className="hidden md:flex items-center justify-end gap-2">
           <div className="relative w-48">
@@ -297,7 +382,7 @@ export function MobileMenuSheet({
               />
             ))}
           </div>
-          <Separator className="my-4" />
+          <DropdownMenuSeparator />
           <div className="space-y-1">
             <p className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
               Plus

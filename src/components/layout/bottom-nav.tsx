@@ -49,6 +49,11 @@ export function BottomNav() {
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
+  // Do not render bottom nav for admin pages
+  if (pathname.startsWith('/admin') || pathname.startsWith('/login')) {
+    return null;
+  }
+
   return (
     <>
       <div className="md:hidden fixed bottom-4 left-4 right-4 h-16 z-50">

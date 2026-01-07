@@ -51,18 +51,14 @@ import { Input } from "../ui/input";
 const navLinks = [
   { href: "/", label: "Accueil" },
   { href: "/actus", label: "Actualités" },
+  { href: "/matchs", label: "Matchs" },
   {
     label: "Le Club",
     children: [
       { href: "/club", label: "Histoire & Vision" },
       { href: "/equipe", label: "Équipe" },
+      { href: "/partenaires", label: "Partenaires" },
       { href: "/contact", label: "Contact" },
-    ],
-  },
-  {
-    label: "Compétition",
-    children: [
-      { href: "/matchs", label: "Matchs & Résultats" },
     ],
   },
   {
@@ -85,7 +81,7 @@ const mobileMenuLinks = [
 ];
 
 const mobileMenuMoreLinks = [
-  { href: "/boutique", label: "Boutique", icon: Store, disabled: true },
+  { href: "/boutique", label: "Boutique", icon: Store, disabled: false },
   { href: "/contact", label: "Contact", icon: Mail },
   { href: "/webtv", label: "Web TV", icon: Tv, disabled: true },
 ];

@@ -20,6 +20,8 @@ const dynaPuff = DynaPuff({ subsets: ["latin"], variable: "--font-dynapuff" });
 const APP_NAME = "ASC Khombole";
 const APP_DESCRIPTION = "La plateforme web moderne pour l'ASC Khombole.";
 const APP_URL = "https://asckhombole.web.app";
+const LOGO_URL = "https://firebasestorage.googleapis.com/v0/b/asc-khombole.appspot.com/o/logo.png?alt=media&token=223b5b30-3c23-4942-81ca-636c5b96a480";
+
 
 export const metadata: Metadata = {
   title: "ASC Khombole - Site Officiel",
@@ -41,7 +43,7 @@ export const metadata: Metadata = {
     description: APP_DESCRIPTION,
     images: [
       {
-        url: 'https://firebasestorage.googleapis.com/v0/b/asc-khombole.appspot.com/o/logo.png?alt=media&token=223b5b30-3c23-4942-81ca-636c5b96a480',
+        url: LOGO_URL,
         width: 512,
         height: 512,
         alt: "ASC Khombole Logo",
@@ -51,6 +53,11 @@ export const metadata: Metadata = {
   twitter: {
     creator: "@asckhombole",
     card: "summary_large_image",
+  },
+  icons: {
+    icon: LOGO_URL,
+    shortcut: LOGO_URL,
+    apple: LOGO_URL,
   },
 };
 
@@ -65,9 +72,6 @@ export default function RootLayout({
 }) {
   return (
     <html lang="fr" suppressHydrationWarning>
-      <head>
-          <link rel="icon" href="https://firebasestorage.googleapis.com/v0/b/asc-khombole.appspot.com/o/logo.png?alt=media&token=223b5b30-3c23-4942-81ca-636c5b96a480" type="image/png" sizes="any" />
-      </head>
       <body
         className={cn(
           "min-h-screen bg-background font-sans antialiased",

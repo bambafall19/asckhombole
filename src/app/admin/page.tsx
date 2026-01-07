@@ -1030,7 +1030,7 @@ function PhotosList() {
                                       <AlertDialogTrigger asChild><Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive" /></Button></AlertDialogTrigger>
                                       <AlertDialogContent>
                                         <AlertDialogHeader>
-                                          <AlertDialogTitle>Êtes-vous absolument sûr ?</AlertDialogTitle>
+                                          <AlertDialogTitle>Êtes-vous absolutely sûr ?</AlertDialogTitle>
                                           <AlertDialogDescription>Cette action est irréversible. La photo sera supprimée.</AlertDialogDescription>
                                         </AlertDialogHeader>
                                         <AlertDialogFooter>
@@ -1256,7 +1256,7 @@ function ClubInfoForm() {
         contactEmail: clubInfo?.contactEmail || '',
         contactPhone: clubInfo?.contactPhone || '',
         address: clubInfo?.address || '',
-        googleMapsUrl: clubInfo?.googleMapsUrl || '',
+        googleMapsUrl: clubInfo?.googleMapsUrl || "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3851.682333621415!2d-16.6917506888636!3d14.768098389816556!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xec1e75cab15baaf%3A0xc6dc9c304e7e8490!2sStade%20municipal%20de%20khombole!5e0!3m2!1sen!2sus!4v1721752932973!5m2!1sen!2sus",
         facebookUrl: clubInfo?.facebookUrl || '',
         twitterUrl: clubInfo?.twitterUrl || '',
         instagramUrl: clubInfo?.instagramUrl || '',
@@ -1281,7 +1281,7 @@ function ClubInfoForm() {
         contactEmail: clubInfo?.contactEmail || '',
         contactPhone: clubInfo?.contactPhone || '',
         address: clubInfo?.address || '',
-        googleMapsUrl: clubInfo?.googleMapsUrl || '',
+        googleMapsUrl: clubInfo?.googleMapsUrl || "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3851.682333621415!2d-16.6917506888636!3d14.768098389816556!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xec1e75cab15baaf%3A0xc6dc9c304e7e8490!2sStade%20municipal%20de%20khombole!5e0!3m2!1sen!2sus!4v1721752932973!5m2!1sen!2sus",
         facebookUrl: clubInfo?.facebookUrl || '',
         twitterUrl: clubInfo?.twitterUrl || '',
         instagramUrl: clubInfo?.instagramUrl || '',
@@ -1854,5 +1854,3 @@ export default function AdminPage() {
     </Dialog>
   );
 }
-
-    

@@ -136,7 +136,7 @@ export default function Home() {
   const sideArticles = sidebarTab === 'latest' ? latestArticles?.slice(1,4) : topArticles;
   const nextMatch = nextMatches?.[0];
   
-  const loading = featuredLoading || trendyLoading || latestLoading || topLoading || photosLoading || clubInfoLoading || nextMatchLoading;
+  const mainSectionLoading = featuredLoading || latestLoading || clubInfoLoading;
 
   const welcomeImages = useMemo(() => {
     if (!clubInfo) return [];
@@ -162,12 +162,12 @@ export default function Home() {
             <section>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="md:col-span-2">
-                {loading && (
+                {mainSectionLoading && (
                     <Card className="overflow-hidden group relative w-full aspect-video flex items-center justify-center">
                         <LoaderCircle className="w-12 h-12 animate-spin text-primary" />
                     </Card>
                 )}
-                {!loading && mainArticle && (
+                {!mainSectionLoading && mainArticle && (
                   <Card className="overflow-hidden group relative transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
                     <Link href={`/actus/${mainArticle.id}`}>
                       <Image
@@ -194,7 +194,7 @@ export default function Home() {
                     </Link>
                   </Card>
                 )}
-                {!loading && !mainArticle && (
+                {!mainSectionLoading && !mainArticle && (
                    <Carousel 
                       className="w-full" 
                       opts={{ loop: true }}
@@ -321,8 +321,8 @@ export default function Home() {
 
           {/* Sidebar */}
           <aside className="space-y-8">
-             {loading && <NextMatchSidebarSkeleton />}
-             {!loading && nextMatch && <NextMatchSidebar match={nextMatch} />}
+             {nextMatchLoading && <NextMatchSidebarSkeleton />}
+             {!nextMatchLoading && nextMatch && <NextMatchSidebar match={nextMatch} />}
 
             <div className="bg-card p-4 rounded-lg shadow-sm">
                 <div role="tablist" className="flex justify-between border-b mb-4">
@@ -377,5 +377,3 @@ export default function Home() {
     </div>
   );
 }
-
-    

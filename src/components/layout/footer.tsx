@@ -11,13 +11,16 @@ import { doc } from "firebase/firestore";
 import { ClubInfo } from "@/lib/types";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../ui/accordion";
 
-const SocialIcon = ({ children, href }: { children: React.ReactNode, href: string }) => (
-  <Button variant="ghost" size="icon" asChild>
-    <a href={href} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary">
-      {children}
-    </a>
-  </Button>
-);
+const SocialIcon = ({ children, href }: { children: React.ReactNode, href?: string }) => {
+  if (!href) return null;
+  return (
+    <Button variant="ghost" size="icon" asChild>
+      <a href={href} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary">
+        {children}
+      </a>
+    </Button>
+  );
+};
 
 const baseNavSections = [
     {
@@ -93,10 +96,10 @@ export function Footer() {
               Le site officiel de l'Association Sportive et Culturelle de Khombole, toute l'actualité du club.
             </p>
             <div className="flex space-x-1">
-              <SocialIcon href="https://facebook.com"><FacebookIcon className="h-5 w-5" /></SocialIcon>
-              <SocialIcon href="https://twitter.com"><TwitterIcon className="h-5 w-5" /></SocialIcon>
-              <SocialIcon href="https://instagram.com"><InstagramIcon className="h-5 w-5" /></SocialIcon>
-              <SocialIcon href="https://youtube.com"><YoutubeIcon className="h-5 w-5" /></SocialIcon>
+              <SocialIcon href={clubInfo?.facebookUrl}><FacebookIcon className="h-5 w-5" /></SocialIcon>
+              <SocialIcon href={clubInfo?.twitterUrl}><TwitterIcon className="h-5 w-5" /></SocialIcon>
+              <SocialIcon href={clubInfo?.instagramUrl}><InstagramIcon className="h-5 w-5" /></SocialIcon>
+              <SocialIcon href={clubInfo?.youtubeUrl}><YoutubeIcon className="h-5 w-5" /></SocialIcon>
           </div>
           </div>
 

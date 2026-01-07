@@ -157,50 +157,25 @@
       "description": "Stores general information about the club.",
       "type": "object",
       "properties": {
-        "logoUrl": {
-          "type": "string",
-          "description": "URL of the club's main logo."
-        },
-        "history": {
-          "type": "string",
-          "description": "The history of the club."
-        },
-        "historyImageUrl": {
-          "type": "string",
-          "description": "URL of an image for the history section."
-        },
-        "presidentWord": {
-          "type": "string",
-          "description": "A message from the club president."
-        },
-        "presidentWordImageUrl": {
-          "type": "string",
-          "description": "URL of an image for the president's word section."
-        },
-        "presidentWishes": {
-          "type": "string",
-          "description": "The president's wishes for the club."
-        },
-        "welcomeTitle": {
-            "type": "string",
-            "description": "The main title for the welcome message on the homepage."
-        },
-        "welcomeSubtitle": {
-            "type": "string",
-            "description": "The subtitle for the welcome message on the homepage."
-        },
-        "welcomeImageUrl": {
-            "type": "string",
-            "description": "URL of the main image for the homepage when no articles are present."
-        },
-        "welcomeImageUrl2": {
-            "type": "string",
-            "description": "URL of the second image for the homepage welcome slider."
-        },
-        "welcomeImageUrl3": {
-            "type": "string",
-            "description": "URL of the third image for the homepage welcome slider."
-        }
+        "logoUrl": { "type": "string", "description": "URL of the club's main logo." },
+        "history": { "type": "string", "description": "The history of the club." },
+        "historyImageUrl": { "type": "string", "description": "URL of an image for the history section." },
+        "presidentWord": { "type": "string", "description": "A message from the club president." },
+        "presidentWordImageUrl": { "type": "string", "description": "URL of an image for the president's word section." },
+        "presidentWishes": { "type": "string", "description": "The president's wishes for the club." },
+        "welcomeTitle": { "type": "string", "description": "The main title for the welcome message on the homepage." },
+        "welcomeSubtitle": { "type": "string", "description": "The subtitle for the welcome message on the homepage." },
+        "welcomeImageUrl": { "type": "string", "description": "URL of the main image for the homepage when no articles are present." },
+        "welcomeImageUrl2": { "type": "string", "description": "URL of the second image for the homepage welcome slider." },
+        "welcomeImageUrl3": { "type": "string", "description": "URL of the third image for the homepage welcome slider." },
+        "contactEmail": { "type": "string", "format": "email", "description": "The official contact email for the club." },
+        "contactPhone": { "type": "string", "description": "The official contact phone number for the club." },
+        "address": { "type": "string", "description": "The physical address of the club." },
+        "googleMapsUrl": { "type": "string", "description": "The embed URL for Google Maps." },
+        "facebookUrl": { "type": "string", "description": "URL of the club's Facebook page." },
+        "twitterUrl": { "type": "string", "description": "URL of the club's Twitter profile." },
+        "instagramUrl": { "type": "string", "description": "URL of the club's Instagram profile." },
+        "youtubeUrl": { "type": "string", "description": "URL of the club's YouTube channel." }
       },
       "required": []
     }

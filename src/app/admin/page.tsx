@@ -31,7 +31,7 @@ import {
 } from 'firebase/firestore';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useState, useEffect, useMemo } from 'react';
-import { LoaderCircle, LogOut, PlusCircle, Trash2, Pencil, List, Users, Trophy, Image as ImageIcon, Handshake, Mail, Shield } from 'lucide-react';
+import { LoaderCircle, LogOut, PlusCircle, Trash2, Pencil, List, Users, Trophy, Image as ImageIcon, Handshake, Mail, Shield, Map, Link as LinkIcon } from 'lucide-react';
 import { useUser } from '@/firebase/auth/use-user';
 import { useRouter } from 'next/navigation';
 import { signOut } from 'firebase/auth';
@@ -1217,6 +1217,14 @@ const clubInfoFormSchema = z.object({
   welcomeImageUrl: z.string().url({ message: "Veuillez entrer une URL d'image valide." }).optional().or(z.literal('')),
   welcomeImageUrl2: z.string().url({ message: "Veuillez entrer une URL d'image valide." }).optional().or(z.literal('')),
   welcomeImageUrl3: z.string().url({ message: "Veuillez entrer une URL d'image valide." }).optional().or(z.literal('')),
+  contactEmail: z.string().email({ message: "Veuillez entrer un email valide." }).optional().or(z.literal('')),
+  contactPhone: z.string().optional(),
+  address: z.string().optional(),
+  googleMapsUrl: z.string().url({ message: "Veuillez entrer une URL Google Maps valide." }).optional().or(z.literal('')),
+  facebookUrl: z.string().url({ message: "Veuillez entrer une URL Facebook valide." }).optional().or(z.literal('')),
+  twitterUrl: z.string().url({ message: "Veuillez entrer une URL Twitter valide." }).optional().or(z.literal('')),
+  instagramUrl: z.string().url({ message: "Veuillez entrer une URL Instagram valide." }).optional().or(z.literal('')),
+  youtubeUrl: z.string().url({ message: "Veuillez entrer une URL YouTube valide." }).optional().or(z.literal('')),
 });
 
 function ClubInfoForm() {
@@ -1245,6 +1253,14 @@ function ClubInfoForm() {
         welcomeImageUrl: clubInfo?.welcomeImageUrl || '',
         welcomeImageUrl2: clubInfo?.welcomeImageUrl2 || '',
         welcomeImageUrl3: clubInfo?.welcomeImageUrl3 || '',
+        contactEmail: clubInfo?.contactEmail || '',
+        contactPhone: clubInfo?.contactPhone || '',
+        address: clubInfo?.address || '',
+        googleMapsUrl: clubInfo?.googleMapsUrl || '',
+        facebookUrl: clubInfo?.facebookUrl || '',
+        twitterUrl: clubInfo?.twitterUrl || '',
+        instagramUrl: clubInfo?.instagramUrl || '',
+        youtubeUrl: clubInfo?.youtubeUrl || '',
     }
   });
 
@@ -1262,6 +1278,14 @@ function ClubInfoForm() {
         welcomeImageUrl: clubInfo.welcomeImageUrl || '',
         welcomeImageUrl2: clubInfo.welcomeImageUrl2 || '',
         welcomeImageUrl3: clubInfo.welcomeImageUrl3 || '',
+        contactEmail: clubInfo?.contactEmail || '',
+        contactPhone: clubInfo?.contactPhone || '',
+        address: clubInfo?.address || '',
+        googleMapsUrl: clubInfo?.googleMapsUrl || '',
+        facebookUrl: clubInfo?.facebookUrl || '',
+        twitterUrl: clubInfo?.twitterUrl || '',
+        instagramUrl: clubInfo?.instagramUrl || '',
+        youtubeUrl: clubInfo?.youtubeUrl || '',
       });
     }
   }, [clubInfo, form]);
@@ -1294,7 +1318,7 @@ function ClubInfoForm() {
     <Card>
       <CardHeader>
         <CardTitle>Informations Générales du Club</CardTitle>
-        <CardDescription>Gérez le contenu des pages "Club", de l'accueil et le logo du site.</CardDescription>
+        <CardDescription>Gérez le contenu des pages "Club", de l'accueil et les informations de contact.</CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -1456,6 +1480,69 @@ function ClubInfoForm() {
                         </FormItem>
                       )}
                     />
+                </CollapsibleContent>
+            </Collapsible>
+            
+            <Collapsible>
+                <CollapsibleTrigger className='text-xl font-headline text-primary'>Contact, Réseaux &amp; Carte</CollapsibleTrigger>
+                <CollapsibleContent className='space-y-6 pt-4 border-l pl-4 ml-2'>
+                    <FormField control={form.control} name="contactEmail" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Email de Contact</FormLabel>
+                        <FormControl><Input type="email" placeholder="contact@asckhombole.sn" {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                    <FormField control={form.control} name="contactPhone" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Téléphone de Contact</FormLabel>
+                        <FormControl><Input placeholder="+221 33 123 45 67" {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                    <FormField control={form.control} name="address" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Adresse du Club</FormLabel>
+                        <FormControl><Input placeholder="Stade Ibrahima Boye, Khombole, Sénégal" {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                    <FormField control={form.control} name="googleMapsUrl" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>URL d'intégration Google Maps</FormLabel>
+                        <FormControl><Input placeholder="https://www.google.com/maps/embed?..." {...field} /></FormControl>
+                        <FormDescription>Allez sur Google Maps, cherchez votre lieu, cliquez sur "Partager" puis "Intégrer une carte" et copiez l'URL depuis le code iframe.</FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                    <FormField control={form.control} name="facebookUrl" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>URL Facebook</FormLabel>
+                        <FormControl><Input placeholder="https://facebook.com/asckhombole" {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                    <FormField control={form.control} name="twitterUrl" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>URL Twitter</FormLabel>
+                        <FormControl><Input placeholder="https://twitter.com/asckhombole" {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                    <FormField control={form.control} name="instagramUrl" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>URL Instagram</FormLabel>
+                        <FormControl><Input placeholder="https://instagram.com/asckhombole" {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                    <FormField control={form.control} name="youtubeUrl" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>URL YouTube</FormLabel>
+                        <FormControl><Input placeholder="https://youtube.com/asckhombole" {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
                 </CollapsibleContent>
             </Collapsible>
             

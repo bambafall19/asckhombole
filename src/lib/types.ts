@@ -59,4 +59,12 @@ export interface ClubInfo {
     welcomeImageUrl?: string;
     welcomeImageUrl2?: string;
     welcomeImageUrl3?: string;
+    contactEmail?: string;
+    contactPhone?: string;
+    address?: string;
+    googleMapsUrl?: string;
+    facebookUrl?: string;
+    twitterUrl?: string;
+    instagramUrl?: string;
+    youtubeUrl?: string;
 }

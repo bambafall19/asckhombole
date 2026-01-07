@@ -158,7 +158,10 @@ Après des saisons de travail et de reconstruction, l’ASC Khombole affiche une
     try {
         if (isEditing) {
             const articleRef = doc(firestore, 'articles', article.id);
-            updateDoc(articleRef, values).catch(async (error) => {
+            updateDoc(articleRef, {
+              ...values,
+              createdAt: serverTimestamp(),
+            }).catch(async (error) => {
               console.error("Erreur lors de la modification de l'article: ", error);
               const permissionError = new FirestorePermissionError({
                   path: `articles/${article.id}`,

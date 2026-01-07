@@ -165,7 +165,7 @@ export function Header() {
 }
 
 // Keep the Sheet component logic for the bottom nav menu
-export function MobileMenuSheet({ children, open, onOpenChange }: { children: React.ReactNode, open: boolean, onOpenChange: (open: boolean) => void }) {
+export function MobileMenuSheet({ children, open, onOpenChange }: { children?: React.ReactNode, open: boolean, onOpenChange: (open: boolean) => void }) {
   const auth = useAuth();
   const { user } = useUser();
   const firestore = useFirestore();
@@ -217,17 +217,16 @@ export function MobileMenuSheet({ children, open, onOpenChange }: { children: Re
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="right" className="w-full sm:w-[320px] bg-card p-0">
         <SheetHeader className="p-4 border-b">
-          <SheetTitle className="sr-only">Menu Principal</SheetTitle>
-          <div className="flex items-center justify-between">
-            <Link href="/" onClick={() => onOpenChange(false)}>
-              <Logo logoUrl={clubInfo?.logoUrl} />
-            </Link>
-            <Button variant="ghost" size="icon" onClick={() => onOpenChange(false)}>
+           <SheetTitle>
+             <Link href="/" onClick={() => onOpenChange(false)}>
+                <Logo logoUrl={clubInfo?.logoUrl} />
+              </Link>
+           </SheetTitle>
+            <Button variant="ghost" size="icon" onClick={() => onOpenChange(false)} className="absolute right-4 top-3">
               <X className="h-6 w-6" />
             </Button>
-          </div>
         </SheetHeader>
-        <div className="flex flex-col h-[calc(100%-5.5rem)]">
+        <div className="flex flex-col h-[calc(100%-6.5rem)]">
           <nav className="flex-grow p-4 space-y-2 overflow-y-auto">
             {children}
             {navLinks.filter(l => !['/actus', '/matchs', '/equipe'].includes(l.href)).map((link) => (
@@ -236,9 +235,16 @@ export function MobileMenuSheet({ children, open, onOpenChange }: { children: Re
           </nav>
           <div className="p-4 border-t">
             {user ? (
-              <Button className="w-full" size="lg" onClick={handleLogout}>
-                <LogOut className="w-5 h-5 mr-2" /> Déconnexion
-              </Button>
+               <div className="space-y-2">
+                 <Button className="w-full" size="lg" asChild>
+                    <Link href="/admin" onClick={() => onOpenChange(false)}>
+                        <Shield className="w-5 h-5 mr-2" /> Admin
+                    </Link>
+                 </Button>
+                 <Button variant="outline" className="w-full" size="lg" onClick={handleLogout}>
+                    <LogOut className="w-5 h-5 mr-2" /> Déconnexion
+                 </Button>
+               </div>
             ) : (
               <Button className="w-full" size="lg" asChild>
                 <Link href="/login" onClick={() => onOpenChange(false)}>

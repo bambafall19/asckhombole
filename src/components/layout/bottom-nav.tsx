@@ -20,7 +20,7 @@ export function BottomNav() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const NavItem = ({ href, label, icon: Icon }: (typeof navItems)[0]) => {
-    const isActive = pathname === href;
+    const isActive = (pathname === href) || (href === '/actus' && pathname.startsWith('/actus'));
     return (
       <Link href={href} className="flex flex-col items-center justify-center gap-1 w-full text-center">
         <Icon className={cn('w-6 h-6 transition-colors', isActive ? 'text-primary' : 'text-muted-foreground')} />
@@ -50,9 +50,7 @@ export function BottomNav() {
           <MenuButton />
         </div>
       </nav>
-      <MobileMenuSheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
-        {/* You can pass specific mobile nav links here if needed */}
-      </MobileMenuSheet>
+      <MobileMenuSheet open={isMenuOpen} onOpenChange={setIsMenuOpen} />
     </>
   );
 }

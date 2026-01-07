@@ -24,7 +24,7 @@ import Autoplay from "embla-carousel-autoplay";
 
 export default function Home() {
   const firestore = useFirestore();
-  const autoplayPlugin = useMemo(() => Autoplay({ delay: 5000, stopOnInteraction: false, stopOnMouseEnter: true }), []);
+  const autoplayPlugin = useMemo(() => Autoplay({ delay: 5000, stopOnInteraction: true, stopOnMouseEnter: true }), []);
   const [sidebarTab, setSidebarTab] = useState<'latest' | 'top'>('latest');
 
   // Queries for different article sections
@@ -227,7 +227,7 @@ export default function Home() {
                   align: "start",
                   loop: true,
                 }}
-                plugins={[autoplayPlugin]}
+                plugins={[Autoplay({ delay: 4000, stopOnInteraction: true })]}
                 className="w-full"
               >
                 <CarouselContent>

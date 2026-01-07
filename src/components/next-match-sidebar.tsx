@@ -115,7 +115,7 @@ export function NextMatchSidebar({ match, loading }: { match?: Match | null, loa
   return (
     <Card className="bg-primary/5 border-primary/20 shadow-lg">
       <CardHeader className="pb-3">
-        <CardTitle className="text-lg font.headline text-primary flex items-center justify-center gap-2">
+        <CardTitle className="text-lg font-headline text-primary flex items-center justify-center gap-2">
             <Calendar className="w-5 h-5"/>
             Prochain Match
         </CardTitle>
@@ -138,6 +138,9 @@ export function NextMatchSidebar({ match, loading }: { match?: Match | null, loa
             </div>
         </div>
          <p className="text-sm font-semibold text-muted-foreground">Coup d'envoi à {format(match.date.toDate(), 'HH:mm', { locale: fr })}</p>
+         <Button asChild variant="secondary" size="sm" className="mt-4">
+            <Link href="/matchs">Voir les matchs</Link>
+         </Button>
       </CardContent>
     </Card>
   )

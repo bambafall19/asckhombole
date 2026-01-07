@@ -625,11 +625,7 @@ function PlayersList() {
 }
 
 const matchFormSchema = z.object({
-  date: z.date({ required_error: 'La date du match est obligatoire.' }),
-  time: z.object({
-    hours: z.coerce.number().min(0).max(23),
-    minutes: z.coerce.number().min(0).max(59),
-  }),
+  date: z.date({ required_error: 'La date et l\'heure du match sont obligatoires.' }),
   competition: z.string().min(3, { message: 'La compétition doit contenir au moins 3 caractères.' }),
   homeTeam: z.string().min(3, { message: 'Le nom de l\'équipe à domicile est obligatoire.' }),
   awayTeam: z.string().min(3, { message: 'Le nom de l\'équipe à l\'extérieur est obligatoire.' }),
@@ -653,7 +649,6 @@ function AddMatchForm() {
       homeTeam: 'ASC Khombole',
       awayTeam: '',
       status: 'À venir',
-      time: { hours: 16, minutes: 0 },
       location: '',
       homeTeamLogoUrl: '',
       awayTeamLogoUrl: '',
@@ -664,15 +659,12 @@ function AddMatchForm() {
     if (!firestore) return;
     setIsSubmitting(true);
     
-    const combinedDate = setMinutes(setHours(values.date, values.time.hours), values.time.minutes);
-
     const matchData = {
       ...values,
-      date: Timestamp.fromDate(combinedDate),
+      date: Timestamp.fromDate(values.date),
       homeScore: values.status === 'Terminé' ? values.homeScore ?? null : null,
       awayScore: values.status === 'Terminé' ? values.awayScore ?? null : null,
     };
-    delete (matchData as any).time;
     
     const matchesCollection = collection(firestore, 'matches');
 
@@ -749,7 +741,7 @@ function AddMatchForm() {
                     name="date"
                     render={({ field }) => (
                         <FormItem className="flex flex-col">
-                        <FormLabel>Date du match</FormLabel>
+                        <FormLabel>Date et heure du match</FormLabel>
                         <Popover>
                             <PopoverTrigger asChild>
                             <FormControl>
@@ -761,7 +753,7 @@ function AddMatchForm() {
                                 )}
                                 >
                                 {field.value ? (
-                                    format(field.value, "PPP", { locale: fr })
+                                    format(field.value, "PPP 'à' HH:mm", { locale: fr })
                                 ) : (
                                     <span>Choisir une date</span>
                                 )}
@@ -776,6 +768,7 @@ function AddMatchForm() {
                                 onSelect={field.onChange}
                                 disabled={(date) => date < new Date("1900-01-01")}
                                 initialFocus
+                                time
                             />
                             </PopoverContent>
                         </Popover>
@@ -783,20 +776,6 @@ function AddMatchForm() {
                         </FormItem>
                     )}
                     />
-                    <div className='space-y-2'>
-                        <FormLabel>Heure du match</FormLabel>
-                        <div className="flex items-center gap-2">
-                           <FormField control={form.control} name="time.hours" render={({ field }) => (
-                                <FormItem><FormControl><Input type="number" min="0" max="23" placeholder="HH" {...field} /></FormControl></FormItem>
-                            )} />
-                            <span>:</span>
-                             <FormField control={form.control} name="time.minutes" render={({ field }) => (
-                                <FormItem><FormControl><Input type="number" min="0" max="59" placeholder="MM" {...field} /></FormControl></FormItem>
-                            )} />
-                        </div>
-                         <FormMessage>{form.formState.errors.time?.hours?.message || form.formState.errors.time?.minutes?.message}</FormMessage>
-                    </div>
-
                 </div>
                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <FormField control={form.control} name="status" render={({ field }) => (

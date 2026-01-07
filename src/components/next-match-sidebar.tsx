@@ -10,6 +10,52 @@ import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { Button } from "./ui/button";
 import Link from "next/link";
+import { useEffect, useState } from "react";
+
+function Countdown({ toDate }: { toDate: Date }) {
+    const calculateTimeLeft = () => {
+        const difference = +new Date(toDate) - +new Date();
+        let timeLeft = {
+            jours: 0,
+            heures: 0,
+            minutes: 0,
+            secondes: 0,
+        };
+
+        if (difference > 0) {
+            timeLeft = {
+                jours: Math.floor(difference / (1000 * 60 * 60 * 24)),
+                heures: Math.floor((difference / (1000 * 60 * 60)) % 24),
+                minutes: Math.floor((difference / 1000 / 60) % 60),
+                secondes: Math.floor((difference / 1000) % 60),
+            };
+        }
+
+        return timeLeft;
+    };
+
+    const [timeLeft, setTimeLeft] = useState(calculateTimeLeft());
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setTimeLeft(calculateTimeLeft());
+        }, 1000);
+
+        return () => clearTimeout(timer);
+    });
+
+    return (
+        <div className="grid grid-cols-4 gap-2 text-center my-4">
+            {Object.entries(timeLeft).map(([unit, value]) => (
+                <div key={unit} className="bg-primary/10 p-2 rounded-lg">
+                    <div className="text-xl font-bold text-primary">{value.toString().padStart(2, '0')}</div>
+                    <div className="text-xs text-primary/80 capitalize">{unit}</div>
+                </div>
+            ))}
+        </div>
+    );
+}
+
 
 function NextMatchSidebarSkeleton() {
     return (
@@ -76,7 +122,10 @@ export function NextMatchSidebar({ match, loading }: { match?: Match | null, loa
       </CardHeader>
       <CardContent className="text-center">
         <p className="text-sm text-muted-foreground">{match.competition}</p>
-        <p className="text-sm font-semibold text-muted-foreground">{format(match.date.toDate(), 'eeee d MMMM yyyy \'à\' HH:mm', { locale: fr })}</p>
+        <p className="text-sm font-semibold text-muted-foreground">{format(match.date.toDate(), 'eeee d MMMM yyyy', { locale: fr })}</p>
+        
+        <Countdown toDate={match.date.toDate()} />
+        
         <div className="flex items-center justify-around my-4">
             <div className="flex flex-col items-center gap-2 w-1/3 text-center">
                 {match.homeTeamLogoUrl ? <Image src={match.homeTeamLogoUrl} alt={match.homeTeam} width={48} height={48} className="object-contain" /> : <div className="w-12 h-12"></div>}
@@ -88,9 +137,7 @@ export function NextMatchSidebar({ match, loading }: { match?: Match | null, loa
                 <p className={cn("font-bold", isHomeTeam(match.awayTeam) && "text-primary")}>{match.awayTeam}</p>
             </div>
         </div>
-         <Button asChild size="sm">
-            <Link href="/matchs">Voir les matchs</Link>
-        </Button>
+         <p className="text-sm font-semibold text-muted-foreground">Coup d'envoi à {format(match.date.toDate(), 'HH:mm', { locale: fr })}</p>
       </CardContent>
     </Card>
   )

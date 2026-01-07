@@ -15,6 +15,7 @@ import {
   limit,
   doc,
   where,
+  Timestamp,
 } from 'firebase/firestore';
 import { useMemo, useState } from "react";
 import { Article, ClubInfo, Photo, Match, Partner } from "@/lib/types";
@@ -113,7 +114,14 @@ export default function Home() {
 
   const nextMatchQuery = useMemo(() => {
     if (!firestore) return null;
-    return query(collection(firestore, 'matches'), where('status', '==', 'À venir'), orderBy('date', 'asc'), limit(1));
+    // Query for upcoming matches that are in the future
+    return query(
+      collection(firestore, 'matches'), 
+      where('status', '==', 'À venir'), 
+      where('date', '>', Timestamp.now()),
+      orderBy('date', 'asc'), 
+      limit(1)
+    );
   }, [firestore]);
 
   const lastResultQuery = useMemo(() => {

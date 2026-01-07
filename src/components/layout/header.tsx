@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { Menu, X, User, Search, Tv, Store, Newspaper, Shield, Trophy, Image as ImageIcon, Users, Handshake, Mail, Home, LogOut, LogIn } from "lucide-react";
+import { Menu, X, User, Search, Tv, Store, Newspaper, Shield, Trophy, Image as ImageIcon, Users, Handshake, Mail, Home, LogOut, LogIn, ChevronDown, History, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Logo } from "@/components/logo";
 import { useUser } from "@/firebase/auth/use-user";
@@ -19,6 +19,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuGroup,
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { ClubInfo } from "@/lib/types";
@@ -26,17 +27,29 @@ import { doc } from "firebase/firestore";
 import { Separator } from "../ui/separator";
 
 
-export const navLinks = [
-  { href: "/", label: "ACCUEIL", icon: Home },
-  { href: "/club", label: "CLUB", icon: Shield },
-  { href: "/equipe", label: "ÉQUIPE", icon: Users },
-  { href: "/matchs", label: "MATCHS", icon: Trophy },
-  { href: "/actus", label: "ACTUS", icon: Newspaper },
-  { href: "/galerie", label: "GALERIE", icon: ImageIcon },
-  { href: "/partenaires", label: "PARTENAIRES", icon: Handshake },
-  { href: "/boutique", label: "BOUTIQUE", icon: Store, disabled: true },
-  { href: "/contact", label: "CONTACT", icon: Mail },
-  { href: "/webtv", label: "WEB TV", icon: Tv, disabled: true },
+const mainNavLinks = [
+  { href: "/", label: "Accueil" },
+  { href: "/actus", label: "Actualités" },
+];
+
+const clubSubMenu = [
+    { href: "/club", label: "Histoire & Vision", icon: Info },
+    { href: "/equipe", label: "Équipe", icon: Users },
+    { href: "/partenaires", label: "Partenaires", icon: Handshake },
+    { href: "/contact", label: "Contact", icon: Mail },
+];
+
+const competitionSubMenu = [
+    { href: "/matchs", label: "Matchs & Résultats", icon: Trophy },
+];
+
+const mediaSubMenu = [
+    { href: "/galerie", label: "Galerie Photos", icon: ImageIcon },
+    { href: "/webtv", label: "Web TV", icon: Tv, disabled: true },
+];
+
+const shopSubMenu = [
+    { href: "/boutique", label: "Boutique Officielle", icon: Store, disabled: true },
 ];
 
 const mobileMenuLinks = [
@@ -80,29 +93,46 @@ export function Header() {
     }
   };
 
-  const NavLink = ({ href, label, className, disabled }: { href: string; label: string; className?: string, disabled?: boolean }) => {
+  const NavLink = ({ href, label }: { href: string; label: string }) => {
     const isActive = (pathname === href) || (href !== '/' && pathname.startsWith(href));
-    const linkClasses = cn(
-        "text-sm font-medium transition-colors hover:text-primary",
-        isActive ? "text-primary font-semibold" : "text-foreground/80",
-        disabled && "text-muted-foreground cursor-not-allowed hover:text-muted-foreground",
-        className
-    );
-
-    if (disabled) {
-        return <span className={linkClasses}>{label.toUpperCase()}</span>
-    }
-
     return (
-      <Link
-        href={href}
-        className={linkClasses}
-      >
-        {label.toUpperCase()}
+      <Link href={href} className={cn("text-sm font-medium transition-colors hover:text-primary relative", isActive ? "text-primary" : "text-foreground/80")}>
+        {label}
+        {isActive && <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-0.5 bg-primary rounded-full"></span>}
       </Link>
     );
   };
   
+  const NavDropdown = ({ label, items, activePaths }: { label: string; items: { href: string; label: string; disabled?: boolean; icon: React.ElementType }[], activePaths: string[] }) => {
+    const isActive = activePaths.some(path => pathname.startsWith(path));
+    
+    return (
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className={cn(
+                    "text-sm font-medium transition-colors hover:text-primary hover:bg-transparent p-0 h-auto", 
+                    isActive ? "text-primary" : "text-foreground/80"
+                )}>
+                    {label}
+                    <ChevronDown className="w-4 h-4 ml-1" />
+                </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56">
+                 <DropdownMenuGroup>
+                    {items.map(item => (
+                        <DropdownMenuItem key={item.href} asChild disabled={item.disabled}>
+                            <Link href={item.href}>
+                                <item.icon className="mr-2 h-4 w-4" />
+                                <span>{item.label}</span>
+                            </Link>
+                        </DropdownMenuItem>
+                    ))}
+                 </DropdownMenuGroup>
+            </DropdownMenuContent>
+        </DropdownMenu>
+    )
+  }
+
   const UserButton = () => {
     if (loading) {
       return <div className="w-8 h-8 rounded-full bg-muted animate-pulse" />
@@ -160,10 +190,12 @@ export function Header() {
         <Link href="/" className="flex items-center gap-2">
           <Logo logoUrl={clubInfo?.logoUrl} />
         </Link>
-        <nav className="hidden md:flex items-center gap-6">
-          {navLinks.map((link) => (
-            <NavLink key={link.href} {...link} />
-          ))}
+        <nav className="hidden md:flex items-center gap-8">
+            {mainNavLinks.map(link => <NavLink key={link.href} {...link} />)}
+            <NavDropdown label="Le Club" items={clubSubMenu} activePaths={['/club', '/equipe', '/partenaires', '/contact']} />
+            <NavDropdown label="Compétition" items={competitionSubMenu} activePaths={['/matchs']} />
+            <NavDropdown label="Médias" items={mediaSubMenu} activePaths={['/galerie', '/webtv']} />
+            <NavDropdown label="Boutique" items={shopSubMenu} activePaths={['/boutique']} />
         </nav>
         <div className="hidden md:flex items-center gap-2">
           <div className="w-px h-6 bg-border mx-2"></div>
@@ -288,3 +320,5 @@ export function MobileMenuSheet({ open, onOpenChange }: { open: boolean, onOpenC
     </Sheet>
   );
 }
+
+    

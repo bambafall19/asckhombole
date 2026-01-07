@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowUpFromBracket, PlusSquare, X } from 'lucide-react';
+import { ArrowUpFromDot, MoreVertical, PlusSquare, X } from 'lucide-react';
 import { Logo } from './logo';
 import { useDocument, useFirestore } from '@/firebase';
 import { ClubInfo } from '@/lib/types';
@@ -24,10 +24,10 @@ export function AddToHomeScreenPrompt() {
   const { data: clubInfo } = useDocument<ClubInfo>(clubInfoRef);
 
   useEffect(() => {
+    // This code runs only on the client
     const promptShown = localStorage.getItem('addToHomeScreenPromptShown');
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
-
-    // Client-side detection
+    
     const userAgent = navigator.userAgent;
     const mobile = /Mobi|Android/i.test(userAgent);
     const ios = /iPhone|iPad|iPod/.test(userAgent);
@@ -57,7 +57,7 @@ export function AddToHomeScreenPrompt() {
   const instructions = isIos ? (
     <>
         <li className="flex items-center gap-3">
-            <ArrowUpFromBracket className="w-5 h-5 text-primary" />
+            <ArrowUpFromDot className="w-5 h-5 text-primary" />
             <span>Clique sur le bouton <strong>Partager</strong></span>
         </li>
         <li className="flex items-center gap-3">
@@ -68,7 +68,7 @@ export function AddToHomeScreenPrompt() {
   ) : (
     <>
         <li className="flex items-center gap-3">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><path d="M12 8V2"/><path d="M12 12v-2"/><path d="M12 22v-2"/><circle cx="12" cy="12" r="2"/><path d="m18 16-4-4"/><path d="m6 8 4 4"/><path d="m16 6-4 4"/><path d="m8 18 4-4"/></svg>
+            <MoreVertical className="w-5 h-5 text-primary" />
             <span>Ouvre les options du navigateur</span>
         </li>
         <li className="flex items-center gap-3">

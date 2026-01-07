@@ -182,15 +182,17 @@ export function Header() {
             <Link href="/" className="flex items-center gap-2">
               <Logo logoUrl={clubInfo?.logoUrl} />
             </Link>
-            <nav className="hidden md:flex items-center gap-6">
-                {mainNavLinks.map(link => <NavLink key={link.href} {...link} />)}
-                <NavDropdown label="Le Club" items={clubSubMenu} activePaths={['/club', '/equipe', '/partenaires', '/contact']} />
-                <NavDropdown label="Compétition" items={competitionSubMenu} activePaths={['/matchs']} />
-                <NavDropdown label="Médias" items={mediaSubMenu} activePaths={['/galerie', '/webtv']} />
-                <NavDropdown label="Boutique" items={shopSubMenu} activePaths={['/boutique']} />
-            </nav>
         </div>
-        <div className="hidden md:flex items-center gap-2">
+        
+        <nav className="hidden md:flex items-center gap-6">
+            {mainNavLinks.map(link => <NavLink key={link.href} {...link} />)}
+            <NavDropdown label="Le Club" items={clubSubMenu} activePaths={['/club', '/equipe', '/partenaires', '/contact']} />
+            <NavDropdown label="Compétition" items={competitionSubMenu} activePaths={['/matchs']} />
+            <NavDropdown label="Médias" items={mediaSubMenu} activePaths={['/galerie', '/webtv']} />
+            <NavDropdown label="Boutique" items={shopSubMenu} activePaths={['/boutique']} />
+        </nav>
+
+        <div className="hidden md:flex items-center justify-end gap-2">
            <div className="relative w-48">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input placeholder="Recherche..." className="pl-9 h-9" />

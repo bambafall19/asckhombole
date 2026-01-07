@@ -265,7 +265,13 @@ export function MobileMenuSheet({ open, onOpenChange }: { open: boolean, onOpenC
                         <Shield className="w-5 h-5 mr-2" /> Admin
                     </Link>
                 </Button>
-            ) : null }
+            ) : (
+                 <Button className="w-full" size="lg" asChild>
+                    <Link href="/login" onClick={() => onOpenChange(false)}>
+                       <LogIn className="w-5 h-5 mr-2" /> Espace Membre
+                    </Link>
+                </Button>
+            )}
         </div>
       </SheetContent>
     </Sheet>

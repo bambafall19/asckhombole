@@ -1,6 +1,6 @@
 'use client';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Shield, Target, User } from "lucide-react";
+import { Shield, Target, User, CheckCircle2 } from "lucide-react";
 import { useMemo } from "react";
 import { doc } from 'firebase/firestore';
 import { useDocument, useFirestore } from "@/firebase";
@@ -69,6 +69,30 @@ export default function ClubPage() {
       </div>
     );
   }
+
+  const renderWishes = (wishes: string) => {
+    const lines = wishes.split('\n').filter(line => line.trim() !== '');
+    const listItems = lines.filter(line => line.trim().startsWith('-'));
+    const intro = lines.find(line => !line.trim().startsWith('-') && line.includes('ambition'));
+    const outro = lines.find(line => !line.trim().startsWith('-') && !line.includes('ambition'));
+  
+    return (
+      <div className="space-y-6 text-lg">
+        {intro && <p className="text-muted-foreground leading-relaxed text-justify">{intro}</p>}
+        {listItems.length > 0 && (
+          <ul className="space-y-4">
+            {listItems.map((item, index) => (
+              <li key={index} className="flex items-start gap-3">
+                <CheckCircle2 className="w-6 h-6 text-green-500 mt-1 flex-shrink-0" />
+                <span className="text-muted-foreground">{item.substring(1).trim()}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+        {outro && <p className="text-muted-foreground leading-relaxed text-justify">{outro}</p>}
+      </div>
+    );
+  };
 
   return (
     <div className="bg-background">
@@ -144,9 +168,10 @@ export default function ClubPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-muted-foreground whitespace-pre-wrap text-justify text-lg leading-relaxed">
-                  {clubInfo?.presidentWishes || "La vision et les vœux n'ont pas encore été renseignés."}
-                </p>
+                {clubInfo?.presidentWishes 
+                  ? renderWishes(clubInfo.presidentWishes) 
+                  : <p className="text-muted-foreground text-lg">La vision et les vœux n'ont pas encore été renseignés.</p>
+                }
               </CardContent>
             </Card>
           </section>

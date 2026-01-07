@@ -69,7 +69,7 @@ function ArticlePageSkeleton() {
 }
 
 
-export default function ArticlePage({ params }: { params: { id: string } }) {
+export default function ArticlePage({ params, searchParams }: { params: { id: string }, searchParams: { [key: string]: string | string[] | undefined } }) {
   const { id } = use(params);
   const firestore = useFirestore();
 

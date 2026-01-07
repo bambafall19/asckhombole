@@ -19,23 +19,23 @@ export default function ContactPage() {
             <CardTitle>Envoyer un message</CardTitle>
           </CardHeader>
           <CardContent>
-            <form className="space-y-6">
+            <form action="mailto:khomboleasc@gmail.com" method="post" encType="text/plain" className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <Label htmlFor="name">Votre nom</Label>
-                  <Input id="name" placeholder="John Doe" />
+                  <Input id="name" name="name" placeholder="John Doe" />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="email">Votre email</Label>
-                  <Input id="email" type="email" placeholder="john.doe@exemple.com" />
+                  <Input id="email" name="email" type="email" placeholder="john.doe@exemple.com" />
                 </div>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="message">Votre message</Label>
-                <Textarea id="message" placeholder="Écrivez votre message ici..." rows={6} />
+                <Textarea id="message" name="message" placeholder="Écrivez votre message ici..." rows={6} />
               </div>
               <Button type="submit" className="w-full" size="lg">
-                Envoyer
+                Envoyer par email
               </Button>
             </form>
           </CardContent>

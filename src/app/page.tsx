@@ -1,3 +1,4 @@
+
 'use client';
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -273,44 +274,6 @@ export default function Home() {
                 </div>
                 </section>
              )}
-
-            {/* Club Info Section */}
-            {!clubInfoLoading && clubInfo && (
-              <section className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-3 font-headline">
-                      <BookOpen className="w-6 h-6 text-accent" />
-                      Notre Histoire
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <p className="text-muted-foreground text-sm line-clamp-4">
-                      {clubInfo.history}
-                    </p>
-                    <Button variant="outline" asChild>
-                      <Link href="/club">Découvrir le club</Link>
-                    </Button>
-                  </CardContent>
-                </Card>
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-3 font-headline">
-                      <User className="w-6 h-6 text-accent" />
-                      Mot du Président
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <blockquote className="text-muted-foreground text-sm line-clamp-4 border-l-2 border-accent pl-4 italic">
-                      {clubInfo.presidentWord}
-                    </blockquote>
-                    <Button variant="outline" asChild>
-                      <Link href="/club">Lire la suite</Link>
-                    </Button>
-                  </CardContent>
-                </Card>
-              </section>
-            )}
             
             {/* Last Result */}
             {lastResult && (
@@ -406,6 +369,44 @@ export default function Home() {
                     ))}
                 </div>
             </div>
+
+            {/* Club Info Section in Sidebar */}
+            {!clubInfoLoading && clubInfo && (
+              <>
+                <Card className="hover:shadow-lg transition-shadow">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-3 font-headline text-lg">
+                      <BookOpen className="w-5 h-5 text-accent" />
+                      Notre Histoire
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <p className="text-muted-foreground text-xs line-clamp-3">
+                      {clubInfo.history}
+                    </p>
+                    <Button variant="outline" size="sm" asChild>
+                      <Link href="/club">Découvrir le club</Link>
+                    </Button>
+                  </CardContent>
+                </Card>
+                <Card className="hover:shadow-lg transition-shadow">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-3 font-headline text-lg">
+                      <User className="w-5 h-5 text-accent" />
+                      Mot du Président
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <blockquote className="text-muted-foreground text-xs line-clamp-3 border-l-2 border-accent pl-3 italic">
+                      {clubInfo.presidentWord}
+                    </blockquote>
+                    <Button variant="outline" size="sm" asChild>
+                      <Link href="/club">Lire la suite</Link>
+                    </Button>
+                  </CardContent>
+                </Card>
+              </>
+            )}
             
             <div className="bg-muted p-4 rounded-lg shadow-sm text-center">
                 <h3 className="font-bold text-lg">Publicité</h3>
@@ -461,5 +462,3 @@ export default function Home() {
     </div>
   );
 }
-
-    

@@ -88,7 +88,7 @@ export function Footer() {
                 <div key={section.title}>
                   <h3 className="text-sm font-semibold text-foreground tracking-wider uppercase">{section.title}</h3>
                   <ul className="mt-4 space-y-2">
-                    {section.links.filter(l => l.href !== '/admin').map(link => (
+                    {section.links.map(link => (
                          <li key={`${link.href}-${link.label}`}><Link href={link.href} className="text-base text-muted-foreground hover:text-primary">{link.label}</Link></li>
                     ))}
                   </ul>

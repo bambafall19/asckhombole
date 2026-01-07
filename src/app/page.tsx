@@ -22,66 +22,8 @@ import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carouse
 import Autoplay from "embla-carousel-autoplay";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
+import { NextMatchSidebar } from "@/components/next-match-sidebar";
 
-
-function NextMatchSidebar({ match }: { match: Match }) {
-  const isHomeTeam = (team: string) => team.toLowerCase().includes('khombole');
-
-  return (
-    <Card className="bg-primary/5 border-primary/20 shadow-lg">
-      <CardHeader className="pb-3">
-        <CardTitle className="text-lg font-headline text-primary flex items-center justify-center gap-2">
-            <Calendar className="w-5 h-5"/>
-            Prochain Match
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="text-center">
-        <p className="text-sm text-muted-foreground">{match.competition}</p>
-        <p className="text-sm font-semibold text-muted-foreground">{format(match.date.toDate(), 'eeee d MMMM yyyy \'à\' HH:mm', { locale: fr })}</p>
-        <div className="flex items-center justify-around my-4">
-            <div className="flex flex-col items-center gap-2 w-1/3 text-center">
-                {match.homeTeamLogoUrl && <Image src={match.homeTeamLogoUrl} alt={match.homeTeam} width={48} height={48} className="object-contain" />}
-                <p className={cn("font-bold", isHomeTeam(match.homeTeam) && "text-primary")}>{match.homeTeam}</p>
-            </div>
-            <span className="text-muted-foreground font-bold text-xl">VS</span>
-            <div className="flex flex-col items-center gap-2 w-1/3 text-center">
-                {match.awayTeamLogoUrl && <Image src={match.awayTeamLogoUrl} alt={match.awayTeam} width={48} height={48} className="object-contain" />}
-                <p className={cn("font-bold", isHomeTeam(match.awayTeam) && "text-primary")}>{match.awayTeam}</p>
-            </div>
-        </div>
-         <Button asChild size="sm">
-            <Link href="/matchs">Voir les matchs</Link>
-        </Button>
-      </CardContent>
-    </Card>
-  )
-}
-
-function NextMatchSidebarSkeleton() {
-    return (
-        <Card>
-            <CardHeader className="pb-3">
-                <Skeleton className="h-6 w-3/4 mx-auto" />
-            </CardHeader>
-            <CardContent className="text-center space-y-2">
-                <Skeleton className="h-4 w-1/2 mx-auto" />
-                <Skeleton className="h-4 w-3/4 mx-auto" />
-                <div className="flex items-center justify-around my-4">
-                    <div className="flex flex-col items-center gap-2 w-1/3 text-center">
-                        <Skeleton className="w-12 h-12 rounded-full" />
-                        <Skeleton className="h-5 w-20" />
-                    </div>
-                     <span className="text-muted-foreground font-bold text-xl">VS</span>
-                     <div className="flex flex-col items-center gap-2 w-1/3 text-center">
-                        <Skeleton className="w-12 h-12 rounded-full" />
-                        <Skeleton className="h-5 w-20" />
-                    </div>
-                </div>
-                 <Skeleton className="h-9 w-28 mx-auto" />
-            </CardContent>
-        </Card>
-    );
-}
 
 export default function Home() {
   const firestore = useFirestore();
@@ -359,17 +301,15 @@ export default function Home() {
                 </div>
             </div>
             
-            {/* Spotlight section has been removed as it was redundant with the main news feed. The new match component is a better use of space. */}
-
             <div className="bg-muted p-4 rounded-lg shadow-sm text-center">
                 <h3 className="font-bold text-lg">Publicité</h3>
                 <div className="bg-gray-300 h-60 w-full mt-2 rounded-md flex items-center justify-center">
                     <p className="text-muted-foreground">Espace pub</p>
                 </div>
             </div>
+
+            <NextMatchSidebar loading={nextMatchLoading} match={nextMatch} />
             
-            {nextMatchLoading && <NextMatchSidebarSkeleton />}
-            {!nextMatchLoading && nextMatch && <NextMatchSidebar match={nextMatch} />}
           </aside>
         </main>
       </div>

@@ -40,7 +40,6 @@ const navLinks = [
 
 export function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const pathname = usePathname();
   const auth = useAuth();
   const { user, loading } = useUser();
@@ -64,7 +63,6 @@ export function Header() {
   const handleLogout = async () => {
     if (auth) {
       await signOut(auth);
-      setIsMobileMenuOpen(false);
     }
   };
 
@@ -85,42 +83,12 @@ export function Header() {
       <Link
         href={href}
         className={linkClasses}
-        onClick={() => setIsMobileMenuOpen(false)}
       >
         {label.toUpperCase()}
       </Link>
     );
   };
   
-  const MobileNavLink = ({ href, label, Icon, disabled }: { href: string; label: string, Icon: React.ElementType, disabled?: boolean }) => {
-    const isActive = pathname === href;
-    const linkClasses = cn(
-        "flex items-center p-3 rounded-lg transition-colors",
-        isActive ? "bg-accent text-accent-foreground" : "hover:bg-accent/50",
-        disabled && "text-muted-foreground cursor-not-allowed hover:bg-transparent"
-      );
-
-    if (disabled) {
-        return (
-            <div className={linkClasses}>
-                <Icon className="w-5 h-5 mr-3" />
-                <span className="text-base font-medium">{label.toUpperCase()}</span>
-            </div>
-        )
-    }
-
-    return (
-        <Link
-          href={href}
-          className={linkClasses}
-          onClick={() => setIsMobileMenuOpen(false)}
-        >
-          <Icon className="w-5 h-5 mr-3" />
-          <span className="text-base font-medium">{label.toUpperCase()}</span>
-        </Link>
-    );
-  };
-
   const UserButton = () => {
     if (loading) {
       return <div className="w-8 h-8 rounded-full bg-muted animate-pulse" />
@@ -249,7 +217,7 @@ export function MobileMenuSheet({ children, open, onOpenChange }: { children: Re
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="right" className="w-full sm:w-[320px] bg-card p-0">
         <SheetHeader className="p-4 border-b">
-          <SheetTitle>Menu Principal</SheetTitle>
+          <SheetTitle className="sr-only">Menu Principal</SheetTitle>
           <div className="flex items-center justify-between">
             <Link href="/" onClick={() => onOpenChange(false)}>
               <Logo logoUrl={clubInfo?.logoUrl} />
@@ -259,7 +227,7 @@ export function MobileMenuSheet({ children, open, onOpenChange }: { children: Re
             </Button>
           </div>
         </SheetHeader>
-        <div className="flex flex-col h-[calc(100%-4.5rem)]">
+        <div className="flex flex-col h-[calc(100%-5.5rem)]">
           <nav className="flex-grow p-4 space-y-2 overflow-y-auto">
             {children}
             {navLinks.filter(l => !['/actus', '/matchs', '/equipe'].includes(l.href)).map((link) => (

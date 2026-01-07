@@ -79,12 +79,12 @@ export default function Home() {
   // Queries for different article sections
   const featuredQuery = useMemo(() => {
     if (!firestore) return null;
-    return query(collection(firestore, 'articles'), where('tags', 'array-contains', 'featured'), orderBy('createdAt', 'desc'), limit(1));
+    return query(collection(firestore, 'articles'), where('tags', 'array-contains', 'featured'), limit(1));
   }, [firestore]);
   
   const trendyQuery = useMemo(() => {
     if (!firestore) return null;
-    return query(collection(firestore, 'articles'), where('tags', 'array-contains', 'trendy'), orderBy('createdAt', 'desc'), limit(3));
+    return query(collection(firestore, 'articles'), where('tags', 'array-contains', 'trendy'), limit(3));
   }, [firestore]);
 
   const latestQuery = useMemo(() => {
@@ -94,7 +94,7 @@ export default function Home() {
 
   const topQuery = useMemo(() => {
     if (!firestore) return null;
-    return query(collection(firestore, 'articles'), where('tags', 'array-contains', 'top'), orderBy('createdAt', 'desc'), limit(4));
+    return query(collection(firestore, 'articles'), where('tags', 'array-contains', 'top'), limit(4));
   }, [firestore]);
 
   const photosQuery = useMemo(() => {
@@ -114,12 +114,7 @@ export default function Home() {
 
   const nextMatchQuery = useMemo(() => {
     if (!firestore) return null;
-    // Simplest query to avoid composite index: just filter by status.
-    // We will sort and find the next one on the client side.
-    return query(
-      collection(firestore, 'matches'), 
-      where('status', '==', 'À venir')
-    );
+    return query(collection(firestore, 'matches'), where('status', '==', 'À venir'));
   }, [firestore]);
 
   const lastResultQuery = useMemo(() => {
@@ -127,20 +122,31 @@ export default function Home() {
     return query(collection(firestore, 'matches'), where('status', '==', 'Terminé'), orderBy('date', 'desc'), limit(1));
   }, [firestore]);
 
-  const { data: featuredArticles, loading: featuredLoading } = useCollection<Article>(featuredQuery);
-  const { data: trendyArticles, loading: trendyLoading } = useCollection<Article>(trendyQuery);
+  const { data: featuredArticlesData, loading: featuredLoading } = useCollection<Article>(featuredQuery);
+  const { data: trendyArticlesData, loading: trendyLoading } = useCollection<Article>(trendyQuery);
   const { data: latestArticles, loading: latestLoading } = useCollection<Article>(latestQuery);
-  const { data: topArticles, loading: topLoading } = useCollection<Article>(topQuery);
+  const { data: topArticlesData, loading: topLoading } = useCollection<Article>(topQuery);
   const { data: photos, loading: photosLoading } = useCollection<Photo>(photosQuery);
   const { data: partners, loading: partnersLoading } = useCollection<Partner>(partnersQuery);
   const { data: clubInfo, loading: clubInfoLoading } = useDocument<ClubInfo>(clubInfoRef);
   const { data: allUpcomingMatches, loading: nextMatchLoading } = useCollection<Match>(nextMatchQuery);
   const { data: lastResultData, loading: lastResultLoading } = useCollection<Match>(lastResultQuery);
   
+  const featuredArticles = useMemo(() => {
+    return featuredArticlesData?.sort((a,b) => b.createdAt.toMillis() - a.createdAt.toMillis())
+  }, [featuredArticlesData]);
+
+  const trendyArticles = useMemo(() => {
+    return trendyArticlesData?.sort((a,b) => b.createdAt.toMillis() - a.createdAt.toMillis())
+  }, [trendyArticlesData]);
+
+  const topArticles = useMemo(() => {
+    return topArticlesData?.sort((a,b) => b.createdAt.toMillis() - a.createdAt.toMillis())
+  }, [topArticlesData]);
+  
   const nextMatch = useMemo(() => {
     if (!allUpcomingMatches) return null;
     const now = new Date();
-    // Sort client-side and find the first match in the future.
     const sortedUpcoming = allUpcomingMatches
       .filter(match => match.date.toDate() > now)
       .sort((a, b) => a.date.toMillis() - b.date.toMillis());

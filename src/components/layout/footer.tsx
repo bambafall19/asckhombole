@@ -89,7 +89,7 @@ export function Footer() {
                   <h3 className="text-sm font-semibold text-foreground tracking-wider uppercase">{section.title}</h3>
                   <ul className="mt-4 space-y-2">
                     {section.links.map(link => (
-                         <li key={link.href}><Link href={link.href} className="text-base text-muted-foreground hover:text-primary">{link.label}</Link></li>
+                         <li key={`${link.href}-${link.label}`}><Link href={link.href} className="text-base text-muted-foreground hover:text-primary">{link.label}</Link></li>
                     ))}
                   </ul>
                 </div>
@@ -107,7 +107,7 @@ export function Footer() {
                         <AccordionContent>
                              <ul className="space-y-3 pt-2">
                                 {section.links.map(link => (
-                                    <li key={link.href}>
+                                    <li key={`${link.href}-${link.label}-mobile`}>
                                         <Link href={link.href} className="text-base text-muted-foreground hover:text-primary">{link.label}</Link>
                                     </li>
                                 ))}

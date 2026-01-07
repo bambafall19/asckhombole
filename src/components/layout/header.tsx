@@ -214,37 +214,49 @@ export function MobileMenuSheet({ open, onOpenChange }: { open: boolean, onOpenC
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-full sm:w-[320px] bg-card p-0">
-        <SheetHeader className="p-4 border-b flex flex-row items-center justify-between">
-           <SheetTitle>
-             <Link href="/" onClick={() => onOpenChange(false)}>
-                <Logo logoUrl={clubInfo?.logoUrl} />
-              </Link>
-           </SheetTitle>
-            <Button variant="ghost" size="icon" onClick={() => onOpenChange(false)}>
-              <X className="h-6 w-6" />
-            </Button>
+      <SheetContent side="right" className="w-full sm:w-[320px] bg-card p-0 flex flex-col">
+        <SheetHeader className="p-4 border-b">
+           <div className="flex items-center justify-between">
+                <SheetTitle>
+                    <Link href="/" onClick={() => onOpenChange(false)}>
+                        <Logo logoUrl={clubInfo?.logoUrl} />
+                    </Link>
+                </SheetTitle>
+                <Button variant="ghost" size="icon" onClick={() => onOpenChange(false)}>
+                    <X className="h-6 w-6" />
+                </Button>
+           </div>
+            {user && (
+                <div className="flex items-center gap-3 pt-4">
+                    <Avatar className="h-10 w-10">
+                        <AvatarImage src={user.photoURL || undefined} alt={user.email || 'User'} />
+                        <AvatarFallback>{user.email?.[0].toUpperCase()}</AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 overflow-hidden">
+                        <p className="text-sm font-medium leading-none truncate">{user.displayName || user.email}</p>
+                        <p className="text-xs leading-none text-muted-foreground truncate">{user.email}</p>
+                    </div>
+                    <Button variant="outline" size="icon" onClick={handleLogout}>
+                        <LogOut className="h-4 w-4" />
+                    </Button>
+                </div>
+            )}
         </SheetHeader>
-        <div className="flex flex-col h-[calc(100%-5rem)]">
-          <nav className="flex-grow p-4 space-y-2 overflow-y-auto">
+        
+        <nav className="flex-grow p-4 space-y-2 overflow-y-auto">
             {navLinks.filter(l => !['/actus', '/matchs', '/equipe'].includes(l.href)).map((link) => (
                 <MobileNavLink key={link.href} href={link.href} label={link.label} Icon={link.icon} disabled={link.disabled} />
             ))}
-          </nav>
-          <div className="p-4 border-t">
-            {user && (
-               <div className="space-y-2">
-                 <Button className="w-full" size="lg" asChild>
+        </nav>
+        
+        <div className="p-4 border-t">
+            {user ? (
+                <Button className="w-full" size="lg" asChild>
                     <Link href="/admin" onClick={() => onOpenChange(false)}>
                         <Shield className="w-5 h-5 mr-2" /> Admin
                     </Link>
-                 </Button>
-                 <Button variant="outline" className="w-full" size="lg" onClick={handleLogout}>
-                    <LogOut className="w-5 h-5 mr-2" /> Déconnexion
-                 </Button>
-               </div>
-            )}
-          </div>
+                </Button>
+            ) : null}
         </div>
       </SheetContent>
     </Sheet>

@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Home, Newspaper, Trophy, Users, Menu } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { MobileMenuSheet } from './header';
 
 const navItems = [
@@ -15,23 +15,32 @@ const navItems = [
   { href: '/equipe', label: 'Équipe', icon: Users },
 ];
 
-function NavItem({ href, label, icon: Icon, isActive }: { href: string; label: string; icon: React.ElementType, isActive: boolean }) {
+function NavItem({ 
+  href, 
+  label, 
+  icon: Icon, 
+  isActive,
+  isAnimating,
+}: { 
+  href: string; 
+  label: string; 
+  icon: React.ElementType, 
+  isActive: boolean,
+  isAnimating: boolean,
+}) {
   return (
-    <Link href={href} className="relative flex flex-col items-center justify-center gap-1 w-full text-center h-full">
-      <Icon className={cn('w-6 h-6 transition-colors', isActive ? 'text-primary' : 'text-muted-foreground group-hover:text-primary')} />
-      <span className={cn('text-xs font-medium transition-colors', isActive ? 'text-primary' : 'text-muted-foreground group-hover:text-primary')}>
+    <Link href={href} className="relative z-10 flex flex-col items-center justify-center gap-1 w-full text-center h-full group transition-colors duration-300">
+      <Icon className={cn('w-6 h-6 transition-transform duration-300', isActive ? 'text-primary scale-110' : 'text-muted-foreground group-hover:text-primary')} />
+      <span className={cn('text-xs font-medium transition-colors duration-300', isActive ? 'text-primary' : 'text-muted-foreground group-hover:text-primary')}>
         {label}
       </span>
-       {isActive && (
-        <div className="absolute bottom-0 h-1 w-8 rounded-t-full bg-primary" />
-      )}
     </Link>
   );
 };
   
 function MenuButton({ onClick }: { onClick: () => void }) {
     return (
-        <button onClick={onClick} className="flex flex-col items-center justify-center gap-1 w-full text-center h-full group">
+        <button onClick={onClick} className="relative z-10 flex flex-col items-center justify-center gap-1 w-full text-center h-full group">
              <Menu className="w-6 h-6 text-muted-foreground group-hover:text-primary transition-colors" />
              <span className="text-xs font-medium text-muted-foreground group-hover:text-primary transition-colors">Menu</span>
         </button>
@@ -41,23 +50,53 @@ function MenuButton({ onClick }: { onClick: () => void }) {
 export function BottomNav() {
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  
+  const navRef = useRef<HTMLDivElement>(null);
+  const [indicatorStyle, setIndicatorStyle] = useState({});
+  const [isAnimating, setIsAnimating] = useState(false);
+
+  useEffect(() => {
+    const navNode = navRef.current;
+    if (!navNode) return;
+
+    const activeIndex = navItems.findIndex(item => (pathname === item.href) || (item.href !== '/' && pathname.startsWith(item.href)));
+    const activeButton = navNode.children[activeIndex] as HTMLElement;
+
+    if (activeButton) {
+        setIsAnimating(true);
+        setIndicatorStyle({
+            left: `${activeButton.offsetLeft}px`,
+            width: `${activeButton.offsetWidth}px`,
+        });
+        const timer = setTimeout(() => setIsAnimating(false), 300);
+        return () => clearTimeout(timer);
+    } else {
+        setIndicatorStyle({ width: '0px' });
+    }
+
+  }, [pathname]);
 
   return (
     <>
       <nav className="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-card border-t shadow-[0_-2px_10px_-3px_rgba(0,0,0,0.05)] z-50">
-        <div className="flex items-center justify-around h-full">
-          {navItems.map((item) => (
-            <NavItem 
-              key={item.href} 
-              {...item} 
-              isActive={(pathname === item.href) || (item.href !== '/' && pathname.startsWith(item.href))}
+        <div ref={navRef} className="flex items-center justify-around h-full relative">
+            {navItems.map((item) => (
+                <NavItem 
+                key={item.href} 
+                {...item} 
+                isActive={(pathname === item.href) || (item.href !== '/' && pathname.startsWith(item.href))}
+                isAnimating={isAnimating}
+                />
+            ))}
+            <MenuButton onClick={() => setIsMenuOpen(true)} />
+            
+            <div 
+                className="absolute bottom-0 h-1 bg-primary rounded-full transition-all duration-300 ease-in-out"
+                style={indicatorStyle}
             />
-          ))}
-          <MenuButton onClick={() => setIsMenuOpen(true)} />
         </div>
       </nav>
       <MobileMenuSheet open={isMenuOpen} onOpenChange={setIsMenuOpen} />
     </>
   );
 }
-

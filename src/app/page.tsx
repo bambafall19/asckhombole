@@ -382,9 +382,21 @@ export default function Home() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
-                    <p className="text-muted-foreground text-xs line-clamp-3">
-                      {clubInfo.history}
-                    </p>
+                     <div className="flex items-start gap-4">
+                      {clubInfo.logoUrl && (
+                        <div className="relative w-12 h-12 shrink-0">
+                           <Image
+                            src={clubInfo.logoUrl}
+                            alt="Logo du club"
+                            fill
+                            className="object-contain"
+                          />
+                        </div>
+                      )}
+                      <p className="text-muted-foreground text-xs line-clamp-3">
+                        {clubInfo.history}
+                      </p>
+                    </div>
                     <Button variant="outline" size="sm" asChild>
                       <Link href="/club">Découvrir le club</Link>
                     </Button>

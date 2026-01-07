@@ -71,12 +71,12 @@ function ArticlePageSkeleton() {
 
 export default function ArticlePage() {
   const params = useParams();
-  const id = Array.isArray(params.id) ? params.id[0] : params.id;
+  const id = params.id as string;
   const firestore = useFirestore();
 
   const articleRef = useMemo(() => {
     if (!firestore || !id) return null;
-    return doc(firestore, 'articles', id as string);
+    return doc(firestore, 'articles', id);
   }, [firestore, id]);
 
   const { data: article, loading } = useDocument<Article>(articleRef);

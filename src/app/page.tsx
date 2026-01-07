@@ -114,12 +114,12 @@ export default function Home() {
 
   const nextMatchQuery = useMemo(() => {
     if (!firestore) return null;
+    // This query is simplified to avoid needing a composite index.
+    // We fetch all upcoming matches and then find the next one on the client-side.
     return query(
       collection(firestore, 'matches'), 
       where('status', '==', 'À venir'),
-      where('date', '>', Timestamp.now()),
-      orderBy('date', 'asc'),
-      limit(1)
+      orderBy('date', 'asc')
     );
   }, [firestore]);
 
@@ -135,10 +135,14 @@ export default function Home() {
   const { data: photos, loading: photosLoading } = useCollection<Photo>(photosQuery);
   const { data: partners, loading: partnersLoading } = useCollection<Partner>(partnersQuery);
   const { data: clubInfo, loading: clubInfoLoading } = useDocument<ClubInfo>(clubInfoRef);
-  const { data: nextMatchData, loading: nextMatchLoading } = useCollection<Match>(nextMatchQuery);
+  const { data: allUpcomingMatches, loading: nextMatchLoading } = useCollection<Match>(nextMatchQuery);
   const { data: lastResultData, loading: lastResultLoading } = useCollection<Match>(lastResultQuery);
   
-  const nextMatch = useMemo(() => nextMatchData?.[0], [nextMatchData]);
+  const nextMatch = useMemo(() => {
+    // Find the first match that is actually in the future.
+    return allUpcomingMatches?.find(match => match.date.toDate() > new Date());
+  }, [allUpcomingMatches]);
+
   const lastResult = useMemo(() => lastResultData?.[0], [lastResultData]);
   const mainArticle = featuredArticles?.[0] || latestArticles?.[0];
   const sideArticles = sidebarTab === 'latest' ? latestArticles?.slice(1,4) : topArticles;

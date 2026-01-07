@@ -5,8 +5,8 @@ import Link from "next/link";
 import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import { FacebookIcon, InstagramIcon, TwitterIcon, YoutubeIcon } from "../icons/social-icons";
-import { useDocument, useFirestore } from "@/firebase";
-import { useMemo } from "react";
+import { useDocument, useFirestore, useUser } from "@/firebase";
+import { useEffect, useMemo, useState } from "react";
 import { doc } from "firebase/firestore";
 import { ClubInfo } from "@/lib/types";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../ui/accordion";
@@ -19,7 +19,7 @@ const SocialIcon = ({ children, href }: { children: React.ReactNode, href: strin
   </Button>
 );
 
-const navSections = [
+const baseNavSections = [
     {
         title: "Le Club",
         links: [
@@ -49,13 +49,14 @@ const navSections = [
         links: [
             { href: "/boutique", label: "Boutique" },
             { href: "/partenaires", label: "Partenaires" },
-            { href: "/admin", label: "Admin" },
         ]
     }
 ];
 
 export function Footer() {
   const firestore = useFirestore();
+  const { user } = useUser();
+  const [navSections, setNavSections] = useState(baseNavSections);
 
   const clubInfoRef = useMemo(() => {
     if (!firestore) return null;
@@ -63,6 +64,28 @@ export function Footer() {
   }, [firestore]);
 
   const { data: clubInfo } = useDocument<ClubInfo>(clubInfoRef);
+
+  useEffect(() => {
+    // Only add the admin link on the client-side after hydration
+    // to prevent mismatch between server and client render.
+    if (user) {
+        setNavSections(prevSections => {
+            const moreSection = prevSections.find(s => s.title === "Plus");
+            // Avoid adding it if it's already there
+            if (moreSection && !moreSection.links.some(l => l.href === '/admin')) {
+                 const newSections = JSON.parse(JSON.stringify(prevSections)); // Deep copy
+                 const moreSectionInNew = newSections.find((s: any) => s.title === "Plus");
+                 moreSectionInNew.links.push({ href: "/admin", label: "Admin" });
+                 return newSections;
+            }
+            return prevSections;
+        });
+    } else {
+        // If user logs out, remove admin link
+        setNavSections(baseNavSections);
+    }
+  }, [user]);
+
 
   return (
     <footer className="bg-card border-t">

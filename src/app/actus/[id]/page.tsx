@@ -70,8 +70,7 @@ function ArticlePageSkeleton() {
 
 
 export default function ArticlePage({ params }: { params: { id: string } }) {
-  const resolvedParams = use(params);
-  const { id } = resolvedParams;
+  const { id } = use(params);
   const firestore = useFirestore();
 
   const articleRef = useMemo(() => {

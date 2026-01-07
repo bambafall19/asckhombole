@@ -13,7 +13,7 @@ export type CalendarProps = React.ComponentProps<typeof DayPicker> & {
   time?: boolean;
 };
 
-const-current-year = new Date().getFullYear();
+const currentYear = new Date().getFullYear();
 const fromYear = new Date().getFullYear() - 10;
 const toYear = new Date().getFullYear() + 10;
 

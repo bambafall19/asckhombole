@@ -49,8 +49,8 @@ import { doc } from "firebase/firestore";
 import { Input } from "../ui/input";
 
 const navLinks = [
-  { href: "/", label: "Accueil" },
-  { href: "/actus", label: "Actualités" },
+  { href: "/", label: "Accueil", className: "mr-4" },
+  { href: "/actus", label: "Actualités", className: "mr-4" },
   { href: "/matchs", label: "Matchs" },
   {
     label: "Le Club",
@@ -226,7 +226,7 @@ export function Header() {
         <nav className="hidden md:flex items-center justify-center gap-2">
             {navLinks.map((link, index) =>
               link.href ? (
-                <NavLink key={index} href={link.href} className={cn(link.href === '/' && 'mr-4')}>
+                <NavLink key={index} href={link.href} className={cn((link as any).className)}>
                   {link.label}
                 </NavLink>
               ) : (

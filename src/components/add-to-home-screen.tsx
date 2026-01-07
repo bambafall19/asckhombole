@@ -9,10 +9,12 @@ import { useDocument, useFirestore } from '@/firebase';
 import { ClubInfo } from '@/lib/types';
 import { doc } from 'firebase/firestore';
 import { useMemo } from 'react';
-import { isIOS, isMobile } from 'react-device-detect';
 
 export function AddToHomeScreenPrompt() {
   const [isVisible, setIsVisible] = useState(false);
+  const [isIos, setIsIos] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
   const firestore = useFirestore();
 
   const clubInfoRef = useMemo(() => {
@@ -25,7 +27,15 @@ export function AddToHomeScreenPrompt() {
     const promptShown = localStorage.getItem('addToHomeScreenPromptShown');
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
 
-    if (!promptShown && isMobile && !isStandalone) {
+    // Client-side detection
+    const userAgent = navigator.userAgent;
+    const mobile = /Mobi|Android/i.test(userAgent);
+    const ios = /iPhone|iPad|iPod/.test(userAgent);
+
+    setIsMobile(mobile);
+    setIsIos(ios);
+
+    if (!promptShown && mobile && !isStandalone) {
       const timer = setTimeout(() => {
         setIsVisible(true);
       }, 3000); // Show after 3 seconds
@@ -44,7 +54,7 @@ export function AddToHomeScreenPrompt() {
     return null;
   }
 
-  const instructions = isIOS ? (
+  const instructions = isIos ? (
     <>
         <li className="flex items-center gap-3">
             <ArrowUpFromBracket className="w-5 h-5 text-primary" />

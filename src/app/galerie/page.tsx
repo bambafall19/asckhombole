@@ -8,7 +8,7 @@ import { collection, query, orderBy } from 'firebase/firestore';
 import { useCollection, useFirestore } from "@/firebase";
 import { Photo } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -123,27 +123,33 @@ export default function GaleriePage() {
       <Dialog open={selectedPhotoIndex !== null} onOpenChange={(open) => !open && setSelectedPhotoIndex(null)}>
         <DialogContent className="max-w-5xl w-full p-0 bg-transparent border-0 flex items-center justify-center">
             {selectedPhoto ? (
-                <div className="relative w-full h-full">
-                    <Image
-                      src={selectedPhoto.imageUrl}
-                      alt={selectedPhoto.title}
-                      width={1600}
-                      height={900}
-                      className="object-contain w-full h-auto max-h-[90vh] rounded-lg"
-                    />
+                <>
+                    <DialogTitle className="sr-only">{selectedPhoto.title}</DialogTitle>
+                    <DialogDescription className="sr-only">
+                        Visionneuse d'image. Image en gros plan : {selectedPhoto.title}. Utilisez les flèches pour naviguer.
+                    </DialogDescription>
+                    <div className="relative w-full h-full">
+                        <Image
+                          src={selectedPhoto.imageUrl}
+                          alt={selectedPhoto.title}
+                          width={1600}
+                          height={900}
+                          className="object-contain w-full h-auto max-h-[90vh] rounded-lg"
+                        />
 
-                    {selectedPhotoIndex !== null && selectedPhotoIndex > 0 && (
-                      <Button variant="outline" size="icon" className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={handlePrev}>
-                        <ChevronLeft className="h-6 w-6" />
-                      </Button>
-                    )}
+                        {selectedPhotoIndex !== null && selectedPhotoIndex > 0 && (
+                          <Button variant="outline" size="icon" className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={handlePrev}>
+                            <ChevronLeft className="h-6 w-6" />
+                          </Button>
+                        )}
 
-                    {selectedPhotoIndex !== null && photos && selectedPhotoIndex < photos.length - 1 && (
-                      <Button variant="outline" size="icon" className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={handleNext}>
-                        <ChevronRight className="h-6 w-6" />
-                      </Button>
-                    )}
-                </div>
+                        {selectedPhotoIndex !== null && photos && selectedPhotoIndex < photos.length - 1 && (
+                          <Button variant="outline" size="icon" className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={handleNext}>
+                            <ChevronRight className="h-6 w-6" />
+                          </Button>
+                        )}
+                    </div>
+                </>
             ) : (
                 <LoaderCircle className="w-12 h-12 animate-spin text-white" />
             )}

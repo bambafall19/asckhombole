@@ -232,7 +232,7 @@ export function MobileMenuSheet({ open, onOpenChange }: { open: boolean, onOpenC
             ))}
           </nav>
           <div className="p-4 border-t">
-            {user ? (
+            {user && (
                <div className="space-y-2">
                  <Button className="w-full" size="lg" asChild>
                     <Link href="/admin" onClick={() => onOpenChange(false)}>
@@ -243,12 +243,6 @@ export function MobileMenuSheet({ open, onOpenChange }: { open: boolean, onOpenC
                     <LogOut className="w-5 h-5 mr-2" /> Déconnexion
                  </Button>
                </div>
-            ) : (
-              <Button className="w-full" size="lg" asChild>
-                <Link href="/login" onClick={() => onOpenChange(false)}>
-                  <LogIn className="w-5 h-5 mr-2" /> Espace Membre
-                </Link>
-              </Button>
             )}
           </div>
         </div>

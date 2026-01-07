@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -49,11 +50,11 @@ import { doc } from "firebase/firestore";
 import { Input } from "../ui/input";
 
 const navLinks = [
-  { href: "/", label: "Accueil", className: "mr-4" },
-  { href: "/actus", label: "Actualités", className: "mr-4" },
-  { href: "/matchs", label: "Matchs" },
+  { href: "/", label: "ACCUEIL", className: "mr-4" },
+  { href: "/actus", label: "ACTUALITÉS", className: "mr-4" },
+  { href: "/matchs", label: "MATCHS" },
   {
-    label: "Le Club",
+    label: "LE CLUB",
     children: [
       { href: "/club", label: "Histoire & Vision" },
       { href: "/equipe", label: "Équipe" },
@@ -62,13 +63,13 @@ const navLinks = [
     ],
   },
   {
-    label: "Médias",
+    label: "MÉDIAS",
     children: [
         { href: "/galerie", label: "Galerie" },
         { href: "/webtv", label: "Web TV", disabled: true },
     ]
   },
-  { href: "/boutique", label: "Boutique" },
+  { href: "/boutique", label: "BOUTIQUE" },
 ];
 
 const mobileMenuLinks = [
@@ -377,7 +378,6 @@ export function MobileMenuSheet({
                 href={link.href}
                 label={link.label}
                 Icon={link.icon}
-                disabled={link.disabled}
               />
             ))}
           </div>

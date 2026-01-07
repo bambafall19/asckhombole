@@ -20,7 +20,7 @@ const dynaPuff = DynaPuff({ subsets: ["latin"], variable: "--font-dynapuff" });
 const APP_NAME = "ASC Khombole";
 const APP_DESCRIPTION = "La plateforme web moderne pour l'ASC Khombole.";
 const APP_URL = "https://asckhombole.web.app";
-const LOGO_URL = "https://firebasestorage.googleapis.com/v0/b/asc-khombole.appspot.com/o/logo.png?alt=media&token=223b5b30-3c23-4942-81ca-636c5b96a480";
+const LOGO_URL = "https://firebasestorage.googleapis.com/v0/b/asckhombole-b27ab.appspot.com/o/logo.png?alt=media&token=c193910c-03e5-4a25-a130-161b7b049103";
 
 
 export const metadata: Metadata = {

@@ -1388,7 +1388,7 @@ function ClubInfoForm() {
   const form = useForm<z.infer<typeof clubInfoFormSchema>>({
     resolver: zodResolver(clubInfoFormSchema),
     values: {
-        logoUrl: clubInfo?.logoUrl || 'https://firebasestorage.googleapis.com/v0/b/asc-khombole.appspot.com/o/logo.png?alt=media&token=223b5b30-3c23-4942-81ca-636c5b96a480',
+        logoUrl: clubInfo?.logoUrl || 'https://firebasestorage.googleapis.com/v0/b/asckhombole-b27ab.appspot.com/o/logo.png?alt=media&token=c193910c-03e5-4a25-a130-161b7b049103',
         history: clubInfo?.history || '',
         historyImageUrl: clubInfo?.historyImageUrl || '',
         presidentWord: clubInfo?.presidentWord || '',
@@ -1413,7 +1413,7 @@ function ClubInfoForm() {
   useEffect(() => {
     if (clubInfo) {
       form.reset({
-        logoUrl: clubInfo.logoUrl || 'https://firebasestorage.googleapis.com/v0/b/asc-khombole.appspot.com/o/logo.png?alt=media&token=223b5b30-3c23-4942-81ca-636c5b96a480',
+        logoUrl: clubInfo.logoUrl || 'https://firebasestorage.googleapis.com/v0/b/asckhombole-b27ab.appspot.com/o/logo.png?alt=media&token=c193910c-03e5-4a25-a130-161b7b049103',
         history: clubInfo.history || '',
         historyImageUrl: clubInfo.historyImageUrl || '',
         presidentWord: clubInfo.presidentWord || '',

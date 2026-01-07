@@ -49,12 +49,25 @@ service cloud.firestore {
                (!('presidentWord' in data) || data.presidentWord is string) &&
                (!('presidentWishes' in data) || data.presidentWishes is string);
     }
-
-
-    // Public read access for all collections
-    match /{document=**} {
-      allow read: if true;
+    
+    function isValidContactMessage(data) {
+        return data.name is string && data.name.size() > 0 &&
+               data.email is string && data.email.size() > 0 &&
+               data.subject is string && data.subject.size() > 0 &&
+               data.message is string && data.message.size() > 0 &&
+               data.createdAt is timestamp &&
+               data.isRead is bool;
     }
+
+
+    // Public read access for most collections
+    match /articles/{articleId} { allow read: if true; }
+    match /players/{playerId} { allow read: if true; }
+    match /matches/{matchId} { allow read: if true; }
+    match /photos/{photoId} { allow read: if true; }
+    match /partners/{partnerId} { allow read: if true; }
+    match /clubInfo/{infoId} { allow read: if true; }
+
 
     // Secure write access for managed collections
     match /articles/{articleId} {
@@ -88,8 +101,14 @@ service cloud.firestore {
     }
 
     match /clubInfo/{infoId} {
-        // allow write: if isAdmin(); // Keeping it simple as it's a single doc mostly
         allow create, update, delete: if isAdmin() && isValidClubInfo(request.resource.data);
+    }
+    
+    match /contactMessages/{messageId} {
+        allow create: if isValidContactMessage(request.resource.data);
+        allow read, update, delete: if isAdmin();
     }
   }
 }
+
+    

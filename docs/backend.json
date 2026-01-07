@@ -178,6 +178,40 @@
         "youtubeUrl": { "type": "string", "description": "URL of the club's YouTube channel." }
       },
       "required": []
+    },
+    "ContactMessage": {
+      "title": "ContactMessage",
+      "description": "Represents a message submitted through the contact form.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The name of the person who sent the message."
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "The email address of the sender."
+        },
+        "subject": {
+          "type": "string",
+          "description": "The subject of the message."
+        },
+        "message": {
+          "type": "string",
+          "description": "The content of the message."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The timestamp when the message was sent."
+        },
+        "isRead": {
+          "type": "boolean",
+          "description": "Whether the message has been read by an admin."
+        }
+      },
+      "required": ["name", "email", "subject", "message", "createdAt", "isRead"]
     }
   },
   "auth": {
@@ -219,6 +253,14 @@
             "$ref": "#/backend/entities/ClubInfo"
         },
         "description": "Stores general club information like history. Typically a single document."
+    },
+    "/contactMessages/{messageId}": {
+        "schema": {
+            "$ref": "#/backend/entities/ContactMessage"
+        },
+        "description": "Stores messages submitted through the contact form."
     }
   }
 }
+
+    

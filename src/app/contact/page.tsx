@@ -3,14 +3,29 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import { Mail, Phone, MapPin, LoaderCircle } from "lucide-react";
 import { FacebookIcon, TwitterIcon, InstagramIcon, YoutubeIcon } from "@/components/icons/social-icons";
-import { useMemo } from "react";
-import { doc } from 'firebase/firestore';
+import { useMemo, useState } from "react";
+import { doc, collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { useDocument, useFirestore } from "@/firebase";
 import { ClubInfo } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { useToast } from "@/hooks/use-toast";
+import { errorEmitter } from "@/firebase/error-emitter";
+import { FirestorePermissionError } from "@/firebase/errors";
+
+
+const contactFormSchema = z.object({
+  name: z.string().min(2, { message: "Le nom est requis." }),
+  email: z.string().email({ message: "Veuillez entrer une adresse email valide." }),
+  subject: z.string().min(5, { message: "Le sujet doit contenir au moins 5 caractères." }),
+  message: z.string().min(10, { message: "Le message doit contenir au moins 10 caractères." }),
+});
+
 
 function ContactPageSkeleton() {
     return (
@@ -24,6 +39,7 @@ function ContactPageSkeleton() {
                         <div className="space-y-2"><Skeleton className="h-4 w-16" /><Skeleton className="h-10 w-full" /></div>
                         <div className="space-y-2"><Skeleton className="h-4 w-16" /><Skeleton className="h-10 w-full" /></div>
                     </div>
+                    <div className="space-y-2"><Skeleton className="h-4 w-24" /><Skeleton className="h-10 w-full" /></div>
                     <div className="space-y-2"><Skeleton className="h-4 w-24" /><Skeleton className="h-24 w-full" /></div>
                     <Skeleton className="h-12 w-full" />
                 </CardContent>
@@ -50,6 +66,18 @@ function ContactPageSkeleton() {
 
 export default function ContactPage() {
   const firestore = useFirestore();
+  const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const form = useForm<z.infer<typeof contactFormSchema>>({
+    resolver: zodResolver(contactFormSchema),
+    defaultValues: {
+        name: '',
+        email: '',
+        subject: '',
+        message: '',
+    }
+  });
 
   const clubInfoRef = useMemo(() => {
     if (!firestore) return null;
@@ -57,6 +85,32 @@ export default function ContactPage() {
   }, [firestore]);
 
   const { data: clubInfo, loading } = useDocument<ClubInfo>(clubInfoRef);
+
+  async function onSubmit(values: z.infer<typeof contactFormSchema>) {
+    if (!firestore) return;
+    setIsSubmitting(true);
+
+    const messagesCollection = collection(firestore, 'contactMessages');
+    addDoc(messagesCollection, {
+      ...values,
+      createdAt: serverTimestamp(),
+      isRead: false,
+    }).then(() => {
+      toast({ title: "Message envoyé !", description: "Merci, nous vous répondrons dans les plus brefs délais." });
+      form.reset();
+    }).catch(async (error) => {
+      console.error("Erreur lors de l'envoi du message: ", error);
+        const permissionError = new FirestorePermissionError({
+            path: messagesCollection.path,
+            operation: 'create',
+            requestResourceData: values,
+        });
+        errorEmitter.emit('permission-error', permissionError);
+      toast({ variant: "destructive", title: "Erreur", description: "Impossible d'envoyer votre message. Veuillez réessayer." });
+    }).finally(() => {
+      setIsSubmitting(false);
+    });
+  }
 
   return (
     <main className="container mx-auto py-12 px-4 md:px-6">
@@ -76,29 +130,29 @@ export default function ContactPage() {
             <CardTitle>Envoyer un message</CardTitle>
           </CardHeader>
           <CardContent>
-            <form action={`mailto:${clubInfo?.contactEmail || 'contact@exemple.com'}`} method="post" encType="text/plain" className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label htmlFor="name">Votre nom</Label>
-                  <Input id="name" name="name" placeholder="John Doe" />
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <FormField control={form.control} name="name" render={({ field }) => (
+                    <FormItem><FormLabel>Votre nom</FormLabel><FormControl><Input placeholder="John Doe" {...field} /></FormControl><FormMessage /></FormItem>
+                  )} />
+                   <FormField control={form.control} name="email" render={({ field }) => (
+                    <FormItem><FormLabel>Votre email</FormLabel><FormControl><Input type="email" placeholder="john.doe@exemple.com" {...field} /></FormControl><FormMessage /></FormItem>
+                  )} />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email">Votre email</Label>
-                  <Input id="email" name="email" type="email" placeholder="john.doe@exemple.com" />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="subject">Sujet</Label>
-                <Input id="subject" name="subject" placeholder="Sujet de votre message" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="message">Votre message</Label>
-                <Textarea id="message" name="body" placeholder="Écrivez votre message ici..." rows={6} />
-              </div>
-              <Button type="submit" className="w-full" size="lg">
-                Envoyer par email
-              </Button>
-            </form>
+                 <FormField control={form.control} name="subject" render={({ field }) => (
+                    <FormItem><FormLabel>Sujet</FormLabel><FormControl><Input placeholder="Sujet de votre message" {...field} /></FormControl><FormMessage /></FormItem>
+                  )} />
+                <FormField control={form.control} name="message" render={({ field }) => (
+                    <FormItem><FormLabel>Votre message</FormLabel><FormControl><Textarea placeholder="Écrivez votre message ici..." rows={6} {...field} /></FormControl><FormMessage /></FormItem>
+                  )} />
+
+                <Button type="submit" className="w-full" size="lg" disabled={isSubmitting}>
+                   {isSubmitting && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
+                  {isSubmitting ? 'Envoi en cours...' : 'Envoyer le message'}
+                </Button>
+              </form>
+            </Form>
           </CardContent>
         </Card>
 
@@ -159,3 +213,5 @@ export default function ContactPage() {
     </main>
   );
 }
+
+    

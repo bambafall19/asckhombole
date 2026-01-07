@@ -31,7 +31,7 @@ import {
 } from 'firebase/firestore';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useState, useEffect, useMemo } from 'react';
-import { LoaderCircle, LogOut, PlusCircle, Trash2, Pencil, List, Users, Trophy, Image as ImageIcon, Handshake, Mail, Shield, Map, Link as LinkIcon } from 'lucide-react';
+import { LoaderCircle, LogOut, PlusCircle, Trash2, Pencil, List, Users, Trophy, Image as ImageIcon, Handshake, Mail, Shield, Map, Link as LinkIcon, Eye, EyeOff, MessageSquare } from 'lucide-react';
 import { useUser } from '@/firebase/auth/use-user';
 import { useRouter } from 'next/navigation';
 import { signOut } from 'firebase/auth';
@@ -45,8 +45,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { Article, Player, Match, Photo, Partner, ClubInfo } from '@/lib/types';
-import { format, setHours, setMinutes } from 'date-fns';
+import { Article, Player, Match, Photo, Partner, ClubInfo, ContactMessage } from '@/lib/types';
+import { format, setHours, setMinutes, formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import {
   AlertDialog,
@@ -1557,6 +1557,137 @@ function ClubInfoForm() {
   );
 }
 
+function ContactMessagesList() {
+    const firestore = useFirestoreHook();
+    const { toast } = useToast();
+    const [selectedMessage, setSelectedMessage] = useState<ContactMessage | null>(null);
+
+    const messagesQuery = useMemo(() => {
+        if (!firestore) return null;
+        return query(collection(firestore, 'contactMessages'), orderBy('createdAt', 'desc'));
+    }, [firestore]);
+
+    const { data: messages, loading, mutate } = useCollection<ContactMessage>(messagesQuery);
+    
+    const handleToggleRead = async (message: ContactMessage) => {
+        if (!firestore) return;
+        const messageRef = doc(firestore, 'contactMessages', message.id);
+        updateDoc(messageRef, { isRead: !message.isRead })
+            .catch(async (error) => {
+                const permissionError = new FirestorePermissionError({
+                    path: messageRef.path,
+                    operation: 'update',
+                    requestResourceData: { isRead: !message.isRead },
+                });
+                errorEmitter.emit('permission-error', permissionError);
+                toast({ variant: 'destructive', title: 'Erreur', description: 'Impossible de mettre à jour le message.' });
+            });
+    }
+
+    const handleDelete = async (messageId: string) => {
+        if (!firestore) return;
+        const messageRef = doc(firestore, 'contactMessages', messageId);
+        deleteDoc(messageRef).then(() => {
+            toast({ title: 'Message supprimé', description: 'Le message a été supprimé avec succès.' });
+            setSelectedMessage(null); // Close dialog if open
+        }).catch(async (error) => {
+            const permissionError = new FirestorePermissionError({
+                path: messageRef.path,
+                operation: 'delete',
+            });
+            errorEmitter.emit('permission-error', permissionError);
+            toast({ variant: 'destructive', title: 'Erreur', description: 'Impossible de supprimer le message.' });
+        });
+    };
+
+    return (
+      <>
+        <Card>
+            <CardHeader>
+                <CardTitle>Boîte de réception</CardTitle>
+                <CardDescription>Consultez les messages envoyés depuis le formulaire de contact.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                 <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead className="w-[50px]"></TableHead>
+                            <TableHead>De</TableHead>
+                            <TableHead>Sujet</TableHead>
+                            <TableHead className="hidden md:table-cell">Date</TableHead>
+                            <TableHead className="text-right">Actions</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {loading && (
+                            <TableRow><TableCell colSpan={5} className="text-center"><LoaderCircle className="mx-auto h-8 w-8 animate-spin text-primary" /></TableCell></TableRow>
+                        )}
+                        {!loading && messages?.length === 0 && (
+                            <TableRow><TableCell colSpan={5} className="text-center h-24">Vous n'avez aucun message.</TableCell></TableRow>
+                        )}
+                        {!loading && messages?.map((message) => (
+                            <TableRow key={message.id} className={cn(!message.isRead && "font-bold")}>
+                                <TableCell>
+                                    <Button variant="ghost" size="icon" onClick={() => handleToggleRead(message)}>
+                                        {message.isRead ? <EyeOff className="h-4 w-4 text-muted-foreground" /> : <Eye className="h-4 w-4 text-primary" />}
+                                    </Button>
+                                </TableCell>
+                                <TableCell>
+                                    <DialogTrigger asChild>
+                                        <span className="cursor-pointer hover:underline" onClick={() => setSelectedMessage(message)}>{message.name}</span>
+                                    </DialogTrigger>
+                                </TableCell>
+                                <TableCell>
+                                     <DialogTrigger asChild>
+                                        <span className="cursor-pointer" onClick={() => setSelectedMessage(message)}>{message.subject}</span>
+                                    </DialogTrigger>
+                                </TableCell>
+                                <TableCell className="hidden md:table-cell">{message.createdAt ? formatDistanceToNow(message.createdAt.toDate(), { addSuffix: true, locale: fr }) : ''}</TableCell>
+                                <TableCell className="text-right">
+                                     <AlertDialog>
+                                      <AlertDialogTrigger asChild><Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive" /></Button></AlertDialogTrigger>
+                                      <AlertDialogContent>
+                                        <AlertDialogHeader>
+                                          <AlertDialogTitle>Êtes-vous sûr de vouloir supprimer ce message ?</AlertDialogTitle>
+                                          <AlertDialogDescription>Cette action est irréversible.</AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                          <AlertDialogCancel>Annuler</AlertDialogCancel>
+                                          <AlertDialogAction onClick={() => handleDelete(message.id)} className="bg-destructive hover:bg-destructive/90">Supprimer</AlertDialogAction>
+                                        </AlertDialogFooter>
+                                      </AlertDialogContent>
+                                    </AlertDialog>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </CardContent>
+        </Card>
+        <Dialog open={!!selectedMessage} onOpenChange={(open) => !open && setSelectedMessage(null)}>
+            <DialogContent className="sm:max-w-xl">
+                 {selectedMessage && (
+                    <>
+                        <DialogHeader>
+                            <DialogTitle>{selectedMessage.subject}</DialogTitle>
+                            <DialogDescription>
+                                De : {selectedMessage.name} ({selectedMessage.email})
+                            </DialogDescription>
+                        </DialogHeader>
+                        <div className="py-4 whitespace-pre-wrap">{selectedMessage.message}</div>
+                         <DialogClose asChild>
+                            <Button type="button" variant="secondary">
+                                Fermer
+                            </Button>
+                        </DialogClose>
+                    </>
+                 )}
+            </DialogContent>
+        </Dialog>
+      </>
+    )
+}
+
 
 export default function AdminPage() {
   const auth = useAuth();
@@ -1606,8 +1737,8 @@ export default function AdminPage() {
             <TabsTrigger value="galerie">Galerie</TabsTrigger>
             <TabsTrigger value="partenaires">Partenaires</TabsTrigger>
             <TabsTrigger value="club">Club & Accueil</TabsTrigger>
-            <TabsTrigger value="boutique" disabled>Boutique</TabsTrigger>
             <TabsTrigger value="contact">Contact</TabsTrigger>
+            <TabsTrigger value="boutique" disabled>Boutique</TabsTrigger>
             <TabsTrigger value="webtv" disabled>Web TV</TabsTrigger>
           </TabsList>
 
@@ -1692,6 +1823,11 @@ export default function AdminPage() {
           <TabsContent value="club" className="mt-6">
               <ClubInfoForm />
           </TabsContent>
+
+          <TabsContent value="contact" className="mt-6">
+             <ContactMessagesList />
+          </TabsContent>
+          
           <TabsContent value="boutique">
               <Card>
                   <CardHeader>
@@ -1702,16 +1838,7 @@ export default function AdminPage() {
                   </CardContent>
               </Card>
           </TabsContent>
-          <TabsContent value="contact">
-              <Card>
-                  <CardHeader>
-                      <CardTitle>Contact</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                      <p className="text-muted-foreground">La gestion des messages de contact sera bientôt disponible.</p>
-                  </CardContent>
-              </Card>
-          </TabsContent>
+          
           <TabsContent value="webtv">
               <Card>
                   <CardHeader>
@@ -1727,3 +1854,5 @@ export default function AdminPage() {
     </Dialog>
   );
 }
+
+    

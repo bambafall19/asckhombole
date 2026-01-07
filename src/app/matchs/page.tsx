@@ -110,8 +110,16 @@ export default function MatchsPage() {
 
   const { data: matches, loading } = useCollection<Match>(matchesQuery);
 
-  const upcomingMatches = useMemo(() => matches?.filter(m => m.status === 'À venir').sort((a,b) => a.date.toMillis() - b.date.toMillis()), [matches]);
-  const finishedMatches = useMemo(() => matches?.filter(m => m.status === 'Terminé'), [matches]);
+  const upcomingMatches = useMemo(() => {
+    const now = new Date();
+    return matches
+      ?.filter(m => m.status === 'À venir' && m.date.toDate() > now)
+      .sort((a,b) => a.date.toMillis() - b.date.toMillis())
+  }, [matches]);
+
+  const finishedMatches = useMemo(() => {
+    return matches?.filter(m => m.status === 'Terminé');
+  }, [matches]);
 
   return (
     <main className="container mx-auto py-12 px-4 md:px-6">

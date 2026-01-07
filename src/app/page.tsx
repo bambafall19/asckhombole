@@ -1,9 +1,9 @@
 'use client';
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
-import { ArrowRight, Clock, LoaderCircle } from "lucide-react";
+import { ArrowRight, Clock, LoaderCircle, Calendar, Trophy } from "lucide-react";
 import { useCollection, useDocument, useFirestore } from "@/firebase";
 import {
   getFirestore,
@@ -15,12 +15,73 @@ import {
   where,
 } from 'firebase/firestore';
 import { useMemo, useState } from "react";
-import { Article, ClubInfo, Photo } from "@/lib/types";
-import { formatDistanceToNow } from 'date-fns';
+import { Article, ClubInfo, Photo, Match } from "@/lib/types";
+import { formatDistanceToNow, format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
+import { cn } from "@/lib/utils";
+import { Skeleton } from "@/components/ui/skeleton";
 
+
+function NextMatchSidebar({ match }: { match: Match }) {
+  const isHomeTeam = (team: string) => team.toLowerCase().includes('khombole');
+
+  return (
+    <Card className="bg-primary/5 border-primary/20 shadow-lg">
+      <CardHeader className="pb-3">
+        <CardTitle className="text-lg font-headline text-primary flex items-center justify-center gap-2">
+            <Calendar className="w-5 h-5"/>
+            Prochain Match
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="text-center">
+        <p className="text-sm text-muted-foreground">{match.competition}</p>
+        <p className="text-sm font-semibold text-muted-foreground">{format(match.date.toDate(), 'eeee d MMMM yyyy \'à\' HH:mm', { locale: fr })}</p>
+        <div className="flex items-center justify-around my-4">
+            <div className="flex flex-col items-center gap-2 w-1/3 text-center">
+                {match.homeTeamLogoUrl && <Image src={match.homeTeamLogoUrl} alt={match.homeTeam} width={48} height={48} className="object-contain" />}
+                <p className={cn("font-bold", isHomeTeam(match.homeTeam) && "text-primary")}>{match.homeTeam}</p>
+            </div>
+            <span className="text-muted-foreground font-bold text-xl">VS</span>
+            <div className="flex flex-col items-center gap-2 w-1/3 text-center">
+                {match.awayTeamLogoUrl && <Image src={match.awayTeamLogoUrl} alt={match.awayTeam} width={48} height={48} className="object-contain" />}
+                <p className={cn("font-bold", isHomeTeam(match.awayTeam) && "text-primary")}>{match.awayTeam}</p>
+            </div>
+        </div>
+         <Button asChild size="sm">
+            <Link href="/matchs">Voir les matchs</Link>
+        </Button>
+      </CardContent>
+    </Card>
+  )
+}
+
+function NextMatchSidebarSkeleton() {
+    return (
+        <Card>
+            <CardHeader className="pb-3">
+                <Skeleton className="h-6 w-3/4 mx-auto" />
+            </CardHeader>
+            <CardContent className="text-center space-y-2">
+                <Skeleton className="h-4 w-1/2 mx-auto" />
+                <Skeleton className="h-4 w-3/4 mx-auto" />
+                <div className="flex items-center justify-around my-4">
+                    <div className="flex flex-col items-center gap-2 w-1/3 text-center">
+                        <Skeleton className="w-12 h-12 rounded-full" />
+                        <Skeleton className="h-5 w-20" />
+                    </div>
+                     <span className="text-muted-foreground font-bold text-xl">VS</span>
+                     <div className="flex flex-col items-center gap-2 w-1/3 text-center">
+                        <Skeleton className="w-12 h-12 rounded-full" />
+                        <Skeleton className="h-5 w-20" />
+                    </div>
+                </div>
+                 <Skeleton className="h-9 w-28 mx-auto" />
+            </CardContent>
+        </Card>
+    );
+}
 
 export default function Home() {
   const firestore = useFirestore();
@@ -52,6 +113,11 @@ export default function Home() {
     if (!firestore) return null;
     return query(collection(firestore, 'photos'), orderBy('createdAt', 'desc'), limit(3));
   }, [firestore]);
+  
+  const nextMatchQuery = useMemo(() => {
+    if (!firestore) return null;
+    return query(collection(firestore, 'matches'), where('status', '==', 'À venir'), orderBy('date', 'asc'), limit(1));
+  }, [firestore]);
 
   const clubInfoRef = useMemo(() => {
     if (!firestore) return null;
@@ -64,11 +130,13 @@ export default function Home() {
   const { data: topArticles, loading: topLoading } = useCollection<Article>(topQuery);
   const { data: photos, loading: photosLoading } = useCollection<Photo>(photosQuery);
   const { data: clubInfo, loading: clubInfoLoading } = useDocument<ClubInfo>(clubInfoRef);
+  const { data: nextMatches, loading: nextMatchLoading } = useCollection<Match>(nextMatchQuery);
 
   const mainArticle = featuredArticles?.[0] || latestArticles?.[0];
   const sideArticles = sidebarTab === 'latest' ? latestArticles?.slice(1,4) : topArticles;
+  const nextMatch = nextMatches?.[0];
   
-  const loading = featuredLoading || trendyLoading || latestLoading || topLoading || photosLoading || clubInfoLoading;
+  const loading = featuredLoading || trendyLoading || latestLoading || topLoading || photosLoading || clubInfoLoading || nextMatchLoading;
 
   const welcomeImages = useMemo(() => {
     if (!clubInfo) return [];
@@ -253,18 +321,21 @@ export default function Home() {
 
           {/* Sidebar */}
           <aside className="space-y-8">
+             {loading && <NextMatchSidebarSkeleton />}
+             {!loading && nextMatch && <NextMatchSidebar match={nextMatch} />}
+
             <div className="bg-card p-4 rounded-lg shadow-sm">
                 <div role="tablist" className="flex justify-between border-b mb-4">
                     <button role="tab" aria-selected={sidebarTab === 'latest'} onClick={() => setSidebarTab('latest')} className={`text-sm font-semibold pb-2 border-b-2 ${sidebarTab === 'latest' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground'}`}>Dernières infos</button>
                     <button role="tab" aria-selected={sidebarTab === 'top'} onClick={() => setSidebarTab('top')} className={`text-sm font-semibold pb-2 border-b-2 ${sidebarTab === 'top' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground'}`}>Top nouvelles</button>
                 </div>
-                {(loading) && <div className="space-y-4">
+                {(latestLoading || topLoading) && <div className="space-y-4">
                     {[...Array(3)].map((_, i) => (
                       <div key={i} className="flex items-start gap-4 p-2 rounded-lg">
-                        <div className="w-24 h-16 rounded-md bg-muted animate-pulse"></div>
+                        <Skeleton className="w-24 h-16 rounded-md" />
                         <div className="flex-1 space-y-2">
-                          <div className="h-4 bg-muted rounded w-3/4 animate-pulse"></div>
-                          <div className="h-4 bg-muted rounded w-1/2 animate-pulse"></div>
+                          <Skeleton className="h-4 w-3/4" />
+                          <Skeleton className="h-4 w-1/2" />
                         </div>
                       </div>
                     ))}
@@ -291,38 +362,7 @@ export default function Home() {
                 </div>
             </div>
             
-            <div className="bg-card p-4 rounded-lg shadow-sm">
-                <h3 className="font-bold text-lg font-headline mb-4">À la une</h3>
-                {loading && <div className="space-y-4">
-                    {[...Array(3)].map((_, i) => (
-                      <div key={i} className="flex items-start gap-4 p-2 rounded-lg">
-                        <div className="w-16 h-16 rounded-lg bg-muted animate-pulse"></div>
-                        <div className="flex-1 space-y-2">
-                          <div className="h-4 bg-muted rounded w-3/4 animate-pulse"></div>
-                          <div className="h-4 bg-muted rounded w-1/2 animate-pulse"></div>
-                        </div>
-                      </div>
-                    ))}
-                </div>}
-                <div className="space-y-4">
-                    {latestArticles && latestArticles.slice(1,4).map((item) => (
-                      <Link href={`/actus/${item.id}`} key={item.id} className="flex items-center gap-4 hover:bg-gray-100 p-2 rounded-lg">
-                        <Image 
-                          src={item.imageUrl}
-                          alt={item.title}
-                          width={64}
-                          height={64}
-                          className="w-16 h-16 rounded-lg object-cover"
-                          data-ai-hint={item.imageHint || 'spotlight news'}
-                        />
-                        <div>
-                          <span className="text-xs text-muted-foreground">{item.category} • {item.createdAt && formatTime(item.createdAt.toDate())}</span>
-                          <h4 className="text-sm font-semibold leading-tight line-clamp-2">{item.title}</h4>
-                        </div>
-                      </Link>
-                    ))}
-                </div>
-            </div>
+            {/* Spotlight section has been removed as it was redundant with the main news feed. The new match component is a better use of space. */}
 
             <div className="bg-muted p-4 rounded-lg shadow-sm text-center">
                 <h3 className="font-bold text-lg">Publicité</h3>
@@ -337,3 +377,5 @@ export default function Home() {
     </div>
   );
 }
+
+    

@@ -7,6 +7,7 @@ import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { FirebaseClientProvider } from "@/firebase/client-provider";
 import { BottomNav } from "@/components/layout/bottom-nav";
+import { AddToHomeScreenPrompt } from "@/components/add-to-home-screen";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 const ptSans = PT_Sans({ subsets: ["latin"], weight: ['400', '700'], variable: "--font-headline" });
@@ -38,6 +39,7 @@ export default function RootLayout({
           </div>
           <BottomNav />
           <Toaster />
+          <AddToHomeScreenPrompt />
         </FirebaseClientProvider>
       </body>
     </html>

@@ -72,7 +72,8 @@ function ArticlePageSkeleton() {
 
 export default function ArticlePage({ params, searchParams }: { params: { id: string }, searchParams?: { [key: string]: string | string[] | undefined } }) {
   const { id } = use(params);
-  use(searchParams);
+  // We are not using searchParams, so we don't need to use() it.
+  // use(searchParams); 
   const firestore = useFirestore();
 
   const articleRef = useMemo(() => {

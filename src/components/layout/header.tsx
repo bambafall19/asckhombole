@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Menu, X, User, Search, Tv, Store, Newspaper, Shield, Trophy, Image as ImageIcon, Users, Handshake, Mail, Home, LogOut, LogIn } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Logo } from "@/components/logo";
@@ -67,7 +67,7 @@ export function Header() {
   };
 
   const NavLink = ({ href, label, className, disabled }: { href: string; label: string; className?: string, disabled?: boolean }) => {
-    const isActive = pathname === href;
+    const isActive = (pathname === href) || (href !== '/' && pathname.startsWith(href));
     const linkClasses = cn(
         "text-sm font-medium transition-colors hover:text-primary",
         isActive ? "text-primary font-semibold" : "text-foreground/80",
@@ -137,9 +137,9 @@ export function Header() {
   return (
     <header
       className={cn(
-        "sticky top-0 z-50 w-full transition-all duration-300 border-b",
+        "sticky top-0 z-40 w-full transition-all duration-300 border-b",
         isScrolled ? "bg-card/95 backdrop-blur-sm" : "bg-card",
-        "hidden md:block" // Hides header on mobile
+        "hidden md:block"
       )}
     >
       <div className="container flex h-20 items-center justify-between">
@@ -164,8 +164,7 @@ export function Header() {
   );
 }
 
-// Keep the Sheet component logic for the bottom nav menu
-export function MobileMenuSheet({ children, open, onOpenChange }: { children?: React.ReactNode, open: boolean, onOpenChange: (open: boolean) => void }) {
+export function MobileMenuSheet({ open, onOpenChange }: { open: boolean, onOpenChange: (open: boolean) => void }) {
   const auth = useAuth();
   const { user } = useUser();
   const firestore = useFirestore();
@@ -185,7 +184,7 @@ export function MobileMenuSheet({ children, open, onOpenChange }: { children?: R
 
   const MobileNavLink = ({ href, label, Icon, disabled }: { href: string; label: string, Icon: React.ElementType, disabled?: boolean }) => {
     const pathname = usePathname();
-    const isActive = pathname === href;
+    const isActive = (pathname === href) || (href !== '/' && pathname.startsWith(href));
     const linkClasses = cn(
         "flex items-center p-3 rounded-lg transition-colors",
         isActive ? "bg-accent text-accent-foreground" : "hover:bg-accent/50",
@@ -216,19 +215,18 @@ export function MobileMenuSheet({ children, open, onOpenChange }: { children?: R
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="right" className="w-full sm:w-[320px] bg-card p-0">
-        <SheetHeader className="p-4 border-b">
+        <SheetHeader className="p-4 border-b flex flex-row items-center justify-between">
            <SheetTitle>
              <Link href="/" onClick={() => onOpenChange(false)}>
                 <Logo logoUrl={clubInfo?.logoUrl} />
               </Link>
            </SheetTitle>
-            <Button variant="ghost" size="icon" onClick={() => onOpenChange(false)} className="absolute right-4 top-3">
+            <Button variant="ghost" size="icon" onClick={() => onOpenChange(false)}>
               <X className="h-6 w-6" />
             </Button>
         </SheetHeader>
-        <div className="flex flex-col h-[calc(100%-6.5rem)]">
+        <div className="flex flex-col h-[calc(100%-5rem)]">
           <nav className="flex-grow p-4 space-y-2 overflow-y-auto">
-            {children}
             {navLinks.filter(l => !['/actus', '/matchs', '/equipe'].includes(l.href)).map((link) => (
                 <MobileNavLink key={link.href} href={link.href} label={link.label} Icon={link.icon} disabled={link.disabled} />
             ))}

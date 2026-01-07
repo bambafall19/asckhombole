@@ -20,7 +20,7 @@ export function BottomNav() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const NavItem = ({ href, label, icon: Icon }: (typeof navItems)[0]) => {
-    const isActive = (pathname === href) || (href === '/actus' && pathname.startsWith('/actus'));
+    const isActive = (pathname === href) || (href !== '/' && pathname.startsWith(href));
     return (
       <Link href={href} className="flex flex-col items-center justify-center gap-1 w-full text-center">
         <Icon className={cn('w-6 h-6 transition-colors', isActive ? 'text-primary' : 'text-muted-foreground')} />

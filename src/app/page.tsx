@@ -22,6 +22,7 @@ import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carouse
 import Autoplay from "embla-carousel-autoplay";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Countdown } from "@/components/ui/countdown";
 
 export default function Home() {
   const firestore = useFirestore();
@@ -59,12 +60,27 @@ export default function Home() {
     return doc(firestore, 'clubInfo', 'main');
   }, [firestore]);
 
+  const nextHomeMatchQuery = useMemo(() => {
+    if (!firestore) return null;
+    return query(
+        collection(firestore, 'matches'), 
+        where('status', '==', 'À venir'),
+        where('homeTeam', '==', 'ASC Khombole'),
+        orderBy('date', 'asc'), 
+        limit(1)
+    );
+  }, [firestore]);
+
+
   const { data: featuredArticles, loading: featuredLoading } = useCollection<Article>(featuredQuery);
   const { data: trendyArticles, loading: trendyLoading } = useCollection<Article>(trendyQuery);
   const { data: latestArticles, loading: latestLoading } = useCollection<Article>(latestQuery);
   const { data: topArticles, loading: topLoading } = useCollection<Article>(topQuery);
   const { data: photos, loading: photosLoading } = useCollection<Photo>(photosQuery);
   const { data: clubInfo, loading: clubInfoLoading } = useDocument<ClubInfo>(clubInfoRef);
+  const { data: nextHomeMatchData, loading: nextHomeMatchLoading } = useCollection<Match>(nextHomeMatchQuery);
+  
+  const nextHomeMatch = useMemo(() => nextHomeMatchData?.[0], [nextHomeMatchData]);
 
   const mainArticle = featuredArticles?.[0] || latestArticles?.[0];
   const sideArticles = sidebarTab === 'latest' ? latestArticles?.slice(1,4) : topArticles;
@@ -291,6 +307,8 @@ export default function Home() {
                     ))}
                 </div>
             </div>
+            
+            <Countdown match={nextHomeMatch} loading={nextHomeMatchLoading} />
             
             <div className="bg-muted p-4 rounded-lg shadow-sm text-center">
                 <h3 className="font-bold text-lg">Publicité</h3>

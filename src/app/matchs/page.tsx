@@ -126,7 +126,7 @@ export default function MatchsPage() {
         <div className="space-y-12">
             <section>
               <h2 className="text-3xl font-bold text-center mb-6 font-headline flex items-center justify-center gap-3">
-                <Calendar className="w-8 h-8 text-accent"/> Prochaines Rencontres
+                <Calendar className="w-8 h-8 text-primary"/> Prochaines Rencontres
               </h2>
               <div className="space-y-4 max-w-4xl mx-auto">
                 {[...Array(2)].map((_, i) => <MatchCardSkeleton key={i} />)}
@@ -163,7 +163,7 @@ export default function MatchsPage() {
           {upcomingMatches && upcomingMatches.length > 0 && (
             <section>
               <h2 className="text-3xl font-bold text-center mb-6 font-headline flex items-center justify-center gap-3">
-                <Calendar className="w-8 h-8 text-accent"/> Prochaines Rencontres
+                <Calendar className="w-8 h-8 text-primary"/> Prochaines Rencontres
               </h2>
               <div className="space-y-4 max-w-4xl mx-auto">
                 {upcomingMatches.map((match) => <MatchCard key={match.id} match={match} />)}

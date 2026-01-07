@@ -12,10 +12,13 @@ import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/compone
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-function PhotoCard({ photo, onClick }: { photo: Photo, onClick: () => void }) {
+function PhotoCard({ photo, onClick, className }: { photo: Photo, onClick: () => void, className?: string }) {
   return (
-    <Card className="overflow-hidden group transition-all duration-300 hover:shadow-xl hover:-translate-y-1 cursor-pointer" onClick={onClick}>
-        <div className="relative aspect-video w-full bg-muted overflow-hidden">
+    <Card 
+        className={cn("overflow-hidden group transition-all duration-300 hover:shadow-xl hover:-translate-y-1 cursor-pointer", className)} 
+        onClick={onClick}
+    >
+        <div className="relative w-full h-full bg-muted overflow-hidden">
         <Image
           src={photo.imageUrl}
           alt={photo.title}
@@ -24,22 +27,18 @@ function PhotoCard({ photo, onClick }: { photo: Photo, onClick: () => void }) {
           data-ai-hint={photo.imageHint || 'gallery photo'}
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         />
-        </div>
-        <CardContent className="p-3">
-            <p className="text-sm font-medium truncate">{photo.title}</p>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+        <CardContent className="absolute bottom-0 left-0 p-3">
+            <p className="text-xs font-medium text-white truncate">{photo.title}</p>
         </CardContent>
+        </div>
     </Card>
   );
 }
 
-function PhotoCardSkeleton() {
+function PhotoCardSkeleton({className}: {className?: string}) {
     return (
-        <Card className="overflow-hidden">
-            <Skeleton className="aspect-video w-full" />
-            <CardContent className="p-3">
-                <Skeleton className="h-4 w-3/4" />
-            </CardContent>
-        </Card>
+        <Skeleton className={cn("w-full h-full min-h-[200px]", className)} />
     )
 }
 
@@ -93,8 +92,15 @@ export default function GaleriePage() {
         </div>
         
         {loading && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {[...Array(12)].map((_, i) => <PhotoCardSkeleton key={i} />)}
+          <div className="grid grid-cols-2 md:grid-cols-4 auto-rows-[200px] gap-4">
+              <PhotoCardSkeleton className="col-span-2 row-span-2" />
+              <PhotoCardSkeleton />
+              <PhotoCardSkeleton />
+              <PhotoCardSkeleton />
+              <PhotoCardSkeleton />
+              <PhotoCardSkeleton className="col-span-2" />
+              <PhotoCardSkeleton />
+              <PhotoCardSkeleton />
           </div>
         )}
 
@@ -111,10 +117,17 @@ export default function GaleriePage() {
         )}
         
         {!loading && photos && photos.length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {photos.map((photo, index) => (
-              <PhotoCard key={photo.id} photo={photo} onClick={() => setSelectedPhotoIndex(index)} />
-            ))}
+          <div className="grid grid-cols-2 md:grid-cols-4 auto-rows-[200px] gap-4">
+            {photos.map((photo, index) => {
+              let className = '';
+              const patternIndex = index % 10;
+              if (patternIndex === 0) className = "col-span-2 row-span-2";
+              else if (patternIndex === 5) className = "col-span-2";
+              
+              return (
+                  <PhotoCard key={photo.id} photo={photo} onClick={() => setSelectedPhotoIndex(index)} className={className} />
+              )
+            })}
           </div>
         )}
 

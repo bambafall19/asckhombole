@@ -29,24 +29,16 @@ import {
   updateDoc,
   setDoc,
 } from 'firebase/firestore';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { useState, useEffect, useMemo } from 'react';
-import { LoaderCircle, LogOut, PlusCircle, Trash2, Pencil, List, Users, Trophy, Image as ImageIcon, Handshake, Mail, Shield, Map, Link as LinkIcon, Eye, EyeOff, MessageSquare } from 'lucide-react';
+import { LoaderCircle, LogOut, PlusCircle, Trash2, Pencil, List, Users, Trophy, Image as ImageIcon, Handshake, Mail, Shield, Map, Link as LinkIcon, Eye, EyeOff, MessageSquare, MoreVertical, Calendar as CalendarIcon, ChevronDown } from 'lucide-react';
 import { useUser } from '@/firebase/auth/use-user';
 import { useRouter } from 'next/navigation';
 import { signOut } from 'firebase/auth';
 import { useAuth, useCollection, useDocument, useFirestore as useFirestoreHook } from '@/firebase';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
 import { Article, Player, Match, Photo, Partner, ClubInfo, ContactMessage } from '@/lib/types';
-import { format, setHours, setMinutes, formatDistanceToNow } from 'date-fns';
+import { format, formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import {
   AlertDialog,
@@ -61,7 +53,6 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { CalendarIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Calendar } from '@/components/ui/calendar';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -77,6 +68,8 @@ import {
   DialogClose,
 } from '@/components/ui/dialog';
 import { Checkbox } from '@/components/ui/checkbox';
+import Image from 'next/image';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 
 const tagsItems = [
@@ -153,12 +146,14 @@ Après des saisons de travail et de reconstruction, l’ASC Khombole affiche une
     setIsSubmitting(true);
 
     try {
+        const articleData = {
+          ...values,
+          createdAt: serverTimestamp(),
+        };
+
         if (isEditing) {
             const articleRef = doc(firestore, 'articles', article.id);
-            updateDoc(articleRef, {
-              ...values,
-              createdAt: serverTimestamp(),
-            }).catch(async (error) => {
+            updateDoc(articleRef, articleData).catch(async (error) => {
               console.error("Erreur lors de la modification de l'article: ", error);
               const permissionError = new FirestorePermissionError({
                   path: `articles/${article.id}`,
@@ -179,10 +174,7 @@ Après des saisons de travail et de reconstruction, l’ASC Khombole affiche une
             });
         } else {
             const articlesCollection = collection(firestore, 'articles');
-            addDoc(articlesCollection, {
-                ...values,
-                createdAt: serverTimestamp(),
-            }).catch(async (error) => {
+            addDoc(articlesCollection, articleData).catch(async (error) => {
                 console.error("Erreur lors de la sauvegarde de l'article: ", error);
                 const permissionError = new FirestorePermissionError({
                     path: 'articles',
@@ -388,61 +380,105 @@ function ArticlesList() {
                 <CardDescription>Consultez, modifiez ou supprimez les articles existants.</CardDescription>
             </CardHeader>
             <CardContent>
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>Titre</TableHead>
-                            <TableHead className="hidden md:table-cell">Catégorie</TableHead>
-                            <TableHead className="hidden lg:table-cell">Date de création</TableHead>
-                            <TableHead className="text-right">Actions</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {loading && (
-                            <TableRow>
-                                <TableCell colSpan={4} className="text-center">
-                                    <LoaderCircle className="mx-auto h-8 w-8 animate-spin text-primary" />
-                                </TableCell>
-                            </TableRow>
-                        )}
-                        {!loading && articles?.map((article) => (
-                            <TableRow key={article.id}>
-                                <TableCell className="font-medium">{article.title}</TableCell>
-                                <TableCell className="hidden md:table-cell">{article.category}</TableCell>
-                                <TableCell className="hidden lg:table-cell">
-                                    {article.createdAt ? format(article.createdAt.toDate(), 'PPP', { locale: fr }) : ''}
-                                </TableCell>
-                                <TableCell className="text-right">
-                                    <DialogTrigger asChild>
-                                        <Button variant="ghost" size="icon" onClick={() => setEditingArticleId(article.id)}>
-                                            <Pencil className="h-4 w-4" />
-                                        </Button>
-                                    </DialogTrigger>
-
-                                    <AlertDialog>
-                                      <AlertDialogTrigger asChild>
-                                        <Button variant="ghost" size="icon">
-                                            <Trash2 className="h-4 w-4 text-destructive" />
-                                        </Button>
-                                      </AlertDialogTrigger>
-                                      <AlertDialogContent>
-                                        <AlertDialogHeader>
-                                          <AlertDialogTitle>Êtes-vous absolutely sûr ?</AlertDialogTitle>
-                                          <AlertDialogDescription>
-                                            Cette action est irréversible. Elle supprimera définitivement l'article.
-                                          </AlertDialogDescription>
-                                        </AlertDialogHeader>
-                                        <AlertDialogFooter>
-                                          <AlertDialogCancel>Annuler</AlertDialogCancel>
-                                          <AlertDialogAction onClick={() => handleDelete(article.id)} className="bg-destructive hover:bg-destructive/90">Supprimer</AlertDialogAction>
-                                        </AlertDialogFooter>
-                                      </AlertDialogContent>
-                                    </AlertDialog>
-                                </TableCell>
-                            </TableRow>
+                <div className="hidden md:block">
+                  <Table>
+                      <TableHeader>
+                          <TableRow>
+                              <TableHead>Titre</TableHead>
+                              <TableHead className="hidden md:table-cell">Catégorie</TableHead>
+                              <TableHead className="hidden lg:table-cell">Date de création</TableHead>
+                              <TableHead className="text-right">Actions</TableHead>
+                          </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                          {loading && (
+                              <TableRow>
+                                  <TableCell colSpan={4} className="text-center">
+                                      <LoaderCircle className="mx-auto h-8 w-8 animate-spin text-primary" />
+                                  </TableCell>
+                              </TableRow>
+                          )}
+                          {!loading && articles?.map((article) => (
+                              <TableRow key={article.id}>
+                                  <TableCell className="font-medium">{article.title}</TableCell>
+                                  <TableCell className="hidden md:table-cell">{article.category}</TableCell>
+                                  <TableCell className="hidden lg:table-cell">
+                                      {article.createdAt ? format(article.createdAt.toDate(), 'PPP', { locale: fr }) : ''}
+                                  </TableCell>
+                                  <TableCell className="text-right">
+                                      <DialogTrigger asChild>
+                                          <Button variant="ghost" size="icon" onClick={() => setEditingArticleId(article.id)}>
+                                              <Pencil className="h-4 w-4" />
+                                          </Button>
+                                      </DialogTrigger>
+                                      <AlertDialog>
+                                        <AlertDialogTrigger asChild>
+                                          <Button variant="ghost" size="icon">
+                                              <Trash2 className="h-4 w-4 text-destructive" />
+                                          </Button>
+                                        </AlertDialogTrigger>
+                                        <AlertDialogContent>
+                                          <AlertDialogHeader>
+                                            <AlertDialogTitle>Êtes-vous absolument sûr ?</AlertDialogTitle>
+                                            <AlertDialogDescription>
+                                              Cette action est irréversible. Elle supprimera définitivement l'article.
+                                            </AlertDialogDescription>
+                                          </AlertDialogHeader>
+                                          <AlertDialogFooter>
+                                            <AlertDialogCancel>Annuler</AlertDialogCancel>
+                                            <AlertDialogAction onClick={() => handleDelete(article.id)} className="bg-destructive hover:bg-destructive/90">Supprimer</AlertDialogAction>
+                                          </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                      </AlertDialog>
+                                  </TableCell>
+                              </TableRow>
+                          ))}
+                      </TableBody>
+                  </Table>
+                </div>
+                <div className="md:hidden">
+                    {loading && <div className="text-center p-8"><LoaderCircle className="mx-auto h-8 w-8 animate-spin text-primary" /></div>}
+                    <div className="space-y-4">
+                        {articles?.map(article => (
+                            <Card key={article.id}>
+                                <CardContent className="p-4 flex items-start gap-4">
+                                    <Image src={article.imageUrl} alt={article.title} width={64} height={64} className="rounded-md object-cover w-16 h-16"/>
+                                    <div className="flex-grow">
+                                        <h4 className="font-bold line-clamp-2">{article.title}</h4>
+                                        <p className="text-sm text-muted-foreground">{article.category}</p>
+                                        <p className="text-xs text-muted-foreground">{article.createdAt ? format(article.createdAt.toDate(), 'P', { locale: fr }) : ''}</p>
+                                    </div>
+                                    <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                            <Button variant="ghost" size="icon"><MoreVertical className="h-4 w-4"/></Button>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent>
+                                            <DropdownMenuItem onSelect={() => setEditingArticleId(article.id)}>
+                                                <Pencil className="mr-2 h-4 w-4"/> Modifier
+                                            </DropdownMenuItem>
+                                            <AlertDialog>
+                                                <AlertDialogTrigger asChild>
+                                                    <Button variant="ghost" className="w-full justify-start text-destructive hover:text-destructive px-2 py-1.5 text-sm font-normal">
+                                                        <Trash2 className="mr-2 h-4 w-4"/> Supprimer
+                                                    </Button>
+                                                </AlertDialogTrigger>
+                                                <AlertDialogContent>
+                                                  <AlertDialogHeader>
+                                                    <AlertDialogTitle>Êtes-vous absolument sûr ?</AlertDialogTitle>
+                                                  </AlertDialogHeader>
+                                                  <AlertDialogFooter>
+                                                    <AlertDialogCancel>Annuler</AlertDialogCancel>
+                                                    <AlertDialogAction onClick={() => handleDelete(article.id)} className="bg-destructive hover:bg-destructive/90">Supprimer</AlertDialogAction>
+                                                  </AlertDialogFooter>
+                                                </AlertDialogContent>
+                                            </AlertDialog>
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
+                                </CardContent>
+                            </Card>
                         ))}
-                    </TableBody>
-                </Table>
+                    </div>
+                </div>
             </CardContent>
             
             <Dialog open={!!editingArticleId} onOpenChange={(open) => !open && setEditingArticleId(null)}>
@@ -581,44 +617,72 @@ function PlayersList() {
          <Card>
             <CardHeader><CardTitle>Effectif actuel</CardTitle><CardDescription>Gérez les joueurs de votre équipe.</CardDescription></CardHeader>
             <CardContent>
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>Nom</TableHead>
-                            <TableHead className="hidden md:table-cell">Poste</TableHead>
-                            <TableHead className="hidden lg:table-cell">Numéro</TableHead>
-                            <TableHead className="text-right">Actions</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {loading && (
-                            <TableRow><TableCell colSpan={4} className="text-center"><LoaderCircle className="mx-auto h-8 w-8 animate-spin text-primary" /></TableCell></TableRow>
-                        )}
-                        {!loading && players?.map((player) => (
-                            <TableRow key={player.id}>
-                                <TableCell className="font-medium">{player.name}</TableCell>
-                                <TableCell className="hidden md:table-cell">{player.position}</TableCell>
-                                <TableCell className="hidden lg:table-cell">{player.number}</TableCell>
-                                <TableCell className="text-right">
-                                    <Button variant="ghost" size="icon" disabled><Pencil className="h-4 w-4" /></Button>
-                                    <AlertDialog>
-                                      <AlertDialogTrigger asChild><Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive" /></Button></AlertDialogTrigger>
-                                      <AlertDialogContent>
-                                        <AlertDialogHeader>
-                                          <AlertDialogTitle>Êtes-vous absolument sûr ?</AlertDialogTitle>
-                                          <AlertDialogDescription>Cette action est irréversible. Le joueur sera supprimé.</AlertDialogDescription>
-                                        </AlertDialogHeader>
-                                        <AlertDialogFooter>
-                                          <AlertDialogCancel>Annuler</AlertDialogCancel>
-                                          <AlertDialogAction onClick={() => handleDelete(player.id)} className="bg-destructive hover:bg-destructive/90">Supprimer</AlertDialogAction>
-                                        </AlertDialogFooter>
-                                      </AlertDialogContent>
-                                    </AlertDialog>
-                                </TableCell>
+                <div className="hidden md:block">
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Nom</TableHead>
+                                <TableHead className="hidden md:table-cell">Poste</TableHead>
+                                <TableHead className="hidden lg:table-cell">Numéro</TableHead>
+                                <TableHead className="text-right">Actions</TableHead>
                             </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {loading && (
+                                <TableRow><TableCell colSpan={4} className="text-center"><LoaderCircle className="mx-auto h-8 w-8 animate-spin text-primary" /></TableCell></TableRow>
+                            )}
+                            {!loading && players?.map((player) => (
+                                <TableRow key={player.id}>
+                                    <TableCell className="font-medium">{player.name}</TableCell>
+                                    <TableCell className="hidden md:table-cell">{player.position}</TableCell>
+                                    <TableCell className="hidden lg:table-cell">{player.number}</TableCell>
+                                    <TableCell className="text-right">
+                                        <Button variant="ghost" size="icon" disabled><Pencil className="h-4 w-4" /></Button>
+                                        <AlertDialog>
+                                          <AlertDialogTrigger asChild><Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive" /></Button></AlertDialogTrigger>
+                                          <AlertDialogContent>
+                                            <AlertDialogHeader>
+                                              <AlertDialogTitle>Êtes-vous absolument sûr ?</AlertDialogTitle>
+                                              <AlertDialogDescription>Cette action est irréversible. Le joueur sera supprimé.</AlertDialogDescription>
+                                            </AlertDialogHeader>
+                                            <AlertDialogFooter>
+                                              <AlertDialogCancel>Annuler</AlertDialogCancel>
+                                              <AlertDialogAction onClick={() => handleDelete(player.id)} className="bg-destructive hover:bg-destructive/90">Supprimer</AlertDialogAction>
+                                            </AlertDialogFooter>
+                                          </AlertDialogContent>
+                                        </AlertDialog>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </div>
+                <div className="md:hidden">
+                    {loading && <div className="text-center p-8"><LoaderCircle className="mx-auto h-8 w-8 animate-spin text-primary" /></div>}
+                    <div className="space-y-4">
+                        {players?.map(player => (
+                            <Card key={player.id}>
+                                <CardContent className="p-3 flex items-center gap-4">
+                                    <Image src={player.imageUrl} alt={player.name} width={56} height={56} className="rounded-full object-cover w-14 h-14"/>
+                                    <div className="flex-grow">
+                                        <h4 className="font-bold">{player.name} <span className="font-normal text-muted-foreground">#{player.number}</span></h4>
+                                        <p className="text-sm text-muted-foreground">{player.position}</p>
+                                    </div>
+                                    <AlertDialog>
+                                        <AlertDialogTrigger asChild><Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive" /></Button></AlertDialogTrigger>
+                                        <AlertDialogContent>
+                                            <AlertDialogHeader><AlertDialogTitle>Êtes-vous sûr ?</AlertDialogTitle></AlertDialogHeader>
+                                            <AlertDialogFooter>
+                                                <AlertDialogCancel>Annuler</AlertDialogCancel>
+                                                <AlertDialogAction onClick={() => handleDelete(player.id)} className="bg-destructive hover:bg-destructive/90">Supprimer</AlertDialogAction>
+                                            </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                    </AlertDialog>
+                                </CardContent>
+                            </Card>
                         ))}
-                    </TableBody>
-                </Table>
+                    </div>
+                </div>
             </CardContent>
         </Card>
     )
@@ -831,48 +895,94 @@ function MatchesList() {
          <Card>
             <CardHeader><CardTitle>Liste des matchs</CardTitle><CardDescription>Gérez les matchs de votre équipe.</CardDescription></CardHeader>
             <CardContent>
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>Date</TableHead>
-                            <TableHead>Compétition</TableHead>
-                            <TableHead>Rencontre</TableHead>
-                            <TableHead>Score</TableHead>
-                             <TableHead>Statut</TableHead>
-                            <TableHead className="text-right">Actions</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {loading && (
-                            <TableRow><TableCell colSpan={6} className="text-center"><LoaderCircle className="mx-auto h-8 w-8 animate-spin text-primary" /></TableCell></TableRow>
-                        )}
-                        {!loading && matches?.map((match) => (
-                            <TableRow key={match.id}>
-                                <TableCell>{match.date ? format(match.date.toDate(), "PPP 'à' HH:mm", { locale: fr }) : ''}</TableCell>
-                                <TableCell>{match.competition}</TableCell>
-                                <TableCell className="font-medium">{match.homeTeam} vs {match.awayTeam}</TableCell>
-                                <TableCell>{match.status === 'Terminé' ? `${match.homeScore} - ${match.awayScore}` : '-'}</TableCell>
-                                <TableCell>{match.status}</TableCell>
-                                <TableCell className="text-right">
-                                    <Button variant="ghost" size="icon" disabled><Pencil className="h-4 w-4" /></Button>
+                <div className="hidden md:block">
+                  <Table>
+                      <TableHeader>
+                          <TableRow>
+                              <TableHead>Date</TableHead>
+                              <TableHead>Compétition</TableHead>
+                              <TableHead>Rencontre</TableHead>
+                              <TableHead>Score</TableHead>
+                               <TableHead>Statut</TableHead>
+                              <TableHead className="text-right">Actions</TableHead>
+                          </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                          {loading && (
+                              <TableRow><TableCell colSpan={6} className="text-center"><LoaderCircle className="mx-auto h-8 w-8 animate-spin text-primary" /></TableCell></TableRow>
+                          )}
+                          {!loading && matches?.map((match) => (
+                              <TableRow key={match.id}>
+                                  <TableCell>{match.date ? format(match.date.toDate(), "PPP 'à' HH:mm", { locale: fr }) : ''}</TableCell>
+                                  <TableCell>{match.competition}</TableCell>
+                                  <TableCell className="font-medium">{match.homeTeam} vs {match.awayTeam}</TableCell>
+                                  <TableCell>{match.status === 'Terminé' ? `${match.homeScore} - ${match.awayScore}` : '-'}</TableCell>
+                                  <TableCell>{match.status}</TableCell>
+                                  <TableCell className="text-right">
+                                      <Button variant="ghost" size="icon" disabled><Pencil className="h-4 w-4" /></Button>
+                                      <AlertDialog>
+                                        <AlertDialogTrigger asChild><Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive" /></Button></AlertDialogTrigger>
+                                        <AlertDialogContent>
+                                          <AlertDialogHeader>
+                                            <AlertDialogTitle>Êtes-vous absolutely sûr ?</AlertDialogTitle>
+                                            <AlertDialogDescription>Cette action est irréversible. Le match sera supprimé.</AlertDialogDescription>
+                                          </AlertDialogHeader>
+                                          <AlertDialogFooter>
+                                            <AlertDialogCancel>Annuler</AlertDialogCancel>
+                                            <AlertDialogAction onClick={() => handleDelete(match.id)} className="bg-destructive hover:bg-destructive/90">Supprimer</AlertDialogAction>
+                                          </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                      </AlertDialog>
+                                  </TableCell>
+                              </TableRow>
+                          ))}
+                      </TableBody>
+                  </Table>
+                </div>
+                <div className="md:hidden">
+                    {loading && <div className="text-center p-8"><LoaderCircle className="mx-auto h-8 w-8 animate-spin text-primary" /></div>}
+                    <div className="space-y-4">
+                        {matches?.map(match => (
+                            <Card key={match.id}>
+                                <CardContent className="p-3">
+                                    <div className="flex justify-between items-center mb-2">
+                                        <p className="text-xs text-muted-foreground">{match.competition}</p>
+                                        <p className="text-xs text-muted-foreground">{match.date ? format(match.date.toDate(), "P", { locale: fr }) : ''}</p>
+                                    </div>
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                            {match.homeTeamLogoUrl && <Image src={match.homeTeamLogoUrl} alt={match.homeTeam} width={24} height={24} />}
+                                            <span className="font-bold">{match.homeTeam}</span>
+                                        </div>
+                                        <span className="font-bold">{match.status === 'Terminé' ? match.homeScore : '-'}</span>
+                                    </div>
+                                     <div className="flex items-center justify-between mt-1">
+                                        <div className="flex items-center gap-2">
+                                            {match.awayTeamLogoUrl && <Image src={match.awayTeamLogoUrl} alt={match.awayTeam} width={24} height={24} />}
+                                            <span className="font-bold">{match.awayTeam}</span>
+                                        </div>
+                                        <span className="font-bold">{match.status === 'Terminé' ? match.awayScore : '-'}</span>
+                                    </div>
+                                </CardContent>
+                                <CardFooter className="p-3 bg-muted/50 flex justify-between items-center">
+                                    <span className="text-sm">{match.status}</span>
                                     <AlertDialog>
-                                      <AlertDialogTrigger asChild><Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive" /></Button></AlertDialogTrigger>
-                                      <AlertDialogContent>
-                                        <AlertDialogHeader>
-                                          <AlertDialogTitle>Êtes-vous absolutely sûr ?</AlertDialogTitle>
-                                          <AlertDialogDescription>Cette action est irréversible. Le match sera supprimé.</AlertDialogDescription>
-                                        </AlertDialogHeader>
-                                        <AlertDialogFooter>
-                                          <AlertDialogCancel>Annuler</AlertDialogCancel>
-                                          <AlertDialogAction onClick={() => handleDelete(match.id)} className="bg-destructive hover:bg-destructive/90">Supprimer</AlertDialogAction>
-                                        </AlertDialogFooter>
-                                      </AlertDialogContent>
-                                    </AlertDialog>
-                                </TableCell>
-                            </TableRow>
+                                        <AlertDialogTrigger asChild><Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive" /></Button></AlertDialogTrigger>
+                                        <AlertDialogContent>
+                                          <AlertDialogHeader>
+                                            <AlertDialogTitle>Êtes-vous sûr ?</AlertDialogTitle>
+                                          </AlertDialogHeader>
+                                          <AlertDialogFooter>
+                                            <AlertDialogCancel>Annuler</AlertDialogCancel>
+                                            <AlertDialogAction onClick={() => handleDelete(match.id)} className="bg-destructive hover:bg-destructive/90">Supprimer</AlertDialogAction>
+                                          </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                      </AlertDialog>
+                                </CardFooter>
+                            </Card>
                         ))}
-                    </TableBody>
-                </Table>
+                    </div>
+                </div>
             </CardContent>
         </Card>
     )
@@ -981,48 +1091,77 @@ function PhotosList() {
          <Card>
             <CardHeader><CardTitle>Photos de la galerie</CardTitle><CardDescription>Gérez les photos de votre galerie.</CardDescription></CardHeader>
             <CardContent>
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>Aperçu</TableHead>
-                            <TableHead>Titre</TableHead>
-                            <TableHead className="hidden md:table-cell">Date d'ajout</TableHead>
-                            <TableHead className="text-right">Actions</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {loading && (
-                            <TableRow><TableCell colSpan={4} className="text-center"><LoaderCircle className="mx-auto h-8 w-8 animate-spin text-primary" /></TableCell></TableRow>
-                        )}
-                        {!loading && photos?.map((photo) => (
-                            <TableRow key={photo.id}>
-                                <TableCell>
-                                    <img src={photo.imageUrl} alt={photo.title} className="h-10 w-16 object-cover rounded-md" />
-                                </TableCell>
-                                <TableCell className="font-medium">{photo.title}</TableCell>
-                                <TableCell className="hidden md:table-cell">
-                                    {photo.createdAt ? format(photo.createdAt.toDate(), 'PPP', { locale: fr }) : ''}
-                                </TableCell>
-                                <TableCell className="text-right">
-                                    <Button variant="ghost" size="icon" disabled><Pencil className="h-4 w-4" /></Button>
-                                    <AlertDialog>
-                                      <AlertDialogTrigger asChild><Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive" /></Button></AlertDialogTrigger>
-                                      <AlertDialogContent>
-                                        <AlertDialogHeader>
-                                          <AlertDialogTitle>Êtes-vous absolutely sûr ?</AlertDialogTitle>
-                                          <AlertDialogDescription>Cette action est irréversible. La photo sera supprimée.</AlertDialogDescription>
-                                        </AlertDialogHeader>
-                                        <AlertDialogFooter>
-                                          <AlertDialogCancel>Annuler</AlertDialogCancel>
-                                          <AlertDialogAction onClick={() => handleDelete(photo.id)} className="bg-destructive hover:bg-destructive/90">Supprimer</AlertDialogAction>
-                                        </AlertDialogFooter>
-                                      </AlertDialogContent>
-                                    </AlertDialog>
-                                </TableCell>
+                <div className="hidden md:block">
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Aperçu</TableHead>
+                                <TableHead>Titre</TableHead>
+                                <TableHead className="hidden md:table-cell">Date d'ajout</TableHead>
+                                <TableHead className="text-right">Actions</TableHead>
                             </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {loading && (
+                                <TableRow><TableCell colSpan={4} className="text-center"><LoaderCircle className="mx-auto h-8 w-8 animate-spin text-primary" /></TableCell></TableRow>
+                            )}
+                            {!loading && photos?.map((photo) => (
+                                <TableRow key={photo.id}>
+                                    <TableCell>
+                                        <Image src={photo.imageUrl} alt={photo.title} width={64} height={40} className="h-10 w-16 object-cover rounded-md" />
+                                    </TableCell>
+                                    <TableCell className="font-medium">{photo.title}</TableCell>
+                                    <TableCell className="hidden md:table-cell">
+                                        {photo.createdAt ? format(photo.createdAt.toDate(), 'PPP', { locale: fr }) : ''}
+                                    </TableCell>
+                                    <TableCell className="text-right">
+                                        <Button variant="ghost" size="icon" disabled><Pencil className="h-4 w-4" /></Button>
+                                        <AlertDialog>
+                                          <AlertDialogTrigger asChild><Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive" /></Button></AlertDialogTrigger>
+                                          <AlertDialogContent>
+                                            <AlertDialogHeader>
+                                              <AlertDialogTitle>Êtes-vous absolutely sûr ?</AlertDialogTitle>
+                                              <AlertDialogDescription>Cette action est irréversible. La photo sera supprimée.</AlertDialogDescription>
+                                            </AlertDialogHeader>
+                                            <AlertDialogFooter>
+                                              <AlertDialogCancel>Annuler</AlertDialogCancel>
+                                              <AlertDialogAction onClick={() => handleDelete(photo.id)} className="bg-destructive hover:bg-destructive/90">Supprimer</AlertDialogAction>
+                                            </AlertDialogFooter>
+                                          </AlertDialogContent>
+                                        </AlertDialog>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </div>
+                <div className="md:hidden">
+                    {loading && <div className="text-center p-8"><LoaderCircle className="mx-auto h-8 w-8 animate-spin text-primary" /></div>}
+                    <div className="space-y-4">
+                        {photos?.map(photo => (
+                            <Card key={photo.id}>
+                                <CardContent className="p-3 flex items-center gap-4">
+                                    <Image src={photo.imageUrl} alt={photo.title} width={80} height={50} className="h-12 w-20 object-cover rounded-md" />
+                                    <div className="flex-grow">
+                                        <h4 className="text-sm font-bold line-clamp-2">{photo.title}</h4>
+                                    </div>
+                                     <AlertDialog>
+                                          <AlertDialogTrigger asChild><Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive" /></Button></AlertDialogTrigger>
+                                          <AlertDialogContent>
+                                            <AlertDialogHeader>
+                                              <AlertDialogTitle>Êtes-vous sûr ?</AlertDialogTitle>
+                                            </AlertDialogHeader>
+                                            <AlertDialogFooter>
+                                              <AlertDialogCancel>Annuler</AlertDialogCancel>
+                                              <AlertDialogAction onClick={() => handleDelete(photo.id)} className="bg-destructive hover:bg-destructive/90">Supprimer</AlertDialogAction>
+                                            </AlertDialogFooter>
+                                          </AlertDialogContent>
+                                        </AlertDialog>
+                                </CardContent>
+                            </Card>
                         ))}
-                    </TableBody>
-                </Table>
+                    </div>
+                </div>
             </CardContent>
         </Card>
     )
@@ -1137,48 +1276,75 @@ function PartnersList() {
          <Card>
             <CardHeader><CardTitle>Liste des partenaires</CardTitle><CardDescription>Gérez les partenaires et sponsors de votre club.</CardDescription></CardHeader>
             <CardContent>
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>Logo</TableHead>
-                            <TableHead>Nom</TableHead>
-                            <TableHead className="hidden md:table-cell">Site Web</TableHead>
-                            <TableHead className="text-right">Actions</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {loading && (
-                            <TableRow><TableCell colSpan={4} className="text-center"><LoaderCircle className="mx-auto h-8 w-8 animate-spin text-primary" /></TableCell></TableRow>
-                        )}
-                        {!loading && partners?.map((partner) => (
-                            <TableRow key={partner.id}>
-                                <TableCell>
-                                    <img src={partner.logoUrl} alt={`Logo de ${partner.name}`} className="h-10 max-w-[100px] object-contain" />
-                                </TableCell>
-                                <TableCell className="font-medium">{partner.name}</TableCell>
-                                <TableCell className="hidden md:table-cell">
-                                    <a href={partner.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">{partner.website}</a>
-                                </TableCell>
-                                <TableCell className="text-right">
-                                    <Button variant="ghost" size="icon" disabled><Pencil className="h-4 w-4" /></Button>
-                                    <AlertDialog>
-                                      <AlertDialogTrigger asChild><Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive" /></Button></AlertDialogTrigger>
-                                      <AlertDialogContent>
-                                        <AlertDialogHeader>
-                                          <AlertDialogTitle>Êtes-vous absolutely sûr ?</AlertDialogTitle>
-                                          <AlertDialogDescription>Cette action est irréversible. Le partenaire sera supprimé.</AlertDialogDescription>
-                                        </AlertDialogHeader>
-                                        <AlertDialogFooter>
-                                          <AlertDialogCancel>Annuler</AlertDialogCancel>
-                                          <AlertDialogAction onClick={() => handleDelete(partner.id)} className="bg-destructive hover:bg-destructive/90">Supprimer</AlertDialogAction>
-                                        </AlertDialogFooter>
-                                      </AlertDialogContent>
-                                    </AlertDialog>
-                                </TableCell>
+                 <div className="hidden md:block">
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Logo</TableHead>
+                                <TableHead>Nom</TableHead>
+                                <TableHead className="hidden md:table-cell">Site Web</TableHead>
+                                <TableHead className="text-right">Actions</TableHead>
                             </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {loading && (
+                                <TableRow><TableCell colSpan={4} className="text-center"><LoaderCircle className="mx-auto h-8 w-8 animate-spin text-primary" /></TableCell></TableRow>
+                            )}
+                            {!loading && partners?.map((partner) => (
+                                <TableRow key={partner.id}>
+                                    <TableCell>
+                                        <Image src={partner.logoUrl} alt={`Logo de ${partner.name}`} width={100} height={50} className="h-10 max-w-[100px] object-contain" />
+                                    </TableCell>
+                                    <TableCell className="font-medium">{partner.name}</TableCell>
+                                    <TableCell className="hidden md:table-cell">
+                                        <a href={partner.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">{partner.website}</a>
+                                    </TableCell>
+                                    <TableCell className="text-right">
+                                        <Button variant="ghost" size="icon" disabled><Pencil className="h-4 w-4" /></Button>
+                                        <AlertDialog>
+                                          <AlertDialogTrigger asChild><Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive" /></Button></AlertDialogTrigger>
+                                          <AlertDialogContent>
+                                            <AlertDialogHeader>
+                                              <AlertDialogTitle>Êtes-vous absolutely sûr ?</AlertDialogTitle>
+                                              <AlertDialogDescription>Cette action est irréversible. Le partenaire sera supprimé.</AlertDialogDescription>
+                                            </AlertDialogHeader>
+                                            <AlertDialogFooter>
+                                              <AlertDialogCancel>Annuler</AlertDialogCancel>
+                                              <AlertDialogAction onClick={() => handleDelete(partner.id)} className="bg-destructive hover:bg-destructive/90">Supprimer</AlertDialogAction>
+                                            </AlertDialogFooter>
+                                          </AlertDialogContent>
+                                        </AlertDialog>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </div>
+                 <div className="md:hidden">
+                    {loading && <div className="text-center p-8"><LoaderCircle className="mx-auto h-8 w-8 animate-spin text-primary" /></div>}
+                    <div className="space-y-4">
+                        {partners?.map(partner => (
+                            <Card key={partner.id}>
+                                <CardContent className="p-3 flex items-center justify-between">
+                                    <Image src={partner.logoUrl} alt={partner.name} width={120} height={60} className="h-12 object-contain" />
+                                    <h4 className="font-bold">{partner.name}</h4>
+                                     <AlertDialog>
+                                          <AlertDialogTrigger asChild><Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive" /></Button></AlertDialogTrigger>
+                                          <AlertDialogContent>
+                                            <AlertDialogHeader>
+                                              <AlertDialogTitle>Êtes-vous sûr ?</AlertDialogTitle>
+                                            </AlertDialogHeader>
+                                            <AlertDialogFooter>
+                                              <AlertDialogCancel>Annuler</AlertDialogCancel>
+                                              <AlertDialogAction onClick={() => handleDelete(partner.id)} className="bg-destructive hover:bg-destructive/90">Supprimer</AlertDialogAction>
+                                            </AlertDialogFooter>
+                                          </AlertDialogContent>
+                                        </AlertDialog>
+                                </CardContent>
+                            </Card>
                         ))}
-                    </TableBody>
-                </Table>
+                    </div>
+                 </div>
             </CardContent>
         </Card>
     )
@@ -1304,7 +1470,9 @@ function ClubInfoForm() {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             
             <Collapsible defaultOpen>
-                <CollapsibleTrigger className='text-xl font-headline text-primary'>Identité du Club</CollapsibleTrigger>
+                <CollapsibleTrigger className='text-xl font-headline text-primary flex justify-between items-center w-full'>
+                    Identité du Club <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
+                </CollapsibleTrigger>
                 <CollapsibleContent className='space-y-6 pt-4 border-l pl-4 ml-2'>
                     <FormField
                       control={form.control}
@@ -1322,7 +1490,9 @@ function ClubInfoForm() {
             </Collapsible>
             
             <Collapsible>
-                <CollapsibleTrigger className='text-xl font-headline text-primary'>Page d'Accueil (Diaporama)</CollapsibleTrigger>
+                <CollapsibleTrigger className='text-xl font-headline text-primary flex justify-between items-center w-full'>
+                    Page d'Accueil (Diaporama) <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
+                </CollapsibleTrigger>
                 <CollapsibleContent className='space-y-6 pt-4 border-l pl-4 ml-2'>
                     <FormField
                       control={form.control}
@@ -1396,7 +1566,7 @@ function ClubInfoForm() {
             </Collapsible>
             
             <Collapsible>
-                <CollapsibleTrigger className='text-xl font-headline text-primary'>Page Club</CollapsibleTrigger>
+                <CollapsibleTrigger className='text-xl font-headline text-primary flex justify-between items-center w-full'>Page Club <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" /></CollapsibleTrigger>
                 <CollapsibleContent className='space-y-4 pt-4 border-l pl-4 ml-2'>
                     <FormField
                       control={form.control}
@@ -1463,7 +1633,7 @@ function ClubInfoForm() {
             </Collapsible>
             
             <Collapsible>
-                <CollapsibleTrigger className='text-xl font-headline text-primary'>Contact, Réseaux &amp; Carte</CollapsibleTrigger>
+                <CollapsibleTrigger className='text-xl font-headline text-primary flex justify-between items-center w-full'>Contact, Réseaux &amp; Carte <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" /></CollapsibleTrigger>
                 <CollapsibleContent className='space-y-6 pt-4 border-l pl-4 ml-2'>
                     <FormField control={form.control} name="contactEmail" render={({ field }) => (
                       <FormItem>
@@ -1546,7 +1716,7 @@ function ContactMessagesList() {
         return query(collection(firestore, 'contactMessages'), orderBy('createdAt', 'desc'));
     }, [firestore]);
 
-    const { data: messages, loading, mutate } = useCollection<ContactMessage>(messagesQuery);
+    const { data: messages, loading } = useCollection<ContactMessage>(messagesQuery);
     
     const handleToggleRead = async (message: ContactMessage) => {
         if (!firestore) return;
@@ -1587,60 +1757,85 @@ function ContactMessagesList() {
                 <CardDescription>Consultez les messages envoyés depuis le formulaire de contact.</CardDescription>
             </CardHeader>
             <CardContent>
-                 <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead className="w-[50px]"></TableHead>
-                            <TableHead>De</TableHead>
-                            <TableHead>Sujet</TableHead>
-                            <TableHead className="hidden md:table-cell">Date</TableHead>
-                            <TableHead className="text-right">Actions</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {loading && (
-                            <TableRow><TableCell colSpan={5} className="text-center"><LoaderCircle className="mx-auto h-8 w-8 animate-spin text-primary" /></TableCell></TableRow>
-                        )}
-                        {!loading && messages?.length === 0 && (
-                            <TableRow><TableCell colSpan={5} className="text-center h-24">Vous n'avez aucun message.</TableCell></TableRow>
-                        )}
-                        {!loading && messages?.map((message) => (
-                            <TableRow key={message.id} className={cn(!message.isRead && "font-bold")}>
-                                <TableCell>
-                                    <Button variant="ghost" size="icon" onClick={() => handleToggleRead(message)}>
+                <div className="hidden md:block">
+                     <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead className="w-[50px]"></TableHead>
+                                <TableHead>De</TableHead>
+                                <TableHead>Sujet</TableHead>
+                                <TableHead className="hidden md:table-cell">Date</TableHead>
+                                <TableHead className="text-right">Actions</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {loading && (
+                                <TableRow><TableCell colSpan={5} className="text-center"><LoaderCircle className="mx-auto h-8 w-8 animate-spin text-primary" /></TableCell></TableRow>
+                            )}
+                            {!loading && messages?.length === 0 && (
+                                <TableRow><TableCell colSpan={5} className="text-center h-24">Vous n'avez aucun message.</TableCell></TableRow>
+                            )}
+                            {!loading && messages?.map((message) => (
+                                <TableRow key={message.id} className={cn(!message.isRead && "font-bold")}>
+                                    <TableCell>
+                                        <Button variant="ghost" size="icon" onClick={() => handleToggleRead(message)}>
+                                            {message.isRead ? <EyeOff className="h-4 w-4 text-muted-foreground" /> : <Eye className="h-4 w-4 text-primary" />}
+                                        </Button>
+                                    </TableCell>
+                                    <TableCell>
+                                        <DialogTrigger asChild>
+                                            <span className="cursor-pointer hover:underline" onClick={() => setSelectedMessage(message)}>{message.name}</span>
+                                        </DialogTrigger>
+                                    </TableCell>
+                                    <TableCell>
+                                         <DialogTrigger asChild>
+                                            <span className="cursor-pointer" onClick={() => setSelectedMessage(message)}>{message.subject}</span>
+                                        </DialogTrigger>
+                                    </TableCell>
+                                    <TableCell className="hidden md:table-cell">{message.createdAt ? formatDistanceToNow(message.createdAt.toDate(), { addSuffix: true, locale: fr }) : ''}</TableCell>
+                                    <TableCell className="text-right">
+                                         <AlertDialog>
+                                          <AlertDialogTrigger asChild><Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive" /></Button></AlertDialogTrigger>
+                                          <AlertDialogContent>
+                                            <AlertDialogHeader>
+                                              <AlertDialogTitle>Êtes-vous sûr de vouloir supprimer ce message ?</AlertDialogTitle>
+                                              <AlertDialogDescription>Cette action est irréversible.</AlertDialogDescription>
+                                            </AlertDialogHeader>
+                                            <AlertDialogFooter>
+                                              <AlertDialogCancel>Annuler</AlertDialogCancel>
+                                              <AlertDialogAction onClick={() => handleDelete(message.id)} className="bg-destructive hover:bg-destructive/90">Supprimer</AlertDialogAction>
+                                            </AlertDialogFooter>
+                                          </AlertDialogContent>
+                                        </AlertDialog>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </div>
+                <div className="md:hidden">
+                    {loading && <div className="text-center p-8"><LoaderCircle className="mx-auto h-8 w-8 animate-spin text-primary" /></div>}
+                    <div className="space-y-4">
+                        {messages?.map(message => (
+                            <Card key={message.id} className={cn(!message.isRead && "border-primary")}>
+                                <CardContent className="p-3 flex items-start gap-3">
+                                    <Button variant="ghost" size="icon" className="shrink-0" onClick={() => handleToggleRead(message)}>
                                         {message.isRead ? <EyeOff className="h-4 w-4 text-muted-foreground" /> : <Eye className="h-4 w-4 text-primary" />}
                                     </Button>
-                                </TableCell>
-                                <TableCell>
                                     <DialogTrigger asChild>
-                                        <span className="cursor-pointer hover:underline" onClick={() => setSelectedMessage(message)}>{message.name}</span>
+                                        <div className="flex-grow" onClick={() => setSelectedMessage(message)}>
+                                            <div className="flex justify-between items-baseline">
+                                                <h4 className={cn("font-semibold", !message.isRead && "font-bold")}>{message.name}</h4>
+                                                <p className="text-xs text-muted-foreground">{message.createdAt ? formatDistanceToNow(message.createdAt.toDate(), { addSuffix: true, locale: fr }) : ''}</p>
+                                            </div>
+                                            <p className="text-sm text-muted-foreground">{message.subject}</p>
+                                        </div>
                                     </DialogTrigger>
-                                </TableCell>
-                                <TableCell>
-                                     <DialogTrigger asChild>
-                                        <span className="cursor-pointer" onClick={() => setSelectedMessage(message)}>{message.subject}</span>
-                                    </DialogTrigger>
-                                </TableCell>
-                                <TableCell className="hidden md:table-cell">{message.createdAt ? formatDistanceToNow(message.createdAt.toDate(), { addSuffix: true, locale: fr }) : ''}</TableCell>
-                                <TableCell className="text-right">
-                                     <AlertDialog>
-                                      <AlertDialogTrigger asChild><Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive" /></Button></AlertDialogTrigger>
-                                      <AlertDialogContent>
-                                        <AlertDialogHeader>
-                                          <AlertDialogTitle>Êtes-vous sûr de vouloir supprimer ce message ?</AlertDialogTitle>
-                                          <AlertDialogDescription>Cette action est irréversible.</AlertDialogDescription>
-                                        </AlertDialogHeader>
-                                        <AlertDialogFooter>
-                                          <AlertDialogCancel>Annuler</AlertDialogCancel>
-                                          <AlertDialogAction onClick={() => handleDelete(message.id)} className="bg-destructive hover:bg-destructive/90">Supprimer</AlertDialogAction>
-                                        </AlertDialogFooter>
-                                      </AlertDialogContent>
-                                    </AlertDialog>
-                                </TableCell>
-                            </TableRow>
+                                </CardContent>
+                            </Card>
                         ))}
-                    </TableBody>
-                </Table>
+                    </div>
+                </div>
             </CardContent>
         </Card>
         <Dialog open={!!selectedMessage} onOpenChange={(open) => !open && setSelectedMessage(null)}>
@@ -1709,17 +1904,19 @@ export default function AdminPage() {
         </div>
 
         <Tabs defaultValue="actus" className="w-full">
-          <TabsList className="overflow-x-auto w-full justify-start md:justify-center bg-background">
-            <TabsTrigger value="actus">Actualités</TabsTrigger>
-            <TabsTrigger value="equipe">Équipe</TabsTrigger>
-            <TabsTrigger value="matchs">Matchs</TabsTrigger>
-            <TabsTrigger value="galerie">Galerie</TabsTrigger>
-            <TabsTrigger value="partenaires">Partenaires</TabsTrigger>
-            <TabsTrigger value="club">Club & Accueil</TabsTrigger>
-            <TabsTrigger value="contact">Contact</TabsTrigger>
-            <TabsTrigger value="boutique" disabled>Boutique</TabsTrigger>
-            <TabsTrigger value="webtv" disabled>Web TV</TabsTrigger>
-          </TabsList>
+          <div className="overflow-x-auto pb-2">
+            <TabsList className="w-full justify-start md:w-auto md:justify-center">
+              <TabsTrigger value="actus">Actualités</TabsTrigger>
+              <TabsTrigger value="equipe">Équipe</TabsTrigger>
+              <TabsTrigger value="matchs">Matchs</TabsTrigger>
+              <TabsTrigger value="galerie">Galerie</TabsTrigger>
+              <TabsTrigger value="partenaires">Partenaires</TabsTrigger>
+              <TabsTrigger value="club">Club & Accueil</TabsTrigger>
+              <TabsTrigger value="contact">Contact</TabsTrigger>
+              <TabsTrigger value="boutique" disabled>Boutique</TabsTrigger>
+              <TabsTrigger value="webtv" disabled>Web TV</TabsTrigger>
+            </TabsList>
+          </div>
 
           <TabsContent value="actus" className="mt-6 space-y-6">
               <ArticlesList />

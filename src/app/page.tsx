@@ -321,9 +321,6 @@ export default function Home() {
 
           {/* Sidebar */}
           <aside className="space-y-8">
-             {nextMatchLoading && <NextMatchSidebarSkeleton />}
-             {!nextMatchLoading && nextMatch && <NextMatchSidebar match={nextMatch} />}
-
             <div className="bg-card p-4 rounded-lg shadow-sm">
                 <div role="tablist" className="flex justify-between border-b mb-4">
                     <button role="tab" aria-selected={sidebarTab === 'latest'} onClick={() => setSidebarTab('latest')} className={`text-sm font-semibold pb-2 border-b-2 ${sidebarTab === 'latest' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground'}`}>Dernières infos</button>
@@ -370,7 +367,9 @@ export default function Home() {
                     <p className="text-muted-foreground">Espace pub</p>
                 </div>
             </div>
-
+            
+            {nextMatchLoading && <NextMatchSidebarSkeleton />}
+            {!nextMatchLoading && nextMatch && <NextMatchSidebar match={nextMatch} />}
           </aside>
         </main>
       </div>

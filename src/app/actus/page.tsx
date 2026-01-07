@@ -13,27 +13,40 @@ import {
 } from 'firebase/firestore';
 import { useMemo } from "react";
 import { Article } from "@/lib/types";
+import { Skeleton } from "@/components/ui/skeleton";
 
 
 function ArticleCard({ article }: { article: Article }) {
   return (
     <Link href={`/actus/${article.id}`}>
       <Card className="overflow-hidden group transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
-        <Image
-          src={article.imageUrl}
-          alt={article.title}
-          width={400}
-          height={225}
-          className="object-cover w-full h-48 transition-transform group-hover:scale-105"
-          data-ai-hint={article.imageHint || 'news article'}
-        />
+        <div className="relative w-full aspect-[16/9]">
+          <Image
+            src={article.imageUrl}
+            alt={article.title}
+            fill
+            className="object-cover transition-transform group-hover:scale-105"
+            data-ai-hint={article.imageHint || 'news article'}
+          />
+        </div>
         <CardContent className="p-4">
           <span className="text-xs text-muted-foreground">{article.category}</span>
           <h3 className="text-lg font-bold mt-1 line-clamp-2">{article.title}</h3>
-          <p className="text-sm text-muted-foreground mt-2 line-clamp-3">{article.content}</p>
         </CardContent>
       </Card>
     </Link>
+  );
+}
+
+function ArticleCardSkeleton() {
+  return (
+    <Card className="overflow-hidden">
+      <Skeleton className="w-full aspect-[16/9]" />
+      <CardContent className="p-4">
+        <Skeleton className="h-4 w-1/4 mb-2" />
+        <Skeleton className="h-6 w-full" />
+      </CardContent>
+    </Card>
   );
 }
 
@@ -57,8 +70,8 @@ export default function ActusPage() {
       </div>
 
       {loading && (
-        <div className="flex justify-center items-center py-20">
-          <LoaderCircle className="w-16 h-16 animate-spin text-primary" />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {[...Array(6)].map((_, i) => <ArticleCardSkeleton key={i} />)}
         </div>
       )}
 

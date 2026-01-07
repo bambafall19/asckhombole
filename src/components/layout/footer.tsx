@@ -66,24 +66,19 @@ export function Footer() {
   const { data: clubInfo } = useDocument<ClubInfo>(clubInfoRef);
 
   useEffect(() => {
-    // Only add the admin link on the client-side after hydration
-    // to prevent mismatch between server and client render.
+    // Clone base sections to avoid direct mutation
+    const newSections = JSON.parse(JSON.stringify(baseNavSections));
+    const moreSection = newSections.find((s: any) => s.title === "Plus");
+
     if (user) {
-        setNavSections(prevSections => {
-            const moreSection = prevSections.find(s => s.title === "Plus");
-            // Avoid adding it if it's already there
-            if (moreSection && !moreSection.links.some(l => l.href === '/admin')) {
-                 const newSections = JSON.parse(JSON.stringify(prevSections)); // Deep copy
-                 const moreSectionInNew = newSections.find((s: any) => s.title === "Plus");
-                 moreSectionInNew.links.push({ href: "/admin", label: "Admin" });
-                 return newSections;
-            }
-            return prevSections;
-        });
-    } else {
-        // If user logs out, remove admin link
-        setNavSections(baseNavSections);
+      // If user is logged in and admin link doesn't exist, add it
+      if (moreSection && !moreSection.links.some((l: any) => l.href === '/admin')) {
+        moreSection.links.push({ href: "/admin", label: "Admin" });
+      }
     }
+    
+    setNavSections(newSections);
+    
   }, [user]);
 
 

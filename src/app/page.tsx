@@ -114,12 +114,11 @@ export default function Home() {
 
   const nextMatchQuery = useMemo(() => {
     if (!firestore) return null;
-    // Query for upcoming matches that are in the future
     return query(
       collection(firestore, 'matches'), 
-      where('status', '==', 'À venir'), 
+      where('status', '==', 'À venir'),
       where('date', '>', Timestamp.now()),
-      orderBy('date', 'asc'), 
+      orderBy('date', 'asc'),
       limit(1)
     );
   }, [firestore]);

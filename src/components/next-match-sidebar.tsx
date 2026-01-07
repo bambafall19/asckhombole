@@ -55,7 +55,7 @@ function NoMatchAvailable() {
 }
 
 
-export function NextMatchSidebar({ match, loading }: { match?: Match, loading: boolean }) {
+export function NextMatchSidebar({ match, loading }: { match?: Match | null, loading: boolean }) {
   if (loading) {
     return <NextMatchSidebarSkeleton />;
   }

@@ -22,8 +22,6 @@ import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carouse
 import Autoplay from "embla-carousel-autoplay";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
-import { NextMatchSidebar } from "@/components/next-match-sidebar";
-
 
 export default function Home() {
   const firestore = useFirestore();
@@ -56,11 +54,6 @@ export default function Home() {
     return query(collection(firestore, 'photos'), orderBy('createdAt', 'desc'), limit(3));
   }, [firestore]);
   
-  const nextMatchQuery = useMemo(() => {
-    if (!firestore) return null;
-    return query(collection(firestore, 'matches'), where('status', '==', 'À venir'), orderBy('date', 'asc'), limit(1));
-  }, [firestore]);
-
   const clubInfoRef = useMemo(() => {
     if (!firestore) return null;
     return doc(firestore, 'clubInfo', 'main');
@@ -72,11 +65,9 @@ export default function Home() {
   const { data: topArticles, loading: topLoading } = useCollection<Article>(topQuery);
   const { data: photos, loading: photosLoading } = useCollection<Photo>(photosQuery);
   const { data: clubInfo, loading: clubInfoLoading } = useDocument<ClubInfo>(clubInfoRef);
-  const { data: nextMatches, loading: nextMatchLoading } = useCollection<Match>(nextMatchQuery);
 
   const mainArticle = featuredArticles?.[0] || latestArticles?.[0];
   const sideArticles = sidebarTab === 'latest' ? latestArticles?.slice(1,4) : topArticles;
-  const nextMatch = nextMatches?.[0];
   
   const mainSectionLoading = featuredLoading || latestLoading || clubInfoLoading;
 
@@ -308,8 +299,6 @@ export default function Home() {
                 </div>
             </div>
 
-            <NextMatchSidebar loading={nextMatchLoading} match={nextMatch} />
-            
           </aside>
         </main>
       </div>

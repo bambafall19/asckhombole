@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -8,6 +9,7 @@ import { useDocument, useFirestore } from "@/firebase";
 import { useMemo } from "react";
 import { doc } from "firebase/firestore";
 import { ClubInfo } from "@/lib/types";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../ui/accordion";
 
 const SocialIcon = ({ children, href }: { children: React.ReactNode, href: string }) => (
   <Button variant="ghost" size="icon" asChild>
@@ -16,6 +18,41 @@ const SocialIcon = ({ children, href }: { children: React.ReactNode, href: strin
     </a>
   </Button>
 );
+
+const navSections = [
+    {
+        title: "Le Club",
+        links: [
+            { href: "/club", label: "Histoire" },
+            { href: "/equipe", label: "Équipe Pro" },
+            { href: "/actus", label: "Actualités" },
+            { href: "/contact", label: "Contact" },
+        ]
+    },
+    {
+        title: "Compétition",
+        links: [
+            { href: "/matchs", label: "Calendrier" },
+            { href: "/matchs", label: "Résultats" },
+            { href: "/matchs", label: "Classement" },
+        ]
+    },
+    {
+        title: "Médias",
+        links: [
+            { href: "/galerie", label: "Galerie" },
+            { href: "/webtv", label: "Web TV" },
+        ]
+    },
+    {
+        title: "Plus",
+        links: [
+            { href: "/boutique", label: "Boutique" },
+            { href: "/partenaires", label: "Partenaires" },
+            { href: "/admin", label: "Admin" },
+        ]
+    }
+];
 
 export function Footer() {
   const firestore = useFirestore();
@@ -45,39 +82,40 @@ export function Footer() {
           </div>
           </div>
 
-          <div className="lg:col-span-8 grid grid-cols-2 md:grid-cols-4 gap-8">
-            <div>
-              <h3 className="text-sm font-semibold text-foreground tracking-wider uppercase">Le Club</h3>
-              <ul className="mt-4 space-y-2">
-                <li><Link href="/club" className="text-base text-muted-foreground hover:text-primary">Histoire</Link></li>
-                <li><Link href="/equipe" className="text-base text-muted-foreground hover:text-primary">Équipe Pro</Link></li>
-                <li><Link href="/actus" className="text-base text-muted-foreground hover:text-primary">Actualités</Link></li>
-                <li><Link href="/contact" className="text-base text-muted-foreground hover:text-primary">Contact</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="text-sm font-semibold text-foreground tracking-wider uppercase">Compétition</h3>
-              <ul className="mt-4 space-y-2">
-                <li><Link href="/matchs" className="text-base text-muted-foreground hover:text-primary">Calendrier</Link></li>
-                <li><Link href="/matchs" className="text-base text-muted-foreground hover:text-primary">Résultats</Link></li>
-                <li><Link href="/matchs" className="text-base text-muted-foreground hover:text-primary">Classement</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="text-sm font-semibold text-foreground tracking-wider uppercase">Médias</h3>
-              <ul className="mt-4 space-y-2">
-                 <li><Link href="/galerie" className="text-base text-muted-foreground hover:text-primary">Galerie</Link></li>
-                 <li><Link href="/webtv" className="text-base text-muted-foreground hover:text-primary">Web TV</Link></li>
-              </ul>
-            </div>
-             <div>
-              <h3 className="text-sm font-semibold text-foreground tracking-wider uppercase">Plus</h3>
-              <ul className="mt-4 space-y-2">
-                <li><Link href="/boutique" className="text-base text-muted-foreground hover:text-primary">Boutique</Link></li>
-                <li><Link href="/partenaires" className="text-base text-muted-foreground hover:text-primary">Partenaires</Link></li>
-                <li><Link href="/admin" className="text-base text-muted-foreground hover:text-primary">Admin</Link></li>
-              </ul>
-            </div>
+          {/* Desktop Footer */}
+          <div className="hidden lg:col-span-8 lg:grid grid-cols-2 md:grid-cols-4 gap-8">
+            {navSections.map((section) => (
+                <div key={section.title}>
+                  <h3 className="text-sm font-semibold text-foreground tracking-wider uppercase">{section.title}</h3>
+                  <ul className="mt-4 space-y-2">
+                    {section.links.map(link => (
+                         <li key={link.href}><Link href={link.href} className="text-base text-muted-foreground hover:text-primary">{link.label}</Link></li>
+                    ))}
+                  </ul>
+                </div>
+            ))}
+          </div>
+
+          {/* Mobile Footer */}
+          <div className="lg:hidden col-span-1">
+            <Accordion type="multiple" className="w-full">
+                {navSections.map(section => (
+                    <AccordionItem value={section.title} key={section.title}>
+                        <AccordionTrigger className="text-sm font-semibold text-foreground tracking-wider uppercase py-4">
+                            {section.title}
+                        </AccordionTrigger>
+                        <AccordionContent>
+                             <ul className="space-y-3 pt-2">
+                                {section.links.map(link => (
+                                    <li key={link.href}>
+                                        <Link href={link.href} className="text-base text-muted-foreground hover:text-primary">{link.label}</Link>
+                                    </li>
+                                ))}
+                            </ul>
+                        </AccordionContent>
+                    </AccordionItem>
+                ))}
+            </Accordion>
           </div>
 
         </div>

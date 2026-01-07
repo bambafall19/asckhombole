@@ -44,6 +44,16 @@ function Countdown({ toDate }: { toDate: Date }) {
         return () => clearTimeout(timer);
     });
 
+    const hasEnded = Object.values(timeLeft).every(val => val === 0);
+
+    if (hasEnded) {
+        return (
+            <div className="text-center my-4">
+                <p className="font-semibold text-primary">Le match a commencé !</p>
+            </div>
+        )
+    }
+
     return (
         <div className="grid grid-cols-4 gap-2 text-center my-4">
             {Object.entries(timeLeft).map(([unit, value]) => (

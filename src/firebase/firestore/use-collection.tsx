@@ -44,14 +44,20 @@ function reducer<T>(state: State<T>, action: Action<T>): State<T> {
 
 export function useCollection<T>(
   query: Query<DocumentData> | null
-): State<T> {
+): State<T> & { mutate: () => void } {
   const [state, dispatch] = useReducer(reducer<T>, initialState);
   const unsubscribeRef = useRef<Unsubscribe | null>(null);
 
-  useEffect(() => {
+  const fetchData = () => {
     if (!query) {
       dispatch({ type: 'success', payload: [] });
       return;
+    }
+    
+    dispatch({ type: 'loading' });
+
+    if (unsubscribeRef.current) {
+        unsubscribeRef.current();
     }
 
     unsubscribeRef.current = onSnapshot(
@@ -64,16 +70,22 @@ export function useCollection<T>(
         dispatch({ type: 'success', payload: data });
       },
       (error: FirestoreError) => {
+        console.error("Firestore error in useCollection:", error);
         dispatch({ type: 'error', payload: error });
       }
     );
+  };
+
+  useEffect(() => {
+    fetchData();
 
     return () => {
       if (unsubscribeRef.current) {
         unsubscribeRef.current();
       }
     };
-  }, [query]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(query)]);
 
-  return state;
+  return { ...state, mutate: fetchData };
 }

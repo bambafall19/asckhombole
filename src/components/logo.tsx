@@ -9,13 +9,13 @@ interface LogoProps {
 
 export function Logo({ logoUrl, className }: LogoProps) {
   return (
-    <div className={cn("flex items-center gap-3", className)}>
+    <div className={cn("flex items-center gap-2", className)}>
       {logoUrl ? (
-          <Image src={logoUrl} alt="Logo ASC Khombole" width={40} height={40} className="object-contain" />
+          <Image src={logoUrl} alt="Logo ASC Khombole" width={32} height={32} className="object-contain" />
       ) : (
-          <SoccerBallIcon className="h-10 w-10 text-primary" />
+          <SoccerBallIcon className="h-8 w-8 text-primary" />
       )}
-      <span className="font-bold text-2xl text-foreground font-headline">
+      <span className="font-bold text-lg text-foreground font-headline hidden sm:inline-block">
         Asc Khombole
       </span>
     </div>

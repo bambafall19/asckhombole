@@ -25,6 +25,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { ClubInfo } from "@/lib/types";
 import { doc } from "firebase/firestore";
 import { Separator } from "../ui/separator";
+import { Input } from "../ui/input";
 
 
 const mainNavLinks = [
@@ -66,7 +67,6 @@ const mobileMenuMoreLinks = [
 
 
 export function Header() {
-  const [isScrolled, setIsScrolled] = useState(false);
   const pathname = usePathname();
   const auth = useAuth();
   const { user, loading } = useUser();
@@ -79,14 +79,6 @@ export function Header() {
 
   const { data: clubInfo } = useDocument<ClubInfo>(clubInfoRef);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
   const handleLogout = async () => {
     if (auth) {
       await signOut(auth);
@@ -98,7 +90,7 @@ export function Header() {
     return (
       <Link href={href} className={cn("text-sm font-medium transition-colors hover:text-primary relative", isActive ? "text-primary" : "text-foreground/80")}>
         {label}
-        {isActive && <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-0.5 bg-primary rounded-full"></span>}
+        {isActive && <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-4 h-0.5 bg-primary rounded-full"></span>}
       </Link>
     );
   };
@@ -110,11 +102,11 @@ export function Header() {
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className={cn(
-                    "text-sm font-medium transition-colors hover:text-primary hover:bg-transparent p-0 h-auto", 
+                    "text-sm font-medium transition-colors hover:text-primary hover:bg-transparent p-0 h-auto gap-1", 
                     isActive ? "text-primary" : "text-foreground/80"
                 )}>
                     {label}
-                    <ChevronDown className="w-4 h-4 ml-1" />
+                    <ChevronDown className="w-4 h-4 transition-transform duration-200" />
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56">
@@ -181,27 +173,29 @@ export function Header() {
   return (
     <header
       className={cn(
-        "sticky top-0 z-40 w-full transition-all duration-300 border-b",
-        isScrolled ? "bg-card/95 backdrop-blur-sm" : "bg-card",
+        "sticky top-0 z-40 w-full p-2.5",
         "hidden md:block"
       )}
     >
-      <div className="container flex h-20 items-center justify-between">
-        <Link href="/" className="flex items-center gap-2">
-          <Logo logoUrl={clubInfo?.logoUrl} />
-        </Link>
-        <nav className="hidden md:flex items-center gap-8">
-            {mainNavLinks.map(link => <NavLink key={link.href} {...link} />)}
-            <NavDropdown label="Le Club" items={clubSubMenu} activePaths={['/club', '/equipe', '/partenaires', '/contact']} />
-            <NavDropdown label="Compétition" items={competitionSubMenu} activePaths={['/matchs']} />
-            <NavDropdown label="Médias" items={mediaSubMenu} activePaths={['/galerie', '/webtv']} />
-            <NavDropdown label="Boutique" items={shopSubMenu} activePaths={['/boutique']} />
-        </nav>
+      <div className="container flex h-16 items-center justify-between bg-card/90 backdrop-blur-sm border rounded-xl shadow-sm">
+        <div className="flex items-center gap-6">
+            <Link href="/" className="flex items-center gap-2">
+              <Logo logoUrl={clubInfo?.logoUrl} />
+            </Link>
+            <nav className="hidden md:flex items-center gap-6">
+                {mainNavLinks.map(link => <NavLink key={link.href} {...link} />)}
+                <NavDropdown label="Le Club" items={clubSubMenu} activePaths={['/club', '/equipe', '/partenaires', '/contact']} />
+                <NavDropdown label="Compétition" items={competitionSubMenu} activePaths={['/matchs']} />
+                <NavDropdown label="Médias" items={mediaSubMenu} activePaths={['/galerie', '/webtv']} />
+                <NavDropdown label="Boutique" items={shopSubMenu} activePaths={['/boutique']} />
+            </nav>
+        </div>
         <div className="hidden md:flex items-center gap-2">
+           <div className="relative w-48">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input placeholder="Recherche..." className="pl-9 h-9" />
+           </div>
           <div className="w-px h-6 bg-border mx-2"></div>
-          <Button variant="ghost" size="icon">
-            <Search className="h-5 w-5" />
-          </Button>
           <UserButton />
         </div>
       </div>
@@ -320,5 +314,3 @@ export function MobileMenuSheet({ open, onOpenChange }: { open: boolean, onOpenC
     </Sheet>
   );
 }
-
-    

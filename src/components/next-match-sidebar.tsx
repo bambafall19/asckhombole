@@ -69,7 +69,7 @@ export function NextMatchSidebar({ match, loading }: { match?: Match, loading: b
   return (
     <Card className="bg-primary/5 border-primary/20 shadow-lg">
       <CardHeader className="pb-3">
-        <CardTitle className="text-lg font-headline text-primary flex items-center justify-center gap-2">
+        <CardTitle className="text-lg font.headline text-primary flex items-center justify-center gap-2">
             <Calendar className="w-5 h-5"/>
             Prochain Match
         </CardTitle>

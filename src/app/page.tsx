@@ -3,7 +3,7 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
-import { ArrowRight, Clock, LoaderCircle, Calendar, Trophy } from "lucide-react";
+import { ArrowRight, Clock, LoaderCircle, Calendar, Trophy, Handshake } from "lucide-react";
 import { useCollection, useDocument, useFirestore } from "@/firebase";
 import {
   getFirestore,
@@ -15,7 +15,7 @@ import {
   where,
 } from 'firebase/firestore';
 import { useMemo, useState } from "react";
-import { Article, ClubInfo, Photo, Match } from "@/lib/types";
+import { Article, ClubInfo, Photo, Match, Partner } from "@/lib/types";
 import { formatDistanceToNow, format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
@@ -55,6 +55,11 @@ export default function Home() {
     return query(collection(firestore, 'photos'), orderBy('createdAt', 'desc'), limit(3));
   }, [firestore]);
   
+  const partnersQuery = useMemo(() => {
+    if (!firestore) return null;
+    return query(collection(firestore, 'partners'), orderBy('name', 'asc'));
+  }, [firestore]);
+
   const clubInfoRef = useMemo(() => {
     if (!firestore) return null;
     return doc(firestore, 'clubInfo', 'main');
@@ -70,6 +75,7 @@ export default function Home() {
   const { data: latestArticles, loading: latestLoading } = useCollection<Article>(latestQuery);
   const { data: topArticles, loading: topLoading } = useCollection<Article>(topQuery);
   const { data: photos, loading: photosLoading } = useCollection<Photo>(photosQuery);
+  const { data: partners, loading: partnersLoading } = useCollection<Partner>(partnersQuery);
   const { data: clubInfo, loading: clubInfoLoading } = useDocument<ClubInfo>(clubInfoRef);
   const { data: nextMatchData, loading: nextMatchLoading } = useCollection<Match>(nextMatchQuery);
   
@@ -304,6 +310,47 @@ export default function Home() {
 
           </aside>
         </main>
+        
+        {/* Partners Section */}
+        {partners && partners.length > 0 && (
+        <section className="mt-12">
+            <div className="flex justify-between items-center mb-4">
+                <h2 className="text-2xl font-bold font-headline text-primary flex items-center gap-2">
+                  <Handshake />
+                  Nos Partenaires
+                </h2>
+                <Button variant="link" asChild>
+                <Link href="/partenaires">Voir tous <ArrowRight className="ml-2 h-4 w-4" /></Link>
+                </Button>
+            </div>
+            <Carousel
+              opts={{
+                align: "start",
+                loop: true,
+              }}
+              plugins={[Autoplay({ delay: 3000, stopOnInteraction: true })]}
+              className="w-full"
+            >
+              <CarouselContent>
+                {partners.map((partner) => (
+                  <CarouselItem key={partner.id} className="basis-1/2 sm:basis-1/3 md:basis-1/4 lg:basis-1/5 xl:basis-1/6">
+                     <a href={partner.website} target="_blank" rel="noopener noreferrer" className="block p-4">
+                        <div className="flex justify-center items-center h-20 bg-card rounded-lg p-2 shadow-sm transition-transform duration-300 hover:scale-105">
+                           <Image
+                            src={partner.logoUrl}
+                            alt={partner.name}
+                            width={120}
+                            height={60}
+                            className="object-contain"
+                          />
+                        </div>
+                      </a>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+            </Carousel>
+        </section>
+        )}
       </div>
     </div>
   );

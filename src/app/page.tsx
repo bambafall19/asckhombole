@@ -62,10 +62,14 @@ export default function Home() {
 
   const nextHomeMatchQuery = useMemo(() => {
     if (!firestore) return null;
+    // Robust query to find teams starting with 'ASC Khombole' (case-insensitive)
+    const teamName = 'ASC Khombole';
     return query(
         collection(firestore, 'matches'), 
         where('status', '==', 'À venir'),
-        where('homeTeam', '==', 'ASC Khombole'),
+        where('homeTeam', '>=', teamName),
+        where('homeTeam', '<=', teamName + '\uf8ff'),
+        orderBy('homeTeam', 'asc'),
         orderBy('date', 'asc'), 
         limit(1)
     );

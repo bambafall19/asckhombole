@@ -1,4 +1,5 @@
 
+
 'use client';
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -397,9 +398,21 @@ export default function Home() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
-                    <blockquote className="text-muted-foreground text-xs line-clamp-3 border-l-2 border-accent pl-3 italic">
-                      {clubInfo.presidentWord}
-                    </blockquote>
+                    <div className="flex items-start gap-4">
+                      {clubInfo.presidentWordImageUrl && (
+                        <div className="relative w-16 h-16 shrink-0">
+                           <Image
+                            src={clubInfo.presidentWordImageUrl}
+                            alt="Mot du président"
+                            fill
+                            className="rounded-full object-cover"
+                          />
+                        </div>
+                      )}
+                      <blockquote className="text-muted-foreground text-xs line-clamp-3 border-l-2 border-accent pl-3 italic">
+                        {clubInfo.presidentWord}
+                      </blockquote>
+                    </div>
                     <Button variant="outline" size="sm" asChild>
                       <Link href="/club">Lire la suite</Link>
                     </Button>

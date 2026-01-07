@@ -38,7 +38,10 @@ function CountdownSkeleton() {
     return (
         <Card>
             <CardHeader className="pb-3">
-                 <Skeleton className="h-6 w-3/4 mx-auto" />
+                 <CardTitle className="text-lg font-headline text-muted-foreground flex items-center justify-center gap-2">
+                    <Calendar className="w-5 h-5"/>
+                    Prochain Match à Domicile
+                </CardTitle>
             </CardHeader>
             <CardContent className="text-center space-y-4">
                 <div className="flex justify-around">
@@ -94,7 +97,10 @@ export function Countdown({ match, loading }: { match?: Match | null, loading: b
     }
     
     // Initial calculation on client mount
-    setTimeLeft(calculateTimeLeft(match.date.toDate()));
+    const initialTimeLeft = calculateTimeLeft(match.date.toDate());
+    setTimeLeft(initialTimeLeft);
+
+    if (initialTimeLeft === null) return; // Stop if match has already started
 
     const timer = setInterval(() => {
       const newTimeLeft = calculateTimeLeft(match.date.toDate());
@@ -122,7 +128,6 @@ export function Countdown({ match, loading }: { match?: Match | null, loading: b
 
   // Handle case where countdown is over or not yet calculated on client
   if (timeLeft === null || timeLeft === undefined) {
-    // If countdown finished, show a message. If it's just not calculated, it will be quick.
     return (
         <Card className="bg-primary/5 border-primary/20 shadow-lg">
              <CardHeader className="pb-3">

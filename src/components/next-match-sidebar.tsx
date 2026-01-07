@@ -79,12 +79,12 @@ export function NextMatchSidebar({ match, loading }: { match?: Match, loading: b
         <p className="text-sm font-semibold text-muted-foreground">{format(match.date.toDate(), 'eeee d MMMM yyyy \'à\' HH:mm', { locale: fr })}</p>
         <div className="flex items-center justify-around my-4">
             <div className="flex flex-col items-center gap-2 w-1/3 text-center">
-                {match.homeTeamLogoUrl && <Image src={match.homeTeamLogoUrl} alt={match.homeTeam} width={48} height={48} className="object-contain" />}
+                {match.homeTeamLogoUrl ? <Image src={match.homeTeamLogoUrl} alt={match.homeTeam} width={48} height={48} className="object-contain" /> : <div className="w-12 h-12"></div>}
                 <p className={cn("font-bold", isHomeTeam(match.homeTeam) && "text-primary")}>{match.homeTeam}</p>
             </div>
             <span className="text-muted-foreground font-bold text-xl">VS</span>
             <div className="flex flex-col items-center gap-2 w-1/3 text-center">
-                {match.awayTeamLogoUrl && <Image src={match.awayTeamLogoUrl} alt={match.awayTeam} width={48} height={48} className="object-contain" />}
+                {match.awayTeamLogoUrl ? <Image src={match.awayTeamLogoUrl} alt={match.awayTeam} width={48} height={48} className="object-contain" /> : <div className="w-12 h-12"></div>}
                 <p className={cn("font-bold", isHomeTeam(match.awayTeam) && "text-primary")}>{match.awayTeam}</p>
             </div>
         </div>

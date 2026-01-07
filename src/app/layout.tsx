@@ -8,9 +8,15 @@ import { Footer } from "@/components/layout/footer";
 import { FirebaseClientProvider } from "@/firebase/client-provider";
 import { BottomNav } from "@/components/layout/bottom-nav";
 import { AddToHomeScreenPrompt } from "@/components/add-to-home-screen";
+import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
+import { MainSidebar } from "@/components/layout/main-sidebar";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
-const ptSans = PT_Sans({ subsets: ["latin"], weight: ['400', '700'], variable: "--font-headline" });
+const ptSans = PT_Sans({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  variable: "--font-headline",
+});
 
 export const metadata: Metadata = {
   title: "ASC Khombole - Site Officiel",
@@ -32,11 +38,16 @@ export default function RootLayout({
         )}
       >
         <FirebaseClientProvider>
-          <div className="flex flex-col min-h-screen">
-            <Header />
-            <main className="flex-grow pb-24 md:pb-0">{children}</main>
-            <Footer />
-          </div>
+          <SidebarProvider>
+            <MainSidebar />
+            <SidebarInset>
+              <div className="flex flex-col min-h-screen">
+                <Header />
+                <main className="flex-grow pb-24 md:pb-0">{children}</main>
+                <Footer />
+              </div>
+            </SidebarInset>
+          </SidebarProvider>
           <BottomNav />
           <Toaster />
           <AddToHomeScreenPrompt />

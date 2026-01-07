@@ -14,6 +14,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 // Helper function to parse simple markdown-like syntax
 const renderContent = (content: string) => {
+    if (!content) return null;
     const lines = content.split('\n').filter(line => line.trim() !== '');
 
     return lines.map((line, index) => {
@@ -69,9 +70,8 @@ function ArticlePageSkeleton() {
 }
 
 
-export default function ArticlePage() {
-  const pathname = usePathname();
-  const id = pathname.split('/').pop() as string;
+export default function ArticlePage({ params }: { params: { id: string } }) {
+  const { id } = params;
   const firestore = useFirestore();
 
   const articleRef = useMemo(() => {
@@ -123,12 +123,12 @@ export default function ArticlePage() {
           </h1>
         </div>
 
-        <div className="relative w-full aspect-video rounded-lg overflow-hidden mb-12 shadow-lg animate-in fade-in-0 zoom-in-95 duration-500" style={{ animationDelay: '200ms' }}>
+        <div className="relative w-full aspect-video rounded-lg overflow-hidden mb-12 shadow-lg animate-in fade-in-0 zoom-in-95 duration-500 bg-muted/20" style={{ animationDelay: '200ms' }}>
           <Image
             src={article.imageUrl}
             alt={article.title}
             fill
-            className="object-cover"
+            className="object-contain"
             data-ai-hint={article.imageHint || 'article image'}
           />
         </div>

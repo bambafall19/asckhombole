@@ -1,7 +1,6 @@
 'use client';
 
 import { useMemo } from 'react';
-import { usePathname } from 'next/navigation';
 import { doc } from 'firebase/firestore';
 import { useDocument, useFirestore } from '@/firebase';
 import { Article } from '@/lib/types';

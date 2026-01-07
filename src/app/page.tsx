@@ -114,12 +114,11 @@ export default function Home() {
 
   const nextMatchQuery = useMemo(() => {
     if (!firestore) return null;
-    // This query is simplified to avoid needing a composite index.
-    // We fetch all upcoming matches and then find the next one on the client-side.
+    // Simplest query to avoid composite index: just filter by status.
+    // We will sort and find the next one on the client side.
     return query(
       collection(firestore, 'matches'), 
-      where('status', '==', 'À venir'),
-      orderBy('date', 'asc')
+      where('status', '==', 'À venir')
     );
   }, [firestore]);
 
@@ -139,8 +138,13 @@ export default function Home() {
   const { data: lastResultData, loading: lastResultLoading } = useCollection<Match>(lastResultQuery);
   
   const nextMatch = useMemo(() => {
-    // Find the first match that is actually in the future.
-    return allUpcomingMatches?.find(match => match.date.toDate() > new Date());
+    if (!allUpcomingMatches) return null;
+    const now = new Date();
+    // Sort client-side and find the first match in the future.
+    const sortedUpcoming = allUpcomingMatches
+      .filter(match => match.date.toDate() > now)
+      .sort((a, b) => a.date.toMillis() - b.date.toMillis());
+    return sortedUpcoming[0] || null;
   }, [allUpcomingMatches]);
 
   const lastResult = useMemo(() => lastResultData?.[0], [lastResultData]);

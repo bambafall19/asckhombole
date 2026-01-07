@@ -3,34 +3,93 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Public read access, restricted write access to authenticated users
+
+    function isAdmin() {
+      return request.auth != null;
+    }
+
+    // Validation functions based on backend.json entities
+
+    function isValidArticle(data) {
+      return data.title is string && data.title.size() > 0 &&
+             data.content is string && data.content.size() > 0 &&
+             data.category is string && data.category.size() > 0 &&
+             data.createdAt is timestamp;
+    }
+
+    function isValidPlayer(data) {
+      return data.name is string && data.name.size() > 0 &&
+             data.position is string && data.position.size() > 0 &&
+             data.number is number &&
+             data.imageUrl is string && data.imageUrl.size() > 0;
+    }
+
+    function isValidMatch(data) {
+        return data.date is timestamp &&
+               data.competition is string && data.competition.size() > 0 &&
+               data.homeTeam is string && data.homeTeam.size() > 0 &&
+               data.awayTeam is string && data.awayTeam.size() > 0 &&
+               data.status is string && (data.status == 'À venir' || data.status == 'Terminé' || data.status == 'Reporté');
+    }
+
+    function isValidPhoto(data) {
+        return data.title is string && data.title.size() > 0 &&
+               data.imageUrl is string && data.imageUrl.size() > 0 &&
+               data.createdAt is timestamp;
+    }
+    
+    function isValidPartner(data) {
+        return data.name is string && data.name.size() > 0 &&
+               data.logoUrl is string && data.logoUrl.size() > 0;
+    }
+
+    function isValidClubInfo(data) {
+        // Most fields are optional, so we mainly check types if they exist
+        return (!('history' in data) || data.history is string) &&
+               (!('presidentWord' in data) || data.presidentWord is string) &&
+               (!('presidentWishes' in data) || data.presidentWishes is string);
+    }
+
+
+    // Public read access for all collections
     match /{document=**} {
       allow read: if true;
     }
 
-    // Explicitly restrict writes to authenticated users for managed collections
+    // Secure write access for managed collections
     match /articles/{articleId} {
-      allow write: if request.auth != null;
+      allow create: if isAdmin() && isValidArticle(request.resource.data);
+      allow update: if isAdmin() && isValidArticle(request.resource.data);
+      allow delete: if isAdmin();
     }
 
     match /players/{playerId} {
-      allow write: if request.auth != null;
+      allow create: if isAdmin() && isValidPlayer(request.resource.data);
+      allow update: if isAdmin() && isValidPlayer(request.resource.data);
+      allow delete: if isAdmin();
     }
 
     match /matches/{matchId} {
-      allow write: if request.auth != null;
+      allow create: if isAdmin() && isValidMatch(request.resource.data);
+      allow update: if isAdmin() && isValidMatch(request.resource.data);
+      allow delete: if isAdmin();
     }
 
     match /photos/{photoId} {
-      allow write: if request.auth != null;
+      allow create: if isAdmin() && isValidPhoto(request.resource.data);
+      allow update: if isAdmin() && isValidPhoto(request.resource.data);
+      allow delete: if isAdmin();
     }
 
     match /partners/{partnerId} {
-        allow write: if request.auth != null;
+        allow create: if isAdmin() && isValidPartner(request.resource.data);
+        allow update: if isAdmin() && isValidPartner(request.resource.data);
+        allow delete: if isAdmin();
     }
 
     match /clubInfo/{infoId} {
-        allow write: if request.auth != null;
+        // allow write: if isAdmin(); // Keeping it simple as it's a single doc mostly
+        allow create, update, delete: if isAdmin() && isValidClubInfo(request.resource.data);
     }
   }
 }

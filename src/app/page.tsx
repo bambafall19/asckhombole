@@ -22,6 +22,7 @@ import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carouse
 import Autoplay from "embla-carousel-autoplay";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
+import { NextMatchSidebar } from "@/components/next-match-sidebar";
 
 export default function Home() {
   const firestore = useFirestore();
@@ -59,13 +60,20 @@ export default function Home() {
     return doc(firestore, 'clubInfo', 'main');
   }, [firestore]);
 
+  const nextMatchQuery = useMemo(() => {
+    if (!firestore) return null;
+    return query(collection(firestore, 'matches'), where('status', '==', 'À venir'), orderBy('date', 'asc'), limit(1));
+  }, [firestore]);
+
   const { data: featuredArticles, loading: featuredLoading } = useCollection<Article>(featuredQuery);
   const { data: trendyArticles, loading: trendyLoading } = useCollection<Article>(trendyQuery);
   const { data: latestArticles, loading: latestLoading } = useCollection<Article>(latestQuery);
   const { data: topArticles, loading: topLoading } = useCollection<Article>(topQuery);
   const { data: photos, loading: photosLoading } = useCollection<Photo>(photosQuery);
   const { data: clubInfo, loading: clubInfoLoading } = useDocument<ClubInfo>(clubInfoRef);
+  const { data: nextMatchData, loading: nextMatchLoading } = useCollection<Match>(nextMatchQuery);
   
+  const nextMatch = useMemo(() => nextMatchData?.[0], [nextMatchData]);
   const mainArticle = featuredArticles?.[0] || latestArticles?.[0];
   const sideArticles = sidebarTab === 'latest' ? latestArticles?.slice(1,4) : topArticles;
   
@@ -249,6 +257,7 @@ export default function Home() {
 
           {/* Sidebar */}
           <aside className="space-y-8">
+            <NextMatchSidebar match={nextMatch} loading={nextMatchLoading} />
             <div className="bg-card p-4 rounded-lg shadow-sm">
                 <div role="tablist" className="flex justify-between border-b mb-4">
                     <button role="tab" aria-selected={sidebarTab === 'latest'} onClick={() => setSidebarTab('latest')} className={`text-sm font-semibold pb-2 border-b-2 ${sidebarTab === 'latest' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground'}`}>Dernières infos</button>

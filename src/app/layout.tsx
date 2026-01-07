@@ -20,6 +20,7 @@ const dynaPuff = DynaPuff({ subsets: ["latin"], variable: "--font-dynapuff" });
 export const metadata: Metadata = {
   title: "ASC Khombole - Site Officiel",
   description: "La plateforme web moderne pour l'ASC Khombole.",
+  manifest: "/manifest.json",
 };
 
 export default function RootLayout({

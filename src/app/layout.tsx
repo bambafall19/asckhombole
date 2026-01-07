@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, PT_Sans, DynaPuff } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
@@ -17,10 +17,45 @@ const ptSans = PT_Sans({
 });
 const dynaPuff = DynaPuff({ subsets: ["latin"], variable: "--font-dynapuff" });
 
+const APP_NAME = "ASC Khombole";
+const APP_DESCRIPTION = "La plateforme web moderne pour l'ASC Khombole.";
+const APP_URL = "https://asckhombole.web.app";
+
 export const metadata: Metadata = {
   title: "ASC Khombole - Site Officiel",
-  description: "La plateforme web moderne pour l'ASC Khombole.",
+  description: APP_DESCRIPTION,
   manifest: "/manifest.json",
+  metadataBase: new URL(APP_URL),
+  applicationName: APP_NAME,
+  appleWebApp: {
+    capable: true,
+    title: APP_NAME,
+    statusBarStyle: "default",
+  },
+  formatDetection: {
+    telephone: false,
+  },
+  openGraph: {
+    url: APP_URL,
+    title: APP_NAME,
+    description: APP_DESCRIPTION,
+    images: [
+      {
+        url: 'https://firebasestorage.googleapis.com/v0/b/asc-khombole.appspot.com/o/logo.png?alt=media&token=223b5b30-3c23-4942-81ca-636c5b96a480',
+        width: 512,
+        height: 512,
+        alt: "ASC Khombole Logo",
+      },
+    ],
+  },
+  twitter: {
+    creator: "@asckhombole",
+    card: "summary_large_image",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#FFFFFF",
 };
 
 export default function RootLayout({
@@ -29,7 +64,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="fr">
+    <html lang="fr" suppressHydrationWarning>
+      <head>
+          <link rel="icon" href="https://firebasestorage.googleapis.com/v0/b/asc-khombole.appspot.com/o/logo.png?alt=media&token=223b5b30-3c23-4942-81ca-636c5b96a480" type="image/png" sizes="any" />
+      </head>
       <body
         className={cn(
           "min-h-screen bg-background font-sans antialiased",

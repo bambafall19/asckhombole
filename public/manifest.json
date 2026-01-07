@@ -1,22 +1,23 @@
 {
   "name": "ASC Khombole",
   "short_name": "Asc_K",
-  "description": "La plateforme web moderne pour l'ASC Khombole.",
-  "icons": [
-    {
-      "src": "/icon-192x192.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "/icon-512x512.png",
-      "sizes": "512x512",
-      "type": "image/png"
-    }
-  ],
-  "theme_color": "#ffffff",
-  "background_color": "#ffffff",
+  "description": "Le site officiel de l'ASC Khombole.",
   "start_url": "/",
   "display": "standalone",
-  "orientation": "portrait"
+  "background_color": "#ffffff",
+  "theme_color": "#000000",
+  "icons": [
+    {
+      "src": "https://firebasestorage.googleapis.com/v0/b/asc-khombole.appspot.com/o/logo.png?alt=media&token=223b5b30-3c23-4942-81ca-636c5b96a480&w=192&h=192",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://firebasestorage.googleapis.com/v0/b/asc-khombole.appspot.com/o/logo.png?alt=media&token=223b5b30-3c23-4942-81ca-636c5b96a480&w=512&h=512",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
 }

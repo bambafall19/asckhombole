@@ -70,6 +70,7 @@ import {
 import { Checkbox } from '@/components/ui/checkbox';
 import Image from 'next/image';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 
 const tagsItems = [
@@ -1387,7 +1388,7 @@ function ClubInfoForm() {
   const form = useForm<z.infer<typeof clubInfoFormSchema>>({
     resolver: zodResolver(clubInfoFormSchema),
     values: {
-        logoUrl: clubInfo?.logoUrl || '',
+        logoUrl: clubInfo?.logoUrl || 'https://firebasestorage.googleapis.com/v0/b/asc-khombole.appspot.com/o/logo.png?alt=media&token=223b5b30-3c23-4942-81ca-636c5b96a480',
         history: clubInfo?.history || '',
         historyImageUrl: clubInfo?.historyImageUrl || '',
         presidentWord: clubInfo?.presidentWord || '',
@@ -1412,7 +1413,7 @@ function ClubInfoForm() {
   useEffect(() => {
     if (clubInfo) {
       form.reset({
-        logoUrl: clubInfo.logoUrl || '',
+        logoUrl: clubInfo.logoUrl || 'https://firebasestorage.googleapis.com/v0/b/asc-khombole.appspot.com/o/logo.png?alt=media&token=223b5b30-3c23-4942-81ca-636c5b96a480',
         history: clubInfo.history || '',
         historyImageUrl: clubInfo.historyImageUrl || '',
         presidentWord: clubInfo.presidentWord || '',

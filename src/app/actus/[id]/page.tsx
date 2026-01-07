@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, use } from 'react';
 import { doc } from 'firebase/firestore';
 import { useDocument, useFirestore } from '@/firebase';
 import { Article } from '@/lib/types';
@@ -70,7 +70,8 @@ function ArticlePageSkeleton() {
 
 
 export default function ArticlePage({ params }: { params: { id: string } }) {
-  const { id } = params;
+  const resolvedParams = use(params);
+  const { id } = resolvedParams;
   const firestore = useFirestore();
 
   const articleRef = useMemo(() => {

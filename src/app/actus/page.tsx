@@ -29,7 +29,6 @@ function FeaturedArticleCard({ article }: { article: Article }) {
                             alt={article.title}
                             fill
                             className="object-cover transition-transform group-hover:scale-105"
-                            data-ai-hint={article.imageHint || 'featured news'}
                         />
                     </div>
                     <div className="p-6 flex flex-col justify-center">
@@ -85,7 +84,6 @@ function ArticleCard({ article }: { article: Article }) {
             alt={article.title}
             fill
             className="object-cover transition-transform group-hover:scale-105"
-            data-ai-hint={article.imageHint || 'news article'}
           />
         </div>
         <CardContent className="p-4 flex-grow flex flex-col">

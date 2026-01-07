@@ -5,7 +5,6 @@ export interface Article {
   title: string;
   content: string;
   imageUrl: string;
-  imageHint?: string;
   category: string;
   createdAt: Timestamp;
   tags?: ('featured' | 'trendy' | 'top')[];
@@ -17,7 +16,6 @@ export interface Player {
   position: string;
   number: number;
   imageUrl: string;
-  imageHint?: string;
 }
 
 export interface Match {
@@ -38,7 +36,6 @@ export interface Photo {
     id: string;
     title: string;
     imageUrl: string;
-    imageHint?: string;
     createdAt: Timestamp;
 }
 
@@ -54,17 +51,12 @@ export interface ClubInfo {
     logoUrl?: string;
     history: string;
     historyImageUrl?: string;
-    historyImageHint?: string;
     presidentWord: string;
     presidentWordImageUrl?: string;
-    presidentWordImageHint?: string;
     presidentWishes: string;
     welcomeTitle?: string;
     welcomeSubtitle?: string;
     welcomeImageUrl?: string;
-    welcomeImageHint?: string;
     welcomeImageUrl2?: string;
-    welcomeImageHint2?: string;
     welcomeImageUrl3?: string;
-    welcomeImageHint3?: string;
 }

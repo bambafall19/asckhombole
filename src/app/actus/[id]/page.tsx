@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, use } from 'react';
+import { useMemo } from 'react';
 import { doc } from 'firebase/firestore';
 import { useDocument, useFirestore } from '@/firebase';
 import { Article } from '@/lib/types';
@@ -10,6 +10,7 @@ import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { use } from 'react';
 
 // Helper function to parse simple markdown-like syntax
 const renderContent = (content: string) => {
@@ -69,8 +70,9 @@ function ArticlePageSkeleton() {
 }
 
 
-export default function ArticlePage({ params, searchParams }: { params: { id: string }, searchParams: { [key: string]: string | string[] | undefined } }) {
+export default function ArticlePage({ params, searchParams }: { params: { id: string }, searchParams?: { [key: string]: string | string[] | undefined } }) {
   const { id } = use(params);
+  use(searchParams);
   const firestore = useFirestore();
 
   const articleRef = useMemo(() => {
@@ -122,13 +124,12 @@ export default function ArticlePage({ params, searchParams }: { params: { id: st
           </h1>
         </div>
 
-        <div className="relative w-full aspect-video rounded-lg overflow-hidden mb-12 shadow-lg animate-in fade-in-0 zoom-in-95 duration-500 bg-muted/20" style={{ animationDelay: '200ms' }}>
+        <div className="relative w-full aspect-video rounded-lg overflow-hidden mb-12 shadow-lg animate-in fade-in-0 zoom-in-95 duration-500 bg-muted/20">
           <Image
             src={article.imageUrl}
             alt={article.title}
             fill
             className="object-contain"
-            data-ai-hint={article.imageHint || 'article image'}
           />
         </div>
 

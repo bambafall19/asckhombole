@@ -23,7 +23,6 @@ function PlayerCard({ player }: { player: Player }) {
           alt={`Photo de ${player.name}`}
           fill
           className="object-cover group-hover:scale-105 transition-transform"
-          data-ai-hint={player.imageHint || 'soccer player portrait'}
         />
         <p className="text-sm font-semibold text-primary absolute top-2 right-2 bg-background/80 rounded-full w-8 h-8 flex items-center justify-center backdrop-blur-sm">
           {player.number}

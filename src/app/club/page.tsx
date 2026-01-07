@@ -125,7 +125,6 @@ export default function ClubPage() {
                     alt="Mot du président"
                     fill
                     className="object-cover group-hover:scale-105 transition-transform"
-                    data-ai-hint={clubInfo.presidentWordImageHint || 'club president'}
                   />
                 </div>
               )}
@@ -141,7 +140,6 @@ export default function ClubPage() {
                     alt="Histoire du club"
                     fill
                     className="object-cover opacity-30"
-                    data-ai-hint={clubInfo.historyImageHint || 'club history'}
                   />
                 </div>
               )}

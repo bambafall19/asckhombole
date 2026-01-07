@@ -96,7 +96,6 @@ const articleFormSchema = z.object({
     message: 'La catégorie doit contenir au moins 3 caractères.',
   }),
   imageUrl: z.string().url({ message: "Veuillez entrer une URL d'image valide." }),
-  imageHint: z.string().optional(),
   tags: z.array(z.string()).optional(),
 });
 
@@ -113,7 +112,6 @@ function AddArticleForm({ article, onFinish }: { article?: Article, onFinish?: (
       content: article.content,
       category: article.category,
       imageUrl: article.imageUrl,
-      imageHint: article.imageHint || '',
       tags: article.tags || [],
     } : {
       title: 'ASC Khombole en lice pour le Championnat Régional de Thiès',
@@ -139,7 +137,6 @@ Après des saisons de travail et de reconstruction, l’ASC Khombole affiche une
 > Adama DIOP DIA – Président ASC Khombole`,
       category: 'Club',
       imageUrl: `https://picsum.photos/seed/${Math.random()}/800/450`,
-      imageHint: 'soccer match',
       tags: [],
     },
   });
@@ -335,22 +332,6 @@ Après des saisons de travail et de reconstruction, l’ASC Khombole affiche une
                 </FormItem>
               )}
             />
-              <FormField
-              control={form.control}
-              name="imageHint"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Indice pour l'image (Optionnel)</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Ex: soccer celebration" {...field} />
-                  </FormControl>
-                  <FormDescription>
-                    Un ou deux mots en anglais pour décrire l'image (utile pour l'IA).
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
               {isSubmitting ? (isEditing ? 'Modification...' : 'Publication...') : (isEditing ? 'Modifier l\'article' : 'Publier l\'article')}
@@ -491,7 +472,6 @@ const playerFormSchema = z.object({
   position: z.string().min(2, { message: 'Le poste doit contenir au moins 2 caractères.' }),
   number: z.coerce.number().int().positive({ message: 'Le numéro doit être un nombre positif.' }),
   imageUrl: z.string().url({ message: "Veuillez entrer une URL d'image valide." }),
-  imageHint: z.string().optional(),
 });
 
 function AddPlayerForm() {
@@ -506,7 +486,6 @@ function AddPlayerForm() {
       position: 'Attaquant',
       number: 10,
       imageUrl: `https://picsum.photos/seed/${Math.random()}/400/400`,
-      imageHint: 'soccer player',
     },
   });
 
@@ -559,14 +538,6 @@ function AddPlayerForm() {
                     <FormLabel>URL de la photo</FormLabel>
                     <FormControl><Input placeholder="https://exemple.com/photo.jpg" {...field} /></FormControl>
                     <FormDescription>Utilisez une image au format portrait (carré ou vertical).</FormDescription>
-                    <FormMessage />
-                </FormItem>
-                )} />
-                <FormField control={form.control} name="imageHint" render={({ field }) => (
-                <FormItem>
-                    <FormLabel>Indice pour l'image (Optionnel)</FormLabel>
-                    <FormControl><Input placeholder="soccer player portrait" {...field} /></FormControl>
-                    <FormDescription>Un ou deux mots en anglais pour l'IA.</FormDescription>
                     <FormMessage />
                 </FormItem>
                 )} />
@@ -954,7 +925,6 @@ function AddPhotoForm() {
     addDoc(photosCollection, {
         ...values,
         title: title,
-        imageHint: "gallery photo",
         createdAt: serverTimestamp(),
     }).then(() => {
         toast({ title: 'Photo ajoutée !', description: 'La nouvelle photo a été ajoutée à la galerie.' });
@@ -1239,19 +1209,14 @@ const clubInfoFormSchema = z.object({
   logoUrl: z.string().url({ message: "Veuillez entrer une URL de logo valide." }).optional().or(z.literal('')),
   history: z.string().min(10, { message: "L'histoire doit contenir au moins 10 caractères." }),
   historyImageUrl: z.string().url({ message: "Veuillez entrer une URL d'image valide." }).optional().or(z.literal('')),
-  historyImageHint: z.string().optional(),
   presidentWord: z.string().min(10, { message: 'Le mot du président doit contenir au moins 10 caractères.' }),
   presidentWordImageUrl: z.string().url({ message: "Veuillez entrer une URL d'image valide." }).optional().or(z.literal('')),
-  presidentWordImageHint: z.string().optional(),
   presidentWishes: z.string().min(10, { message: 'Les vœux doivent contenir au moins 10 caractères.' }),
   welcomeTitle: z.string().optional(),
   welcomeSubtitle: z.string().optional(),
   welcomeImageUrl: z.string().url({ message: "Veuillez entrer une URL d'image valide." }).optional().or(z.literal('')),
-  welcomeImageHint: z.string().optional(),
   welcomeImageUrl2: z.string().url({ message: "Veuillez entrer une URL d'image valide." }).optional().or(z.literal('')),
-  welcomeImageHint2: z.string().optional(),
   welcomeImageUrl3: z.string().url({ message: "Veuillez entrer une URL d'image valide." }).optional().or(z.literal('')),
-  welcomeImageHint3: z.string().optional(),
 });
 
 function ClubInfoForm() {
@@ -1272,19 +1237,14 @@ function ClubInfoForm() {
         logoUrl: clubInfo?.logoUrl || '',
         history: clubInfo?.history || '',
         historyImageUrl: clubInfo?.historyImageUrl || '',
-        historyImageHint: clubInfo?.historyImageHint || '',
         presidentWord: clubInfo?.presidentWord || '',
         presidentWordImageUrl: clubInfo?.presidentWordImageUrl || '',
-        presidentWordImageHint: clubInfo?.presidentWordImageHint || '',
         presidentWishes: clubInfo?.presidentWishes || '',
         welcomeTitle: clubInfo?.welcomeTitle || '',
         welcomeSubtitle: clubInfo?.welcomeSubtitle || '',
         welcomeImageUrl: clubInfo?.welcomeImageUrl || '',
-        welcomeImageHint: clubInfo?.welcomeImageHint || '',
         welcomeImageUrl2: clubInfo?.welcomeImageUrl2 || '',
-        welcomeImageHint2: clubInfo?.welcomeImageHint2 || '',
         welcomeImageUrl3: clubInfo?.welcomeImageUrl3 || '',
-        welcomeImageHint3: clubInfo?.welcomeImageHint3 || '',
     }
   });
 
@@ -1294,19 +1254,14 @@ function ClubInfoForm() {
         logoUrl: clubInfo.logoUrl || '',
         history: clubInfo.history || '',
         historyImageUrl: clubInfo.historyImageUrl || '',
-        historyImageHint: clubInfo.historyImageHint || '',
         presidentWord: clubInfo.presidentWord || '',
         presidentWordImageUrl: clubInfo.presidentWordImageUrl || '',
-        presidentWordImageHint: clubInfo.presidentWordImageHint || '',
         presidentWishes: clubInfo.presidentWishes || '',
         welcomeTitle: clubInfo.welcomeTitle || '',
         welcomeSubtitle: clubInfo.welcomeSubtitle || '',
         welcomeImageUrl: clubInfo.welcomeImageUrl || '',
-        welcomeImageHint: clubInfo.welcomeImageHint || '',
         welcomeImageUrl2: clubInfo.welcomeImageUrl2 || '',
-        welcomeImageHint2: clubInfo.welcomeImageHint2 || '',
         welcomeImageUrl3: clubInfo.welcomeImageUrl3 || '',
-        welcomeImageHint3: clubInfo.welcomeImageHint3 || '',
       });
     }
   }, [clubInfo, form]);
@@ -1403,17 +1358,6 @@ function ClubInfoForm() {
                             </FormItem>
                           )}
                         />
-                        <FormField
-                          control={form.control}
-                          name="welcomeImageHint"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Indice pour l'image 1</FormLabel>
-                              <FormControl><Input placeholder="soccer celebration" {...field} /></FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
                     </div>
 
                     <div className="space-y-2 p-4 border rounded-md">
@@ -1429,17 +1373,6 @@ function ClubInfoForm() {
                             </FormItem>
                           )}
                         />
-                        <FormField
-                          control={form.control}
-                          name="welcomeImageHint2"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Indice pour l'image 2</FormLabel>
-                              <FormControl><Input placeholder="stadium view" {...field} /></FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
                     </div>
 
                     <div className="space-y-2 p-4 border rounded-md">
@@ -1451,17 +1384,6 @@ function ClubInfoForm() {
                             <FormItem>
                               <FormLabel>URL de l'image de Bienvenue 3</FormLabel>
                               <FormControl><Input placeholder="https://exemple.com/image3.jpg" {...field} /></FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name="welcomeImageHint3"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Indice pour l'image 3</FormLabel>
-                              <FormControl><Input placeholder="fans cheering" {...field} /></FormControl>
                               <FormMessage />
                             </FormItem>
                           )}
@@ -1499,17 +1421,6 @@ function ClubInfoForm() {
                     />
                     <FormField
                       control={form.control}
-                      name="historyImageHint"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Indice pour l'image (Histoire)</FormLabel>
-                          <FormControl><Input placeholder="soccer history" {...field} /></FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
                       name="presidentWord"
                       render={({ field }) => (
                         <FormItem>
@@ -1528,17 +1439,6 @@ function ClubInfoForm() {
                         <FormItem>
                           <FormLabel>URL de l'image (Mot du président)</FormLabel>
                           <FormControl><Input placeholder="https://exemple.com/president.jpg" {...field} /></FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="presidentWordImageHint"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Indice pour l'image (Mot du président)</FormLabel>
-                          <FormControl><Input placeholder="club president" {...field} /></FormControl>
                           <FormMessage />
                         </FormItem>
                       )}

@@ -74,9 +74,9 @@ export default function Home() {
   const welcomeImages = useMemo(() => {
     if (!clubInfo) return [];
     const images = [];
-    if (clubInfo.welcomeImageUrl) images.push({ url: clubInfo.welcomeImageUrl, hint: clubInfo.welcomeImageHint });
-    if (clubInfo.welcomeImageUrl2) images.push({ url: clubInfo.welcomeImageUrl2, hint: clubInfo.welcomeImageHint2 });
-    if (clubInfo.welcomeImageUrl3) images.push({ url: clubInfo.welcomeImageUrl3, hint: clubInfo.welcomeImageHint3 });
+    if (clubInfo.welcomeImageUrl) images.push({ url: clubInfo.welcomeImageUrl });
+    if (clubInfo.welcomeImageUrl2) images.push({ url: clubInfo.welcomeImageUrl2 });
+    if (clubInfo.welcomeImageUrl3) images.push({ url: clubInfo.welcomeImageUrl3 });
     return images;
   }, [clubInfo]);
 
@@ -109,7 +109,6 @@ export default function Home() {
                         width={800}
                         height={450}
                         className="object-cover w-full h-full"
-                        data-ai-hint={mainArticle.imageHint || 'news article'}
                       />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
                     <CardContent className="absolute bottom-0 left-0 p-6">
@@ -142,7 +141,6 @@ export default function Home() {
                                 alt={clubInfo?.welcomeTitle || "Bienvenue à l'ASC Khombole"}
                                 fill
                                 className="object-cover"
-                                data-ai-hint={img.hint || "soccer celebration"}
                               />
                               <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
                               <CardContent className="absolute bottom-0 left-0 p-6">
@@ -159,7 +157,6 @@ export default function Home() {
                                  alt={clubInfo?.welcomeTitle || "Bienvenue à l'ASC Khombole"}
                                  fill
                                  className="object-cover"
-                                 data-ai-hint={clubInfo?.welcomeImageHint || "soccer celebration"}
                                />
                                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
                                <CardContent className="absolute bottom-0 left-0 p-6">
@@ -200,7 +197,6 @@ export default function Home() {
                             width={400}
                             height={250}
                             className="object-cover w-full h-32"
-                            data-ai-hint={article.imageHint || 'trendy news'}
                             />
                         <CardContent className="p-4">
                             <span className="text-xs text-muted-foreground">{article.category}</span>
@@ -241,7 +237,6 @@ export default function Home() {
                             width={400}
                             height={250}
                             className="object-cover w-full aspect-video transition-transform duration-300 group-hover:scale-105"
-                            data-ai-hint={photo.imageHint || 'gallery photo'}
                           />
                       </Link>
                     </CarouselItem>
@@ -279,7 +274,6 @@ export default function Home() {
                           width={100}
                           height={75}
                           className="object-cover w-24 h-16 rounded-md"
-                          data-ai-hint={item.imageHint || 'news side'}
                         />
                         <div>
                             <span className="text-xs text-muted-foreground">

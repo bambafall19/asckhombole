@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { useParams } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { doc } from 'firebase/firestore';
 import { useDocument, useFirestore } from '@/firebase';
 import { Article } from '@/lib/types';
@@ -70,8 +70,8 @@ function ArticlePageSkeleton() {
 
 
 export default function ArticlePage() {
-  const params = useParams();
-  const id = params.id as string;
+  const pathname = usePathname();
+  const id = pathname.split('/').pop() as string;
   const firestore = useFirestore();
 
   const articleRef = useMemo(() => {

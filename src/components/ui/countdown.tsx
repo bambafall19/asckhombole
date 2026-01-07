@@ -1,9 +1,10 @@
+
 "use client";
 
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "./card";
 import { Skeleton } from "./skeleton";
-import { Calendar, Info } from "lucide-react";
+import { Calendar, Info, LoaderCircle } from "lucide-react";
 import { Match } from "@/lib/types";
 
 interface TimeLeft {
@@ -83,30 +84,66 @@ function NoMatchAvailable() {
 
 
 export function Countdown({ match, loading }: { match?: Match | null, loading: boolean }) {
-  const [timeLeft, setTimeLeft] = useState<TimeLeft | null>(null);
+  // Initialize timeLeft to undefined to prevent hydration mismatch.
+  const [timeLeft, setTimeLeft] = useState<TimeLeft | null | undefined>(undefined);
 
   useEffect(() => {
     if (!match) {
-        setTimeLeft(null);
+        setTimeLeft(null); // Explicitly set to null when no match
         return;
     }
     
-    // Set initial time left
+    // Initial calculation on client mount
     setTimeLeft(calculateTimeLeft(match.date.toDate()));
 
     const timer = setInterval(() => {
-      setTimeLeft(calculateTimeLeft(match.date.toDate()));
+      const newTimeLeft = calculateTimeLeft(match.date.toDate());
+      if (newTimeLeft) {
+        setTimeLeft(newTimeLeft);
+      } else {
+        // Time is up
+        setTimeLeft(null);
+        clearInterval(timer);
+      }
     }, 1000);
 
+    // Cleanup interval on component unmount
     return () => clearInterval(timer);
-  }, [match]);
+  }, [match]); // Rerun effect if match changes
 
   if (loading) {
     return <CountdownSkeleton />;
   }
 
-  if (!match || !timeLeft) {
+  // Handle case where there is no upcoming match
+  if (!match) {
     return <NoMatchAvailable />;
+  }
+
+  // Handle case where countdown is over or not yet calculated on client
+  if (timeLeft === null || timeLeft === undefined) {
+    // If countdown finished, show a message. If it's just not calculated, it will be quick.
+    return (
+        <Card className="bg-primary/5 border-primary/20 shadow-lg">
+             <CardHeader className="pb-3">
+                <CardTitle className="text-lg font-headline text-primary flex items-center justify-center gap-2">
+                    <Calendar className="w-5 h-5"/>
+                    Prochain Match à Domicile
+                </CardTitle>
+            </CardHeader>
+            <CardContent className="text-center py-8">
+                 {timeLeft === null ? (
+                    <p className="text-sm text-muted-foreground">Le match a commencé !</p>
+                ) : (
+                    <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+                        <LoaderCircle className="w-4 h-4 animate-spin" />
+                        <span>Calcul...</span>
+                    </div>
+                )}
+                 <p className="text-sm text-muted-foreground font-semibold mt-2">{match.homeTeam} vs {match.awayTeam}</p>
+            </CardContent>
+        </Card>
+    );
   }
 
 

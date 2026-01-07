@@ -2,14 +2,15 @@
 
 import { useMemo } from 'react';
 import { useParams } from 'next/navigation';
-import { doc, getFirestore } from 'firebase/firestore';
-import { useDocument } from '@/firebase/firestore/use-doc';
+import { doc } from 'firebase/firestore';
+import { useDocument, useFirestore } from '@/firebase';
 import { Article } from '@/lib/types';
 import Image from 'next/image';
-import { LoaderCircle, Calendar, Tag, Quote, Goal, ListChecks } from 'lucide-react';
+import { Calendar, Tag, Quote, Goal, ListChecks } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { Card, CardContent } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 
 // Helper function to parse simple markdown-like syntax
 const renderContent = (content: string) => {
@@ -42,11 +43,36 @@ const renderContent = (content: string) => {
     });
 };
 
+function ArticlePageSkeleton() {
+    return (
+        <div className="max-w-4xl mx-auto">
+            <div className="mb-8 text-center">
+                <div className="flex items-center justify-center space-x-4 mb-4">
+                    <Skeleton className="h-8 w-24 rounded-full" />
+                    <Skeleton className="h-5 w-32 rounded-md" />
+                </div>
+                <Skeleton className="h-10 md:h-14 w-3/4 mx-auto rounded-md" />
+            </div>
+             <Skeleton className="relative w-full aspect-video rounded-lg mb-12" />
+             <div className="space-y-4">
+                <Skeleton className="h-5 w-full rounded-md" />
+                <Skeleton className="h-5 w-full rounded-md" />
+                <Skeleton className="h-5 w-2/3 rounded-md" />
+                <br/>
+                <Skeleton className="h-20 w-full rounded-md" />
+                <br/>
+                <Skeleton className="h-5 w-full rounded-md" />
+                <Skeleton className="h-5 w-3/4 rounded-md" />
+             </div>
+        </div>
+    )
+}
+
 
 export default function ArticlePage() {
   const params = useParams();
-  const id = params.id;
-  const firestore = getFirestore();
+  const id = Array.isArray(params.id) ? params.id[0] : params.id;
+  const firestore = useFirestore();
 
   const articleRef = useMemo(() => {
     if (!firestore || !id) return null;
@@ -57,9 +83,9 @@ export default function ArticlePage() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-[60vh]">
-        <LoaderCircle className="w-16 h-16 animate-spin text-primary" />
-      </div>
+      <main className="container mx-auto py-12 px-4 md:px-6">
+          <ArticlePageSkeleton />
+      </main>
     );
   }
 

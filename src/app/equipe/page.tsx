@@ -1,12 +1,13 @@
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, LoaderCircle, User, Shield } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Users, User, Shield } from "lucide-react";
 import Image from "next/image";
 import { useMemo } from "react";
 import { collection, query, orderBy } from 'firebase/firestore';
 import { useCollection, useFirestore } from "@/firebase";
 import { Player } from "@/lib/types";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const coach = {
   name: "Amadou Kiffa GUEYE",
@@ -15,7 +16,7 @@ const coach = {
 
 function PlayerCard({ player }: { player: Player }) {
   return (
-    <Card className="text-center overflow-hidden group">
+    <Card className="text-center overflow-hidden group transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
       <div className="relative aspect-[4/5] w-full bg-muted overflow-hidden flex items-center justify-center">
         <Image
           src={player.imageUrl}
@@ -34,6 +35,18 @@ function PlayerCard({ player }: { player: Player }) {
       </CardContent>
     </Card>
   );
+}
+
+function PlayerCardSkeleton() {
+    return (
+        <Card className="text-center overflow-hidden">
+            <Skeleton className="aspect-[4/5] w-full" />
+            <CardContent className="p-3">
+                <Skeleton className="h-5 w-3/4 mx-auto" />
+                <Skeleton className="h-3 w-1/2 mx-auto mt-2" />
+            </CardContent>
+        </Card>
+    )
 }
 
 function Section({ title, children }: { title: string, children: React.ReactNode }) {
@@ -90,8 +103,19 @@ export default function EquipePage() {
       </div>
 
        {loading && (
-        <div className="flex justify-center items-center py-20">
-          <LoaderCircle className="w-16 h-16 animate-spin text-primary" />
+        <div className="space-y-12">
+            <Section title="Gardiens">
+                {[...Array(2)].map((_, i) => <PlayerCardSkeleton key={i} />)}
+            </Section>
+            <Section title="Défenseurs">
+                {[...Array(5)].map((_, i) => <PlayerCardSkeleton key={i} />)}
+            </Section>
+             <Section title="Milieux">
+                {[...Array(5)].map((_, i) => <PlayerCardSkeleton key={i} />)}
+            </Section>
+            <Section title="Attaquants">
+                {[...Array(4)].map((_, i) => <PlayerCardSkeleton key={i} />)}
+            </Section>
         </div>
       )}
 
@@ -126,10 +150,10 @@ export default function EquipePage() {
                     Staff Technique
                 </h2>
                 <Card className="max-w-xs">
-                    <CardHeader>
-                        <CardTitle>{coach.name}</CardTitle>
+                    <CardContent className="p-4">
+                        <h3 className="text-lg font-bold">{coach.name}</h3>
                         <p className="text-muted-foreground">{coach.role}</p>
-                    </CardHeader>
+                    </CardContent>
                 </Card>
             </section>
         </div>

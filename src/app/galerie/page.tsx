@@ -1,12 +1,13 @@
 'use client';
 
 import { Card, CardContent } from "@/components/ui/card";
-import { Image as ImageIcon, LoaderCircle } from "lucide-react";
+import { Image as ImageIcon } from "lucide-react";
 import Image from "next/image";
 import { useMemo } from "react";
 import { collection, query, orderBy } from 'firebase/firestore';
 import { useCollection, useFirestore } from "@/firebase";
 import { Photo } from "@/lib/types";
+import { Skeleton } from "@/components/ui/skeleton";
 
 function PhotoCard({ photo }: { photo: Photo }) {
   return (
@@ -25,6 +26,17 @@ function PhotoCard({ photo }: { photo: Photo }) {
         </CardContent>
     </Card>
   );
+}
+
+function PhotoCardSkeleton() {
+    return (
+        <Card className="overflow-hidden">
+            <Skeleton className="aspect-video w-full" />
+            <CardContent className="p-3">
+                <Skeleton className="h-4 w-3/4" />
+            </CardContent>
+        </Card>
+    )
 }
 
 export default function GaleriePage() {
@@ -46,8 +58,8 @@ export default function GaleriePage() {
       </div>
       
        {loading && (
-        <div className="flex justify-center items-center py-20">
-          <LoaderCircle className="w-16 h-16 animate-spin text-primary" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {[...Array(12)].map((_, i) => <PhotoCardSkeleton key={i} />)}
         </div>
       )}
 

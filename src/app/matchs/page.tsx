@@ -1,7 +1,7 @@
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Trophy, LoaderCircle, Calendar, MapPin } from "lucide-react";
+import { Card, CardContent, CardHeader, CardFooter } from "@/components/ui/card";
+import { Trophy, Calendar, MapPin } from "lucide-react";
 import { useMemo } from "react";
 import { collection, query, orderBy } from "firebase/firestore";
 import { useCollection, useFirestore } from "@/firebase";
@@ -9,8 +9,8 @@ import { Match } from "@/lib/types";
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { cn } from "@/lib/utils";
-import { Separator } from "@/components/ui/separator";
 import Image from "next/image";
+import { Skeleton } from "@/components/ui/skeleton";
 
 function MatchCard({ match }: { match: Match }) {
   const isFinished = match.status === 'Terminé';
@@ -67,6 +67,39 @@ function MatchCard({ match }: { match: Match }) {
   );
 }
 
+function MatchCardSkeleton() {
+    return (
+        <Card>
+            <CardHeader className="pb-2">
+                <div className="flex justify-between items-center">
+                    <Skeleton className="h-4 w-24" />
+                    <Skeleton className="h-4 w-20" />
+                </div>
+            </CardHeader>
+            <CardContent className="py-4">
+                <div className="flex items-center justify-around">
+                    <div className="flex flex-col items-center gap-2 w-1/3 text-center">
+                        <Skeleton className="w-10 h-10 rounded-full" />
+                        <Skeleton className="h-5 w-20" />
+                    </div>
+                    <div className="flex items-center gap-4">
+                        <Skeleton className="h-8 w-6" />
+                        <span className="text-muted-foreground text-xl">vs</span>
+                        <Skeleton className="h-8 w-6" />
+                    </div>
+                    <div className="flex flex-col items-center gap-2 w-1/3 text-center">
+                         <Skeleton className="w-10 h-10 rounded-full" />
+                        <Skeleton className="h-5 w-20" />
+                    </div>
+                </div>
+            </CardContent>
+            <CardFooter className="py-2 justify-center">
+                <Skeleton className="h-4 w-32" />
+            </CardFooter>
+        </Card>
+    )
+}
+
 
 export default function MatchsPage() {
   const firestore = useFirestore();
@@ -90,8 +123,23 @@ export default function MatchsPage() {
       </div>
       
       {loading && (
-        <div className="flex justify-center items-center py-20">
-          <LoaderCircle className="w-16 h-16 animate-spin text-primary" />
+        <div className="space-y-12">
+            <section>
+              <h2 className="text-3xl font-bold text-center mb-6 font-headline flex items-center justify-center gap-3">
+                <Calendar className="w-8 h-8 text-accent"/> Prochaines Rencontres
+              </h2>
+              <div className="space-y-4 max-w-4xl mx-auto">
+                {[...Array(2)].map((_, i) => <MatchCardSkeleton key={i} />)}
+              </div>
+            </section>
+             <section>
+              <h2 className="text-3xl font-bold text-center mb-6 font-headline flex items-center justify-center gap-3">
+                <Trophy className="w-8 h-8 text-accent"/> Derniers Résultats
+              </h2>
+              <div className="space-y-4 max-w-4xl mx-auto">
+                {[...Array(3)].map((_, i) => <MatchCardSkeleton key={i} />)}
+              </div>
+            </section>
         </div>
       )}
 

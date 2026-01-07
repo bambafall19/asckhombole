@@ -19,6 +19,7 @@ export default {
       fontFamily: {
         sans: ['var(--font-sans)', 'sans-serif'],
         headline: ['var(--font-headline)', 'sans-serif'],
+        dynapuff: ['var(--font-dynapuff)', 'sans-serif'],
       },
       colors: {
         background: 'hsl(var(--background))',

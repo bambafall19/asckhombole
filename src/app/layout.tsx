@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, PT_Sans } from "next/font/google";
+import { Inter, PT_Sans, DynaPuff } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/toaster";
@@ -15,6 +15,7 @@ const ptSans = PT_Sans({
   weight: ["400", "700"],
   variable: "--font-headline",
 });
+const dynaPuff = DynaPuff({ subsets: ["latin"], variable: "--font-dynapuff" });
 
 export const metadata: Metadata = {
   title: "ASC Khombole - Site Officiel",
@@ -32,7 +33,8 @@ export default function RootLayout({
         className={cn(
           "min-h-screen bg-background font-sans antialiased",
           inter.variable,
-          ptSans.variable
+          ptSans.variable,
+          dynaPuff.variable
         )}
       >
         <FirebaseClientProvider>

@@ -217,11 +217,15 @@ export function Header() {
         "md:block"
       )}
     >
-      <div className="container flex h-16 items-center justify-between bg-card/90 backdrop-blur-sm border rounded-xl shadow-sm">
+      <div className="container flex h-16 items-center justify-between bg-card/90 backdrop-blur-sm border rounded-xl shadow-sm relative">
         <div className="flex items-center gap-6">
             <Link href="/" className="items-center space-x-2 md:flex">
               <Logo logoUrl={clubInfo?.logoUrl} />
             </Link>
+        </div>
+
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 md:hidden">
+          <h1 className="font-dynapuff text-2xl font-bold text-primary">Asc_K</h1>
         </div>
 
         <nav className="hidden md:flex items-center justify-center gap-2">

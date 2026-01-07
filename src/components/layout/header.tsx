@@ -23,6 +23,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { ClubInfo } from "@/lib/types";
 import { doc } from "firebase/firestore";
+import { Separator } from "../ui/separator";
 
 
 export const navLinks = [
@@ -39,13 +40,16 @@ export const navLinks = [
 ];
 
 const mobileMenuLinks = [
-    { href: "/club", label: "CLUB", icon: Shield },
-    { href: "/galerie", label: "GALERIE", icon: ImageIcon },
-    { href: "/partenaires", label: "PARTENAIRES", icon: Handshake },
-    { href: "/boutique", label: "BOUTIQUE", icon: Store, disabled: true },
-    { href: "/contact", label: "CONTACT", icon: Mail },
-    { href: "/webtv", label: "WEB TV", icon: Tv, disabled: true },
+    { href: "/club", label: "Club", icon: Shield },
+    { href: "/galerie", label: "Galerie", icon: ImageIcon },
+    { href: "/partenaires", label: "Partenaires", icon: Handshake },
 ]
+
+const mobileMenuMoreLinks = [
+    { href: "/boutique", label: "Boutique", icon: Store, disabled: true },
+    { href: "/contact", label: "Contact", icon: Mail },
+    { href: "/webtv", label: "Web TV", icon: Tv, disabled: true },
+];
 
 
 export function Header() {
@@ -204,7 +208,7 @@ export function MobileMenuSheet({ open, onOpenChange }: { open: boolean, onOpenC
         return (
             <div className={linkClasses}>
                 <Icon className="w-5 h-5 mr-3" />
-                <span className="text-base font-medium">{label.toUpperCase()}</span>
+                <span className="text-base font-medium">{label}</span>
             </div>
         )
     }
@@ -216,7 +220,7 @@ export function MobileMenuSheet({ open, onOpenChange }: { open: boolean, onOpenC
           onClick={() => onOpenChange(false)}
         >
           <Icon className="w-5 h-5 mr-3" />
-          <span className="text-base font-medium">{label.toUpperCase()}</span>
+          <span className="text-base font-medium">{label}</span>
         </Link>
     );
   };
@@ -224,19 +228,22 @@ export function MobileMenuSheet({ open, onOpenChange }: { open: boolean, onOpenC
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="right" className="w-full sm:w-[320px] bg-card p-0 flex flex-col">
-        <SheetHeader className="p-4 border-b">
+        <SheetHeader className="p-4 border-b flex-row items-center justify-between">
            <div className="flex items-center justify-between">
                 <SheetTitle>
                     <Link href="/" onClick={() => onOpenChange(false)}>
                         <Logo logoUrl={clubInfo?.logoUrl} />
                     </Link>
                 </SheetTitle>
-                <Button variant="ghost" size="icon" onClick={() => onOpenChange(false)}>
-                    <X className="h-6 w-6" />
-                </Button>
            </div>
-            {user && (
-                <div className="flex items-center gap-3 pt-4">
+           <Button variant="ghost" size="icon" onClick={() => onOpenChange(false)} className="shrink-0">
+               <X className="h-6 w-6" />
+           </Button>
+        </SheetHeader>
+        
+         {user && (
+            <div className="p-4 border-b">
+                <div className="flex items-center gap-3">
                     <Avatar className="h-10 w-10">
                         <AvatarImage src={user.photoURL || undefined} alt={user.email || 'User'} />
                         <AvatarFallback>{user.email?.[0].toUpperCase()}</AvatarFallback>
@@ -249,29 +256,33 @@ export function MobileMenuSheet({ open, onOpenChange }: { open: boolean, onOpenC
                         <LogOut className="h-4 w-4" />
                     </Button>
                 </div>
-            )}
-        </SheetHeader>
-        
+            </div>
+        )}
+
         <nav className="flex-grow p-4 space-y-2 overflow-y-auto">
-            {mobileMenuLinks.map((link) => (
-                <MobileNavLink key={link.href} href={link.href} label={link.label} Icon={link.icon} disabled={link.disabled} />
-            ))}
+            <div className="space-y-1">
+                <p className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Navigation</p>
+                {mobileMenuLinks.map((link) => (
+                    <MobileNavLink key={link.href} href={link.href} label={link.label} Icon={link.icon} disabled={link.disabled} />
+                ))}
+            </div>
+            <Separator className="my-4" />
+            <div className="space-y-1">
+                 <p className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Plus</p>
+                {mobileMenuMoreLinks.map((link) => (
+                    <MobileNavLink key={link.href} href={link.href} label={link.label} Icon={link.icon} disabled={link.disabled} />
+                ))}
+            </div>
         </nav>
         
-        <div className="p-4 border-t">
+        <div className="p-4 border-t mt-auto">
             {user ? (
                 <Button className="w-full" size="lg" asChild>
                     <Link href="/admin" onClick={() => onOpenChange(false)}>
                         <Shield className="w-5 h-5 mr-2" /> Admin
                     </Link>
                 </Button>
-            ) : (
-                 <Button className="w-full" size="lg" asChild>
-                    <Link href="/login" onClick={() => onOpenChange(false)}>
-                       <LogIn className="w-5 h-5 mr-2" /> Espace Membre
-                    </Link>
-                </Button>
-            )}
+            ) : null}
         </div>
       </SheetContent>
     </Sheet>

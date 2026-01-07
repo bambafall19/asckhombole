@@ -102,8 +102,8 @@ export default function ArticlePage() {
 
   return (
     <main className="container mx-auto py-12 px-4 md:px-6 max-w-4xl">
-      <article>
-        <div className="mb-8 text-center">
+      <article className="animate-in fade-in-0 slide-in-from-bottom-4 duration-500">
+        <div className="mb-8 text-center animate-in fade-in-0 slide-in-from-bottom-4 duration-500" style={{ animationDelay: '100ms' }}>
           <div className="flex items-center justify-center space-x-4 text-muted-foreground text-sm mb-4">
             <div className="flex items-center gap-2 bg-primary/10 text-primary px-3 py-1 rounded-full">
               <Tag className="w-4 h-4" />
@@ -123,7 +123,7 @@ export default function ArticlePage() {
           </h1>
         </div>
 
-        <div className="relative w-full aspect-video rounded-lg overflow-hidden mb-12 shadow-lg">
+        <div className="relative w-full aspect-video rounded-lg overflow-hidden mb-12 shadow-lg animate-in fade-in-0 zoom-in-95 duration-500" style={{ animationDelay: '200ms' }}>
           <Image
             src={article.imageUrl}
             alt={article.title}
@@ -133,7 +133,7 @@ export default function ArticlePage() {
           />
         </div>
 
-        <div className="prose prose-lg max-w-none text-foreground text-justify">
+        <div className="prose prose-lg max-w-none text-foreground text-justify animate-in fade-in-0 slide-in-from-bottom-4 duration-500" style={{ animationDelay: '300ms' }}>
           {renderContent(article.content)}
         </div>
       </article>

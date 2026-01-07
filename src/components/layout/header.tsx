@@ -158,9 +158,11 @@ export function Header() {
 
   const NavLink = ({
     href,
+    className,
     children,
   }: {
     href: string;
+    className?: string;
     children: React.ReactNode;
   }) => {
     const isActive = pathname === href;
@@ -169,7 +171,8 @@ export function Header() {
         href={href}
         className={cn(
           "text-sm font-medium transition-colors hover:text-primary",
-          isActive ? "text-primary" : "text-muted-foreground"
+          isActive ? "text-primary" : "text-muted-foreground",
+          className
         )}
       >
         {children}
@@ -189,7 +192,7 @@ export function Header() {
        <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className={cn(
-                "text-sm font-medium transition-colors hover:text-primary",
+                "text-sm font-medium transition-colors hover:text-primary px-3",
                 isParentActive ? "text-primary" : "text-muted-foreground"
             )}>
               {label} <ChevronDown className="w-4 h-4 ml-1" />
@@ -223,7 +226,7 @@ export function Header() {
         <nav className="hidden md:flex items-center justify-center gap-2">
             {navLinks.map((link, index) =>
               link.href ? (
-                <NavLink key={index} href={link.href}>
+                <NavLink key={index} href={link.href} className={cn(link.href === '/' && 'mr-4')}>
                   {link.label}
                 </NavLink>
               ) : (

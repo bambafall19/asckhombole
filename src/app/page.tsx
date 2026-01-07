@@ -24,6 +24,50 @@ import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { NextMatchSidebar } from "@/components/next-match-sidebar";
 
+function LastResultCard({ match }: { match: Match }) {
+  const isHomeTeam = (team: string) => team.toLowerCase().includes('khombole');
+  
+  const getTeamClasses = (team: string, isWinner: boolean) => {
+    return cn(
+      "font-bold text-lg",
+      isHomeTeam(team) && "text-primary",
+      !isWinner && "text-muted-foreground/80"
+    );
+  };
+  
+  const homeWinner = match.homeScore! > match.awayScore!;
+  const awayWinner = match.awayScore! > match.homeScore!;
+
+  return (
+    <Card className="shadow-md hover:shadow-lg transition-shadow">
+      <CardHeader className="pb-2">
+        <div className="flex justify-between items-center text-sm text-muted-foreground">
+            <span className="font-semibold">{match.competition}</span>
+            <span>{format(match.date.toDate(), 'PPP', { locale: fr })}</span>
+        </div>
+      </CardHeader>
+      <CardContent className="py-4">
+        <div className="flex items-center justify-around">
+            <div className="flex flex-col items-center gap-2 w-1/3 text-center">
+                {match.homeTeamLogoUrl && <Image src={match.homeTeamLogoUrl} alt={match.homeTeam} width={40} height={40} className="object-contain" />}
+                <p className={getTeamClasses(match.homeTeam, homeWinner)}>{match.homeTeam}</p>
+            </div>
+          <div className="flex items-center gap-4 font-bold text-2xl">
+            <span className={cn(homeWinner && 'text-primary')}>{match.homeScore}</span>
+            <span className="text-muted-foreground text-xl">-</span>
+            <span className={cn(awayWinner && 'text-primary')}>{match.awayScore}</span>
+          </div>
+           <div className="flex flex-col items-center gap-2 w-1/3 text-center">
+                {match.awayTeamLogoUrl && <Image src={match.awayTeamLogoUrl} alt={match.awayTeam} width={40} height={40} className="object-contain" />}
+                <p className={getTeamClasses(match.awayTeam, awayWinner)}>{match.awayTeam}</p>
+            </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+
 export default function Home() {
   const firestore = useFirestore();
   const autoplayPlugin = useMemo(() => Autoplay({ delay: 5000, stopOnInteraction: true, stopOnMouseEnter: true }), []);
@@ -70,6 +114,11 @@ export default function Home() {
     return query(collection(firestore, 'matches'), where('status', '==', 'À venir'), orderBy('date', 'asc'), limit(1));
   }, [firestore]);
 
+  const lastResultQuery = useMemo(() => {
+    if (!firestore) return null;
+    return query(collection(firestore, 'matches'), where('status', '==', 'Terminé'), orderBy('date', 'desc'), limit(1));
+  }, [firestore]);
+
   const { data: featuredArticles, loading: featuredLoading } = useCollection<Article>(featuredQuery);
   const { data: trendyArticles, loading: trendyLoading } = useCollection<Article>(trendyQuery);
   const { data: latestArticles, loading: latestLoading } = useCollection<Article>(latestQuery);
@@ -78,8 +127,10 @@ export default function Home() {
   const { data: partners, loading: partnersLoading } = useCollection<Partner>(partnersQuery);
   const { data: clubInfo, loading: clubInfoLoading } = useDocument<ClubInfo>(clubInfoRef);
   const { data: nextMatchData, loading: nextMatchLoading } = useCollection<Match>(nextMatchQuery);
+  const { data: lastResultData, loading: lastResultLoading } = useCollection<Match>(lastResultQuery);
   
   const nextMatch = useMemo(() => nextMatchData?.[0], [nextMatchData]);
+  const lastResult = useMemo(() => lastResultData?.[0], [lastResultData]);
   const mainArticle = featuredArticles?.[0] || latestArticles?.[0];
   const sideArticles = sidebarTab === 'latest' ? latestArticles?.slice(1,4) : topArticles;
   
@@ -222,7 +273,24 @@ export default function Home() {
                 </div>
                 </section>
              )}
-
+            
+            {/* Last Result */}
+            {lastResult && (
+              <section>
+                <div className="flex justify-between items-center mb-4">
+                    <h2 className="text-2xl font-bold font-headline text-primary">Dernier résultat</h2>
+                    <Button variant="link" asChild>
+                    <Link href="/matchs">Voir plus <ArrowRight className="ml-2 h-4 w-4" /></Link>
+                    </Button>
+                </div>
+                {lastResultLoading && (
+                  <Card className="h-40 flex items-center justify-center">
+                    <LoaderCircle className="w-8 h-8 animate-spin text-primary"/>
+                  </Card>
+                )}
+                {!lastResultLoading && <LastResultCard match={lastResult} />}
+              </section>
+            )}
 
             {/* Photo Album */}
             {photos && photos.length > 0 && (

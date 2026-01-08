@@ -3,7 +3,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -93,6 +93,15 @@ export function Header() {
   const auth = useAuth();
   const { user, loading } = useUser();
   const firestore = useFirestore();
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 10);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const clubInfoRef = useMemo(() => {
     if (!firestore) return null;
@@ -213,11 +222,13 @@ export function Header() {
   return (
     <header
       className={cn(
-        "fixed top-0 left-0 right-0 z-40 p-2.5",
+        "fixed top-0 left-0 right-0 z-40 p-2.5 transition-all duration-300",
         "md:block"
       )}
     >
-      <div className="container flex h-16 items-center justify-between bg-secondary text-secondary-foreground border rounded-xl shadow-sm relative">
+      <div className={cn("container flex h-16 items-center justify-between bg-secondary text-secondary-foreground border rounded-xl shadow-sm relative transition-all duration-300",
+       scrolled && "h-14 bg-secondary/80 backdrop-blur-sm"
+      )}>
         <div className="flex items-center gap-6">
             <Link href="/" className="items-center space-x-2 md:flex">
               <Logo logoUrl={clubInfo?.logoUrl} className="text-secondary-foreground" />

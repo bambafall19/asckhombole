@@ -171,8 +171,8 @@ export function Header() {
       <Link
         href={href}
         className={cn(
-          "text-sm font-medium transition-colors hover:text-primary",
-          isActive ? "text-primary" : "text-muted-foreground",
+          "text-sm font-medium transition-colors hover:text-primary-foreground/80",
+          isActive ? "text-primary-foreground" : "text-primary-foreground/60",
           className
         )}
       >
@@ -193,8 +193,8 @@ export function Header() {
        <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className={cn(
-                "text-sm font-medium transition-colors hover:text-primary px-3",
-                isParentActive ? "text-primary" : "text-muted-foreground"
+                "text-sm font-medium transition-colors hover:text-primary-foreground/80 px-3",
+                isParentActive ? "text-primary-foreground" : "text-primary-foreground/60"
             )}>
               {label} <ChevronDown className="w-4 h-4 ml-1" />
             </Button>
@@ -217,15 +217,15 @@ export function Header() {
         "md:block"
       )}
     >
-      <div className="container flex h-16 items-center justify-between bg-card/90 backdrop-blur-sm border rounded-xl shadow-sm relative">
+      <div className="container flex h-16 items-center justify-between bg-primary text-primary-foreground border rounded-xl shadow-sm relative">
         <div className="flex items-center gap-6">
             <Link href="/" className="items-center space-x-2 md:flex">
-              <Logo logoUrl={clubInfo?.logoUrl} />
+              <Logo logoUrl={clubInfo?.logoUrl} className="text-primary-foreground" />
             </Link>
         </div>
 
         <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 md:hidden">
-          <h1 className="font-dynapuff text-2xl font-bold text-primary">Asc_K</h1>
+          <h1 className="font-dynapuff text-2xl font-bold">Asc_K</h1>
         </div>
 
         <nav className="hidden md:flex items-center justify-center gap-2">
@@ -245,9 +245,9 @@ export function Header() {
         <div className="hidden md:flex items-center justify-end gap-2">
           <div className="relative w-48">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input placeholder="Recherche..." className="pl-9 h-9" />
+            <Input placeholder="Recherche..." className="pl-9 h-9 bg-primary-foreground/10 text-primary-foreground placeholder:text-primary-foreground/60 border-primary-foreground/20 focus-visible:ring-offset-primary" />
           </div>
-          <div className="w-px h-6 bg-border mx-2"></div>
+          <div className="w-px h-6 bg-primary-foreground/20 mx-2"></div>
           <UserButton />
         </div>
       </div>

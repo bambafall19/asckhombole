@@ -1,3 +1,4 @@
+
 import Image from "next/image";
 import { SoccerBallIcon } from "./icons/soccer-ball-icon";
 import { cn } from "@/lib/utils";
@@ -13,9 +14,9 @@ export function Logo({ logoUrl, className }: LogoProps) {
       {logoUrl ? (
           <Image src={logoUrl} alt="Logo ASC Khombole" width={32} height={32} className="object-contain" />
       ) : (
-          <SoccerBallIcon className="h-8 w-8 text-primary" />
+          <SoccerBallIcon className="h-8 w-8 text-current" />
       )}
-      <span className="font-bold text-lg text-foreground font-headline hidden sm:inline-block">
+      <span className="font-bold text-lg text-current font-headline hidden sm:inline-block">
         Asc Khombole
       </span>
     </div>

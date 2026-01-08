@@ -23,10 +23,17 @@ const nextConfig = {
       },
     ],
   },
-  experimental: {
-    // This is to allow the Next.js dev server to be accessed from the Firebase Studio preview URL.
-    allowedDevOrigins: ["https://*.cloudworkstations.dev"],
-  }
 };
 
-module.exports = withPWA(nextConfig);
+const pwaConfig = withPWA(nextConfig);
+
+// The `allowedDevOrigins` property is a new experimental feature in Next.js
+// that is not yet supported by the `withPWA` plugin.
+// To use it, we need to add it to the config after the `withPWA` plugin has been applied.
+pwaConfig.experimental = {
+    ...pwaConfig.experimental,
+    // This is to allow the Next.js dev server to be accessed from the Firebase Studio preview URL.
+    allowedDevOrigins: ["https://*.cloudworkstations.dev"],
+};
+
+module.exports = pwaConfig;

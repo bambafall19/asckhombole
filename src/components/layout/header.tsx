@@ -171,8 +171,8 @@ export function Header() {
       <Link
         href={href}
         className={cn(
-          "text-sm font-medium transition-colors hover:text-accent-foreground/80",
-          isActive ? "text-accent-foreground" : "text-accent-foreground/60",
+          "text-sm font-medium transition-colors hover:text-secondary-foreground/80",
+          isActive ? "text-secondary-foreground" : "text-secondary-foreground/60",
           className
         )}
       >
@@ -193,8 +193,8 @@ export function Header() {
        <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className={cn(
-                "text-sm font-medium transition-colors hover:text-accent-foreground/80 px-3",
-                isParentActive ? "text-accent-foreground" : "text-accent-foreground/60"
+                "text-sm font-medium transition-colors hover:text-secondary-foreground/80 px-3",
+                isParentActive ? "text-secondary-foreground" : "text-secondary-foreground/60"
             )}>
               {label} <ChevronDown className="w-4 h-4 ml-1" />
             </Button>
@@ -217,10 +217,10 @@ export function Header() {
         "md:block"
       )}
     >
-      <div className="container flex h-16 items-center justify-between bg-accent text-accent-foreground border rounded-xl shadow-sm relative">
+      <div className="container flex h-16 items-center justify-between bg-secondary text-secondary-foreground border rounded-xl shadow-sm relative">
         <div className="flex items-center gap-6">
             <Link href="/" className="items-center space-x-2 md:flex">
-              <Logo logoUrl={clubInfo?.logoUrl} className="text-accent-foreground" />
+              <Logo logoUrl={clubInfo?.logoUrl} className="text-secondary-foreground" />
             </Link>
         </div>
 
@@ -245,9 +245,9 @@ export function Header() {
         <div className="hidden md:flex items-center justify-end gap-2">
           <div className="relative w-48">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input placeholder="Recherche..." className="pl-9 h-9 bg-accent-foreground/10 text-accent-foreground placeholder:text-accent-foreground/60 border-accent-foreground/20 focus-visible:ring-offset-accent" />
+            <Input placeholder="Recherche..." className="pl-9 h-9 bg-background/50 text-secondary-foreground placeholder:text-secondary-foreground/60 border-secondary-foreground/20 focus-visible:ring-offset-secondary" />
           </div>
-          <div className="w-px h-6 bg-accent-foreground/20 mx-2"></div>
+          <div className="w-px h-6 bg-secondary-foreground/20 mx-2"></div>
           <UserButton />
         </div>
       </div>
@@ -415,5 +415,3 @@ export function MobileMenuSheet({
     </Sheet>
   );
 }
-
-    
